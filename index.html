@@ -41,77 +41,13 @@
             color: #8b949e;
             font-size: 13px;
         }
-        
-        /* 标签筛选 */
-        .filter-tabs {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .filter-tab {
-            padding: 6px 16px;
-            border-radius: 4px;
-            font-size: 13px;
-            cursor: pointer;
-            border: none;
-        }
-        .filter-tab.buy {
-            background: #da3633;
-            color: #fff;
-        }
-        .filter-tab.sell {
-            background: #238636;
-            color: #fff;
-        }
-        .filter-tab.estimate {
-            background: #d29922;
-            color: #fff;
-        }
-        
-        /* 顶部汇总卡片 */
-        .top-summary {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-        }
-        .summary-item {
-            text-align: center;
-            padding: 15px 25px;
-            background: #21262d;
-            border-radius: 8px;
-            min-width: 140px;
-            border: 1px solid #30363d;
-        }
-        .summary-item .name {
-            font-size: 14px;
-            color: #8b949e;
-            margin-bottom: 5px;
-        }
-        .summary-item .value {
-            font-size: 20px;
-            font-weight: 600;
-        }
-        .summary-item .value.buy {
-            color: #f85149;
-        }
-        .summary-item .value.sell {
-            color: #3fb950;
-        }
-        .summary-item .desc {
-            font-size: 12px;
-            color: #6e7681;
-            margin-top: 3px;
-        }
-        
+
         /* 图例 */
         .legend {
             display: flex;
             justify-content: center;
             gap: 25px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             font-size: 12px;
         }
         .legend-item {
@@ -124,159 +60,130 @@
             height: 10px;
             border-radius: 50%;
         }
-        .legend-dot.buy {
-            background: #da3633;
+        .legend-dot.buy { background: #da3633; }
+        .legend-dot.sell { background: #238636; }
+        .legend-dot.inflow { color: #f85149; }
+        .legend-dot.holiday { background: #484f58; }
+
+        /* 周列表 */
+        .week-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
         }
-        .legend-dot.sell {
-            background: #238636;
-        }
-        .legend-dot.estimate {
-            background: #d29922;
-        }
-        .legend-dot.inflow {
-            background: #f85149;
-        }
-        .legend-dot.holiday {
-            background: #484f58;
-        }
-        
-        /* 日历网格 */
-        .calendar-wrapper {
-            margin-bottom: 30px;
-        }
-        .calendar-header {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
+        .week-table thead th {
             background: #21262d;
             color: #c9d1d9;
-            border-radius: 8px 8px 0 0;
-            border: 1px solid #30363d;
-            border-bottom: none;
-        }
-        .calendar-header .weekday {
-            text-align: center;
-            padding: 12px 8px;
-            font-size: 14px;
+            padding: 10px 8px;
+            font-size: 13px;
             font-weight: 500;
+            text-align: center;
+            border: 1px solid #30363d;
         }
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            border-left: 1px solid #30363d;
-            border-bottom: 1px solid #30363d;
-        }
-        .calendar-day {
-            border-right: 1px solid #30363d;
-            border-top: 1px solid #30363d;
-            height: 280px;
-            padding: 10px;
+        .week-table tbody td {
+            border: 1px solid #30363d;
+            vertical-align: top;
+            padding: 8px;
             background: #0d1117;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
+            width: 14.28%;
+            height: 260px;
         }
-        .calendar-day.weekend {
+        .week-table tbody td.weekend {
             background: #161b22;
         }
-        .calendar-day .empty-content {
-            flex: 1;
+        .week-table tbody td.other-month {
+            opacity: 0.4;
+        }
+
+        .day-cell {
             display: flex;
-            align-items: center;
-            justify-content: center;
+            flex-direction: column;
+            height: 100%;
         }
-        .calendar-day.other-month {
-            background: #0d1117;
-            opacity: 0.5;
-        }
-        .calendar-day .day-header {
+        .day-cell .day-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
+            flex-shrink: 0;
         }
-        .calendar-day .day-number {
-            font-size: 14px;
+        .day-cell .day-number {
+            font-size: 13px;
             font-weight: 600;
             color: #c9d1d9;
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
         }
-        .calendar-day .day-number.today {
+        .day-cell .day-number.today {
             background: #58a6ff;
             color: #fff;
         }
-        .calendar-day .day-number.other {
+        .day-cell .day-number.other {
             color: #6e7681;
         }
-        .calendar-day .amount {
-            font-size: 12px;
+        .day-cell .amount {
+            font-size: 11px;
             font-weight: 600;
+            flex-shrink: 0;
         }
-        .calendar-day .amount.inflow {
-            color: #f85149;
+        .day-cell .amount.inflow { color: #f85149; }
+        .day-cell .amount.outflow { color: #3fb950; }
+        .day-cell .amount.holiday { color: #6e7681; }
+
+        .day-cell .stock-list {
+            font-size: 11px;
+            line-height: 1.3;
+            flex: 1;
+            overflow-y: auto;
         }
-        .calendar-day .amount.outflow {
-            color: #3fb950;
-        }
-        .calendar-day .amount.holiday {
-            color: #6e7681;
-        }
-        
-        /* 股票列表 */
-        .stock-list {
-            font-size: 12px;
-            line-height: 1.4;
-        }
-        .stock-item {
+        .day-cell .stock-item {
             display: flex;
             align-items: center;
-            gap: 4px;
-            margin-bottom: 1px;
+            gap: 3px;
         }
-        .stock-icon {
-            width: 8px;
-            height: 8px;
-            font-size: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .day-cell .stock-icon {
+            font-size: 7px;
+            flex-shrink: 0;
         }
-        .stock-icon.up {
-            color: #f85149;
-        }
-        .stock-icon.down {
-            color: #3fb950;
-        }
-        .stock-name {
+        .day-cell .stock-icon.up { color: #f85149; }
+        .day-cell .stock-icon.down { color: #3fb950; }
+        .day-cell .stock-name {
             flex: 1;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
             color: #c9d1d9;
+            font-size: 11px;
         }
-        .stock-amount {
+        .day-cell .stock-amount {
             font-weight: 500;
+            font-size: 11px;
+            flex-shrink: 0;
         }
-        .stock-amount.up {
-            color: #f85149;
-        }
-        .stock-amount.down {
-            color: #3fb950;
-        }
-        
-        .section-title {
-            font-size: 12px;
+        .day-cell .stock-amount.up { color: #f85149; }
+        .day-cell .stock-amount.down { color: #3fb950; }
+
+        .day-cell .section-title {
+            font-size: 10px;
             color: #6e7681;
-            margin: 4px 0 2px;
+            margin: 2px 0 1px;
+            flex-shrink: 0;
+        }
+
+        .day-cell .empty-content {
+            flex: 1;
             display: flex;
             align-items: center;
-            gap: 4px;
+            justify-content: center;
+            flex-direction: column;
+            color: #6e7681;
+            font-size: 12px;
         }
-        
+
         /* 月度汇总 */
         .monthly-summary {
             display: grid;
@@ -297,128 +204,32 @@
             align-items: center;
             gap: 8px;
         }
-        .summary-box h3.buy {
-            color: #f85149;
-        }
-        .summary-box h3.sell {
-            color: #3fb950;
-        }
-        .rank-list {
-            list-style: none;
-        }
+        .summary-box h3.buy { color: #f85149; }
+        .summary-box h3.sell { color: #3fb950; }
+        .rank-list { list-style: none; }
         .rank-item {
             display: flex;
             align-items: center;
-            padding: 8px 0;
+            padding: 6px 0;
             border-bottom: 1px solid #30363d;
-            font-size: 13px;
+            font-size: 12px;
         }
-        .rank-item:last-child {
-            border-bottom: none;
-        }
+        .rank-item:last-child { border-bottom: none; }
         .rank-num {
-            width: 20px;
-            height: 20px;
+            width: 18px; height: 18px;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 600;
-            margin-right: 10px;
-        }
-        .rank-num.top {
-            background: #58a6ff;
-            color: #fff;
-        }
-        .rank-num.other {
-            background: #30363d;
-            color: #8b949e;
-        }
-        .rank-name {
-            flex: 1;
-            color: #c9d1d9;
-        }
-        .rank-code {
-            color: #6e7681;
-            font-size: 12px;
-            margin-right: 10px;
-        }
-        .rank-amount {
-            font-weight: 600;
-        }
-        .rank-amount.buy {
-            color: #f85149;
-        }
-        .rank-amount.sell {
-            color: #3fb950;
-        }
-        
-        /* 周度汇总 */
-        .weekly-summary {
-            margin-bottom: 30px;
-        }
-        .weekly-summary h3 {
-            font-size: 16px;
-            margin-bottom: 15px;
-            color: #c9d1d9;
-        }
-        .week-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-        }
-        .week-box {
-            background: #21262d;
-            border-radius: 8px;
-            padding: 15px;
-            border: 1px solid #30363d;
-        }
-        .week-title {
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: #c9d1d9;
-        }
-        .week-stocks {
-            font-size: 12px;
-        }
-        .week-stock-item {
-            display: flex;
-            align-items: center;
-            padding: 4px 0;
-        }
-        .week-stock-rank {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: #58a6ff;
-            color: #fff;
-            font-size: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: 600;
             margin-right: 8px;
         }
-        .week-stock-name {
-            flex: 1;
-            color: #c9d1d9;
-        }
-        .week-stock-amount {
-            font-weight: 500;
-        }
-        .week-section {
-            margin-bottom: 10px;
-        }
-        .week-section-title {
-            font-size: 11px;
-            color: #8b949e;
-            margin-bottom: 5px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        
+        .rank-num.top { background: #58a6ff; color: #fff; }
+        .rank-num.other { background: #30363d; color: #8b949e; }
+        .rank-name { flex: 1; color: #c9d1d9; }
+        .rank-code { color: #6e7681; font-size: 11px; margin-right: 8px; }
+        .rank-amount { font-weight: 600; }
+        .rank-amount.buy { color: #f85149; }
+        .rank-amount.sell { color: #3fb950; }
+
         /* 数据口径说明 */
         .data-source {
             margin-top: 30px;
@@ -435,24 +246,15 @@
             border-collapse: collapse;
             font-size: 12px;
         }
-        .source-table th,
-        .source-table td {
+        .source-table th, .source-table td {
             border: 1px solid #30363d;
             padding: 10px;
             text-align: left;
         }
-        .source-table th {
-            background: #21262d;
-            font-weight: 600;
-            color: #c9d1d9;
-        }
-        .source-table td {
-            color: #8b949e;
-        }
-        .stars {
-            color: #d29922;
-        }
-        
+        .source-table th { background: #21262d; font-weight: 600; color: #c9d1d9; }
+        .source-table td { color: #8b949e; }
+        .stars { color: #d29922; }
+
         .footer-note {
             margin-top: 20px;
             padding: 15px;
@@ -463,28 +265,20 @@
             line-height: 1.6;
             border: 1px solid #30363d;
         }
-        
         .update-time {
             text-align: center;
             margin-top: 20px;
             font-size: 12px;
             color: #6e7681;
         }
-        
+
         @media (max-width: 768px) {
-            .calendar-grid {
-                grid-template-columns: repeat(7, 1fr);
-            }
-            .calendar-day {
-                min-height: 80px;
-                padding: 4px;
-            }
-            .stock-list {
-                font-size: 9px;
-            }
-            .monthly-summary {
-                grid-template-columns: 1fr;
-            }
+            .container { padding: 10px; }
+            .week-table tbody td { height: 180px; padding: 4px; }
+            .day-cell .stock-list { font-size: 9px; }
+            .day-cell .stock-name { font-size: 9px; }
+            .day-cell .stock-amount { font-size: 9px; }
+            .monthly-summary { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -492,691 +286,314 @@
     <div class="container">
         <div class="header">
             <h1>2026年7月 北向资金日历</h1>
-            <div class="subtitle">沪深港通资金流向监测 | 数据更新时间：2026-07-08 16:40 16:38 16:31</div>
+            <div class="subtitle">沪深港通资金流向监测 | 龙虎榜北向席位数据 | 数据更新时间：2026-07-08</div>
         </div>
-        
-        <!-- 标签筛选 -->
-        <div class="filter-tabs">
-            <button class="filter-tab buy">净流入 = 北向加仓</button>
-            <button class="filter-tab sell">净流出 = 北向减仓</button>
-            <button class="filter-tab estimate">休市 = 港股休市</button>
-        </div>
-        
-        <!-- ⚠️ 顶部汇总已移除：港交所2024年5月起已停更北向资金实时/盘后净流入数据，全市场汇总数据不可靠 -->
-        <!-- 仅保留龙虎榜北向席位个股数据（交易所官方披露） -->
-        
+
         <!-- 图例 -->
         <div class="legend">
-            <div class="legend-item">
-                <div class="legend-dot buy"></div>
-                <span>净买入TOP5</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-dot sell"></div>
-                <span>净卖出TOP5</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-dot inflow"></div>
-                <span>净流入</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-dot holiday"></div>
-                <span>休市</span>
-            </div>
+            <div class="legend-item"><span class="stock-icon up">▲</span><span>净买入TOP5</span></div>
+            <div class="legend-item"><span class="stock-icon down">▼</span><span>净卖出TOP5</span></div>
+            <div class="legend-item"><span style="color:#f85149;font-weight:600;">净流入</span></div>
+            <div class="legend-item"><span style="color:#6e7681;">休市</span></div>
         </div>
-        
-        <!-- 日历 -->
-        <div class="calendar-wrapper">
-            <div class="calendar-header">
-                <div class="weekday">周一</div>
-                <div class="weekday">周二</div>
-                <div class="weekday">周三</div>
-                <div class="weekday">周四</div>
-                <div class="weekday">周五</div>
-                <div class="weekday">周六</div>
-                <div class="weekday">周日</div>
-            </div>
-            <div class="calendar-grid">
-                <!-- 第一格空 -->
-                <div class="calendar-day other-month">
-                    <div class="day-header">
-                        <span class="day-number other"></span>
-                    </div>
-                </div>
-                
-                <!-- 6月30日 周二 -->
-                <div class="calendar-day other-month">
-                    <div class="day-header">
-                        <span class="day-number other">30</span>
-                    </div>
-                </div>
-                
-                <!-- 7月1日 周三 - 北向通道关闭 -->
-                <div class="calendar-day">
-                    <div class="day-header">
-                        <span class="day-number">1</span>
-                    </div>
-                    <div class="empty-content" style="flex-direction: column;"><div class="amount holiday">北向通道关闭</div><div style="font-size: 11px; color: #6e7681; margin-top: 6px;">港股休市·A股正常交易</div></div>
-                </div>
-                
-                <!-- 2日 -->
-                <div class="calendar-day">
-                    <div class="day-header">
-                        <span class="day-number">2</span>
-                        <span class="amount inflow">数据已更新</span>
-                    </div>
-<div class="stock-list"><div class="section-title">▲ 净买入TOP5</div>
-                        <div class="stock-item">
-                            <span class="stock-icon up">▲</span>
-                            <span class="stock-name">昊华科技</span>
-                            <span class="stock-amount up">+7.35亿</span>
-                        </div>
-                        <div class="stock-item">
-                            <span class="stock-icon up">▲</span>
-                            <span class="stock-name">中科飞测</span>
-                            <span class="stock-amount up">+6.20亿</span>
-                        </div>
-                        <div class="stock-item">
-                            <span class="stock-icon up">▲</span>
-                            <span class="stock-name">富创精密</span>
-                            <span class="stock-amount up">+4.44亿</span>
-                        </div>
-                        <div class="stock-item">
-                            <span class="stock-icon up">▲</span>
-                            <span class="stock-name">彤程新材</span>
-                            <span class="stock-amount up">+2.81亿</span>
-                        </div>
-                        <div class="stock-item">
-                            <span class="stock-icon up">▲</span>
-                            <span class="stock-name">江化微</span>
-                            <span class="stock-amount up">+1.77亿</span>
-                        </div><div class="section-title">▼ 净卖出TOP5</div>
-                        <div class="stock-item">
-                            <span class="stock-icon down">▼</span>
-                            <span class="stock-name">华电辽能</span>
-                            <span class="stock-amount down">-1.30亿</span>
-                        </div>
-                        <div class="stock-item">
-                            <span class="stock-icon down">▼</span>
-                            <span class="stock-name">山东玻纤</span>
-                            <span class="stock-amount down">-0.17亿</span>
-                        </div>
-                        <div class="stock-item">
-                            <span class="stock-icon down">▼</span>
-                            <span class="stock-name">方邦股份</span>
-                            <span class="stock-amount down">-0.10亿</span>
-                        </div>
-                        <div class="stock-item">
-                            <span class="stock-icon down">▼</span>
-                            <span class="stock-name">金帝股份</span>
-                            <span class="stock-amount down">-0.04亿</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 7月3日 周四 -->
-                <div class="calendar-day">
-                    <div class="day-header">
-                        <span class="day-number">3</span>
-                        <span class="amount inflow">净流入+26.42亿</span>
-                    </div>
-                    <div class="stock-list">
-                        <div class="section-title">▲ 净买入TOP5</div>
-                        <div class="stock-item">
-                            <span class="stock-icon up">▲</span>
-                            <span class="stock-name">东山精密</span>
-                            <span class="stock-amount up">+11.16亿</span>
-                        </div>
-                        <div class="stock-item">
-                            <span class="stock-icon up">▲</span>
-                            <span class="stock-name">天娱数科</span>
-                            <span class="stock-amount up">+3.44亿</span>
-                        </div>
-                        <div class="stock-item">
-                            <span class="stock-icon up">▲</span>
-                            <span class="stock-name">双环传动</span>
-                            <span class="stock-amount up">+2.49亿</span>
-                        </div>
-                        <div class="stock-item">
-                            <span class="stock-icon up">▲</span>
-                            <span class="stock-name">埃斯顿</span>
-                            <span class="stock-amount up">+1.55亿</span>
-                        </div>
-                        <div class="stock-item">
-                            <span class="stock-icon up">▲</span>
-                            <span class="stock-name">海南海药</span>
-                            <span class="stock-amount up">+0.31亿</span>
-                        </div>
-                        <div class="section-title">▼ 净卖出TOP5</div>
-                        <div class="stock-item">
-                            <span class="stock-icon down">▼</span>
-                            <span class="stock-name">多氟多</span>
-                            <span class="stock-amount down">-4.93亿</span>
-                        </div>
-                        <div class="stock-item">
-                            <span class="stock-icon down">▼</span>
-                            <span class="stock-name">美诺华</span>
-                            <span class="stock-amount down">-3.20亿</span>
-                        </div>
-                        <div class="stock-item">
-                            <span class="stock-icon down">▼</span>
-                            <span class="stock-name">平潭发展</span>
-                            <span class="stock-amount down">-2.10亿</span>
-                        </div>
-                        <div class="stock-item">
-                            <span class="stock-icon down">▼</span>
-                            <span class="stock-name">福赛科技</span>
-                            <span class="stock-amount down">-0.84亿</span>
-                        </div>
-                        <div class="stock-item">
-                            <span class="stock-icon down">▼</span>
-                            <span class="stock-name">德明利</span>
-                            <span class="stock-amount down">-0.58亿</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 7月4日 周六 休市 -->
-                <div class="calendar-day weekend">
-                    <div class="day-header">
-                        <span class="day-number">4</span>
-                    </div>
-                    <div class="empty-content"><div class="amount holiday">休市</div></div>
-                </div>
-                
-                <!-- 7月5日 周日 休市 -->
-                <div class="calendar-day weekend">
-                    <div class="day-header">
-                        <span class="day-number">5</span>
-                    </div>
-                    <div class="empty-content"><div class="amount holiday">休市</div></div>
-                </div>
-                
-                <!-- 7月6日 周一 -->
-                <div class="calendar-day">
-                    <div class="day-header">
-                        <span class="day-number">6</span>
-                        <span class="amount outflow">净流出-11.62亿</span>
-                    </div>
-                    <div class="stock-list">
-                        <div class="section-title">▲ 净买入TOP5</div>
-                        <div class="stock-item">
-                            <span class="stock-icon up">▲</span>
-                            <span class="stock-name">中钨高新</span>
-                            <span class="stock-amount up">+3.35亿</span>
-                        </div>
-                        <div class="stock-item">
-                            <span class="stock-icon up">▲</span>
-                            <span class="stock-name">埃斯顿</span>
-                            <span class="stock-amount up">+2.52亿</span>
-                        </div>
-                        <div class="stock-item">
-                            <span class="stock-icon up">▲</span>
-                            <span class="stock-name">中国长城</span>
-                            <span class="stock-amount up">+2.28亿</span>
-                        </div>
-                        <div class="stock-item">
-                            <span class="stock-icon up">▲</span>
-                            <span class="stock-name">金安国纪</span>
-                            <span class="stock-amount up">+1.83亿</span>
-                        </div>
-                        <div class="stock-item">
-                            <span class="stock-icon up">▲</span>
-                            <span class="stock-name">永鼎股份</span>
-                            <span class="stock-amount up">+1.73亿</span>
-                        </div>
-                        <div class="section-title">▼ 净卖出TOP5</div>
-                        <div class="stock-item">
-                            <span class="stock-icon down">▼</span>
-                            <span class="stock-name">美诺华</span>
-                            <span class="stock-amount down">-1.41亿</span>
-                        </div>
-                        <div class="stock-item">
-                            <span class="stock-icon down">▼</span>
-                            <span class="stock-name">杭电股份</span>
-                            <span class="stock-amount down">-1.39亿</span>
-                        </div>
-                        <div class="stock-item">
-                            <span class="stock-icon down">▼</span>
-                            <span class="stock-name">天娱数科</span>
-                            <span class="stock-amount down">-1.10亿</span>
-                        </div>
-                        <div class="stock-item">
-                            <span class="stock-icon down">▼</span>
-                            <span class="stock-name">雷赛智能</span>
-                            <span class="stock-amount down">-1.04亿</span>
-                        </div>
-                        <div class="stock-item">
-                            <span class="stock-icon down">▼</span>
-                            <span class="stock-name">拓斯达</span>
-                            <span class="stock-amount down">-0.43亿</span>
-                        </div>
-                    </div>
-                </div>
-                
 
-                
-                <!-- 7月7日 周二 -->
-                <div class="calendar-day">
-                    <div class="day-header">
-                        <span class="day-number">7</span>
-                        <span class="amount inflow">净流入+27.45亿</span>
-                    </div>
-                    <div class="stock-list">
-                        <div class="section-title">▲ 净买入TOP5</div>
-                        <div class="stock-item">
-                            <span class="stock-icon up">▲</span>
-                            <span class="stock-name">华天科技</span>
-                            <span class="stock-amount up">+6.45亿</span>
+        <!-- 第1周 -->
+        <table class="week-table">
+            <thead>
+                <tr>
+                    <th>周一</th><th>周二</th><th>周三</th><th>周四</th><th>周五</th><th>周六</th><th>周日</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <!-- 6/29 周一 -->
+                    <td class="other-month">
+                        <div class="day-cell">
+                            <div class="day-header"><span class="day-number other">29</span></div>
+                            <div class="empty-content">--</div>
                         </div>
-                        <div class="stock-item">
-                            <span class="stock-icon up">▲</span>
-                            <span class="stock-name">锋龙股份</span>
-                            <span class="stock-amount up">+0.73亿</span>
+                    </td>
+                    <!-- 6/30 周二 -->
+                    <td class="other-month">
+                        <div class="day-cell">
+                            <div class="day-header"><span class="day-number other">30</span></div>
+                            <div class="empty-content">--</div>
                         </div>
-                        <div class="stock-item">
-                            <span class="stock-icon up">▲</span>
-                            <span class="stock-name">百合花</span>
-                            <span class="stock-amount up">+0.65亿</span>
+                    </td>
+                    <!-- 7/1 周三 -->
+                    <td>
+                        <div class="day-cell">
+                            <div class="day-header"><span class="day-number">1</span></div>
+                            <div class="empty-content">
+                                <div class="amount holiday">北向通道关闭</div>
+                                <div style="font-size:10px;color:#6e7681;margin-top:4px;">港股休市·A股正常交易</div>
+                            </div>
                         </div>
-                        <div class="stock-item">
-                            <span class="stock-icon up">▲</span>
-                            <span class="stock-name">东微半导</span>
-                            <span class="stock-amount up">+0.57亿</span>
+                    </td>
+                    <!-- 7/2 周四 -->
+                    <td>
+                        <div class="day-cell">
+                            <div class="day-header"><span class="day-number">2</span><span class="amount inflow">数据已更新</span></div>
+                            <div class="stock-list">
+                                <div class="section-title">▲ 净买入TOP5</div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">昊华科技</span><span class="stock-amount up">+7.35亿</span></div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">中科飞测</span><span class="stock-amount up">+6.20亿</span></div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">富创精密</span><span class="stock-amount up">+4.44亿</span></div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">彤程新材</span><span class="stock-amount up">+2.81亿</span></div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">江化微</span><span class="stock-amount up">+1.77亿</span></div>
+                                <div class="section-title">▼ 净卖出TOP5</div>
+                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">华电辽能</span><span class="stock-amount down">-1.30亿</span></div>
+                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">山东玻纤</span><span class="stock-amount down">-0.17亿</span></div>
+                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">方邦股份</span><span class="stock-amount down">-0.10亿</span></div>
+                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">金帝股份</span><span class="stock-amount down">-0.04亿</span></div>
+                            </div>
                         </div>
-                        <div class="stock-item">
-                            <span class="stock-icon up">▲</span>
-                            <span class="stock-name">国晟科技</span>
-                            <span class="stock-amount up">+0.50亿</span>
+                    </td>
+                    <!-- 7/3 周五 -->
+                    <td>
+                        <div class="day-cell">
+                            <div class="day-header"><span class="day-number">3</span><span class="amount inflow">净流入+26.42亿</span></div>
+                            <div class="stock-list">
+                                <div class="section-title">▲ 净买入TOP5</div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">东山精密</span><span class="stock-amount up">+11.16亿</span></div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">天娱数科</span><span class="stock-amount up">+3.44亿</span></div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">双环传动</span><span class="stock-amount up">+2.49亿</span></div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">埃斯顿</span><span class="stock-amount up">+1.55亿</span></div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">海南海药</span><span class="stock-amount up">+0.31亿</span></div>
+                                <div class="section-title">▼ 净卖出TOP5</div>
+                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">多氟多</span><span class="stock-amount down">-4.93亿</span></div>
+                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">美诺华</span><span class="stock-amount down">-3.20亿</span></div>
+                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">平潭发展</span><span class="stock-amount down">-2.10亿</span></div>
+                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">福赛科技</span><span class="stock-amount down">-0.84亿</span></div>
+                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">德明利</span><span class="stock-amount down">-0.58亿</span></div>
+                            </div>
                         </div>
-                        <div class="section-title">▼ 净卖出TOP5</div>
-                        <div class="stock-item">
-                            <span class="stock-icon down">▼</span>
-                            <span class="stock-name">黄河旋风</span>
-                            <span class="stock-amount down">-1.25亿</span>
+                    </td>
+                    <!-- 7/4 周六 -->
+                    <td class="weekend">
+                        <div class="day-cell">
+                            <div class="day-header"><span class="day-number">4</span></div>
+                            <div class="empty-content"><span class="amount holiday">休市</span></div>
                         </div>
-                        <div class="stock-item">
-                            <span class="stock-icon down">▼</span>
-                            <span class="stock-name">美诺华</span>
-                            <span class="stock-amount down">-0.81亿</span>
+                    </td>
+                    <!-- 7/5 周日 -->
+                    <td class="weekend">
+                        <div class="day-cell">
+                            <div class="day-header"><span class="day-number">5</span></div>
+                            <div class="empty-content"><span class="amount holiday">休市</span></div>
                         </div>
-                        <div class="stock-item">
-                            <span class="stock-icon down">▼</span>
-                            <span class="stock-name">天娱数科</span>
-                            <span class="stock-amount down">-0.28亿</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div style="text-align:left;font-size:12px;color:#8b949e;margin:-15px 0 25px 5px;">第1周 7/1-7/5</div>
+
+        <!-- 第2周 -->
+        <table class="week-table">
+            <thead>
+                <tr>
+                    <th>周一</th><th>周二</th><th>周三</th><th>周四</th><th>周五</th><th>周六</th><th>周日</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <!-- 7/6 周一 -->
+                    <td>
+                        <div class="day-cell">
+                            <div class="day-header"><span class="day-number">6</span><span class="amount outflow">净流出-11.62亿</span></div>
+                            <div class="stock-list">
+                                <div class="section-title">▲ 净买入TOP5</div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">中钨高新</span><span class="stock-amount up">+3.35亿</span></div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">埃斯顿</span><span class="stock-amount up">+2.52亿</span></div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">中国长城</span><span class="stock-amount up">+2.28亿</span></div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">金安国纪</span><span class="stock-amount up">+1.83亿</span></div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">永鼎股份</span><span class="stock-amount up">+1.73亿</span></div>
+                                <div class="section-title">▼ 净卖出TOP5</div>
+                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">美诺华</span><span class="stock-amount down">-1.41亿</span></div>
+                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">杭电股份</span><span class="stock-amount down">-1.39亿</span></div>
+                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">天娱数科</span><span class="stock-amount down">-1.10亿</span></div>
+                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">雷赛智能</span><span class="stock-amount down">-1.04亿</span></div>
+                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">拓斯达</span><span class="stock-amount down">-0.43亿</span></div>
+                            </div>
                         </div>
-                        <div class="stock-item">
-                            <span class="stock-icon down">▼</span>
-                            <span class="stock-name">中远通</span>
-                            <span class="stock-amount down">-0.26亿</span>
+                    </td>
+                    <!-- 7/7 周二 -->
+                    <td>
+                        <div class="day-cell">
+                            <div class="day-header"><span class="day-number">7</span><span class="amount inflow">净流入+27.45亿</span></div>
+                            <div class="stock-list">
+                                <div class="section-title">▲ 净买入TOP5</div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">华天科技</span><span class="stock-amount up">+6.45亿</span></div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">锋龙股份</span><span class="stock-amount up">+0.73亿</span></div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">百合花</span><span class="stock-amount up">+0.65亿</span></div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">东微半导</span><span class="stock-amount up">+0.57亿</span></div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">国晟科技</span><span class="stock-amount up">+0.50亿</span></div>
+                                <div class="section-title">▼ 净卖出TOP5</div>
+                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">黄河旋风</span><span class="stock-amount down">-1.25亿</span></div>
+                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">美诺华</span><span class="stock-amount down">-0.81亿</span></div>
+                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">天娱数科</span><span class="stock-amount down">-0.28亿</span></div>
+                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">中远通</span><span class="stock-amount down">-0.26亿</span></div>
+                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">惠科股份</span><span class="stock-amount down">-0.17亿</span></div>
+                            </div>
                         </div>
-                        <div class="stock-item">
-                            <span class="stock-icon down">▼</span>
-                            <span class="stock-name">惠科股份</span>
-                            <span class="stock-amount down">-0.17亿</span>
+                    </td>
+                    <!-- 7/8 周三 -->
+                    <td>
+                        <div class="day-cell">
+                            <div class="day-header"><span class="day-number">8</span><span class="amount inflow">数据已更新</span></div>
+                            <div class="stock-list">
+                                <div class="section-title">▲ 净买入TOP5</div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">中油资本</span><span class="stock-amount up">+2.15亿</span></div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">广合科技</span><span class="stock-amount up">+0.51亿</span></div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">国际复材</span><span class="stock-amount up">+0.48亿</span></div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">柳钢股份</span><span class="stock-amount up">+0.41亿</span></div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">首航新能</span><span class="stock-amount up">+0.33亿</span></div>
+                                <div class="section-title">▼ 净卖出TOP5</div>
+                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">信雅达</span><span class="stock-amount down">-1.03亿</span></div>
+                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">隆扬电子</span><span class="stock-amount down">-0.22亿</span></div>
+                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">中京电子</span><span class="stock-amount down">-0.20亿</span></div>
+                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">超声电子</span><span class="stock-amount down">-0.05亿</span></div>
+                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">中核科技</span><span class="stock-amount down">-0.05亿</span></div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                
-                <!-- 8日 -->
-                <div class="calendar-day">
-                    <div class="day-header">
-                        <span class="day-number">8</span>
-                        <span class="amount inflow">数据已更新</span>
-                    </div>
-<div class="stock-list"><div class="section-title">▲ 净买入TOP5</div>
-                        <div class="stock-item">
-                            <span class="stock-icon up">▲</span>
-                            <span class="stock-name">中油资本</span>
-                            <span class="stock-amount up">+2.15亿</span>
+                    </td>
+                    <!-- 7/9 周四 -->
+                    <td>
+                        <div class="day-cell">
+                            <div class="day-header"><span class="day-number">9</span></div>
+                            <div class="empty-content">--</div>
                         </div>
-                        <div class="stock-item">
-                            <span class="stock-icon up">▲</span>
-                            <span class="stock-name">广合科技</span>
-                            <span class="stock-amount up">+0.51亿</span>
+                    </td>
+                    <!-- 7/10 周五 -->
+                    <td>
+                        <div class="day-cell">
+                            <div class="day-header"><span class="day-number">10</span></div>
+                            <div class="empty-content">--</div>
                         </div>
-                        <div class="stock-item">
-                            <span class="stock-icon up">▲</span>
-                            <span class="stock-name">国际复材</span>
-                            <span class="stock-amount up">+0.48亿</span>
+                    </td>
+                    <!-- 7/11 周六 -->
+                    <td class="weekend">
+                        <div class="day-cell">
+                            <div class="day-header"><span class="day-number">11</span></div>
+                            <div class="empty-content"><span class="amount holiday">休市</span></div>
                         </div>
-                        <div class="stock-item">
-                            <span class="stock-icon up">▲</span>
-                            <span class="stock-name">柳钢股份</span>
-                            <span class="stock-amount up">+0.41亿</span>
+                    </td>
+                    <!-- 7/12 周日 -->
+                    <td class="weekend">
+                        <div class="day-cell">
+                            <div class="day-header"><span class="day-number">12</span></div>
+                            <div class="empty-content"><span class="amount holiday">休市</span></div>
                         </div>
-                        <div class="stock-item">
-                            <span class="stock-icon up">▲</span>
-                            <span class="stock-name">首航新能</span>
-                            <span class="stock-amount up">+0.33亿</span>
-                        </div><div class="section-title">▼ 净卖出TOP5</div>
-                        <div class="stock-item">
-                            <span class="stock-icon down">▼</span>
-                            <span class="stock-name">信雅达</span>
-                            <span class="stock-amount down">-1.03亿</span>
-                        </div>
-                        <div class="stock-item">
-                            <span class="stock-icon down">▼</span>
-                            <span class="stock-name">隆扬电子</span>
-                            <span class="stock-amount down">-0.22亿</span>
-                        </div>
-                        <div class="stock-item">
-                            <span class="stock-icon down">▼</span>
-                            <span class="stock-name">中京电子</span>
-                            <span class="stock-amount down">-0.20亿</span>
-                        </div>
-                        <div class="stock-item">
-                            <span class="stock-icon down">▼</span>
-                            <span class="stock-name">超声电子</span>
-                            <span class="stock-amount down">-0.05亿</span>
-                        </div>
-                        <div class="stock-item">
-                            <span class="stock-icon down">▼</span>
-                            <span class="stock-name">中核科技</span>
-                            <span class="stock-amount down">-0.05亿</span>
-                        </div></div>
-                
-                <!-- 7月9日 -->
-                <div class="calendar-day">
-                    <div class="day-header">
-                        <span class="day-number">9</span>
-                    </div>
-                    <div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div>
-                </div>
-                
-                <!-- 7月10日 -->
-                <div class="calendar-day">
-                    <div class="day-header">
-                        <span class="day-number">10</span>
-                    </div>
-                    <div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div>
-                </div>
-                
-                <!-- 7月11日 周五 -->
-                <div class="calendar-day">
-                    <div class="day-header">
-                        <span class="day-number">11</span>
-                    </div>
-                    <div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div>
-                </div>
-                
-                <!-- 7月12日 周六 -->
-                <div class="calendar-day weekend">
-                    <div class="day-header">
-                        <span class="day-number">12</span>
-                    </div>
-                    <div class="empty-content"><div class="amount holiday">休市</div></div>
-                </div>
-                
-                <!-- 7月13日 周日 -->
-                <div class="calendar-day weekend">
-                    <div class="day-header">
-                        <span class="day-number">13</span>
-                    </div>
-                    <div class="empty-content"><div class="amount holiday">休市</div></div>
-                </div>
-                
-                <!-- 继续填充剩余日期 -->
-                <div class="calendar-day"><div class="day-header"><span class="day-number">14</span></div><div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div></div>
-                <div class="calendar-day"><div class="day-header"><span class="day-number">15</span></div><div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div></div>
-                <div class="calendar-day"><div class="day-header"><span class="day-number">16</span></div><div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div></div>
-                <div class="calendar-day"><div class="day-header"><span class="day-number">17</span></div><div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div></div>
-                <div class="calendar-day"><div class="day-header"><span class="day-number">18</span></div><div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div></div>
-                <div class="calendar-day weekend"><div class="day-header"><span class="day-number">19</span></div><div class="empty-content"><div class="amount holiday">休市</div></div></div>
-                <div class="calendar-day weekend"><div class="day-header"><span class="day-number">20</span></div><div class="empty-content"><div class="amount holiday">休市</div></div></div>
-                
-                <div class="calendar-day"><div class="day-header"><span class="day-number">21</span></div><div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div></div>
-                <div class="calendar-day"><div class="day-header"><span class="day-number">22</span></div><div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div></div>
-                <div class="calendar-day"><div class="day-header"><span class="day-number">23</span></div><div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div></div>
-                <div class="calendar-day"><div class="day-header"><span class="day-number">24</span></div><div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div></div>
-                <div class="calendar-day"><div class="day-header"><span class="day-number">25</span></div><div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div></div>
-                <div class="calendar-day weekend"><div class="day-header"><span class="day-number">26</span></div><div class="empty-content"><div class="amount holiday">休市</div></div></div>
-                <div class="calendar-day weekend"><div class="day-header"><span class="day-number">27</span></div><div class="empty-content"><div class="amount holiday">休市</div></div></div>
-                
-                <div class="calendar-day"><div class="day-header"><span class="day-number">28</span></div><div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div></div>
-                <div class="calendar-day"><div class="day-header"><span class="day-number">29</span></div><div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div></div>
-                <div class="calendar-day"><div class="day-header"><span class="day-number">30</span></div><div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div></div>
-                <div class="calendar-day"><div class="day-header"><span class="day-number">31</span></div><div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div></div>
-                <div class="calendar-day other-month"><div class="day-header"><span class="day-number other">1</span></div></div>
-                <div class="calendar-day other-month"><div class="day-header"><span class="day-number other">2</span></div></div>
-                <div class="calendar-day other-month"><div class="day-header"><span class="day-number other">3</span></div></div>
-            </div>
-        </div>
-        
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div style="text-align:left;font-size:12px;color:#8b949e;margin:-15px 0 25px 5px;">第2周 7/6-7/12</div>
+
+        <!-- 第3周 -->
+        <table class="week-table">
+            <thead>
+                <tr>
+                    <th>周一</th><th>周二</th><th>周三</th><th>周四</th><th>周五</th><th>周六</th><th>周日</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><div class="day-cell"><div class="day-header"><span class="day-number">13</span></div><div class="empty-content">--</div></div></td>
+                    <td><div class="day-cell"><div class="day-header"><span class="day-number">14</span></div><div class="empty-content">--</div></div></td>
+                    <td><div class="day-cell"><div class="day-header"><span class="day-number">15</span></div><div class="empty-content">--</div></div></td>
+                    <td><div class="day-cell"><div class="day-header"><span class="day-number">16</span></div><div class="empty-content">--</div></div></td>
+                    <td><div class="day-cell"><div class="day-header"><span class="day-number">17</span></div><div class="empty-content">--</div></div></td>
+                    <td class="weekend"><div class="day-cell"><div class="day-header"><span class="day-number">18</span></div><div class="empty-content"><span class="amount holiday">休市</span></div></div></td>
+                    <td class="weekend"><div class="day-cell"><div class="day-header"><span class="day-number">19</span></div><div class="empty-content"><span class="amount holiday">休市</span></div></div></td>
+                </tr>
+            </tbody>
+        </table>
+        <div style="text-align:left;font-size:12px;color:#8b949e;margin:-15px 0 25px 5px;">第3周 7/13-7/19</div>
+
+        <!-- 第4周 -->
+        <table class="week-table">
+            <thead>
+                <tr>
+                    <th>周一</th><th>周二</th><th>周三</th><th>周四</th><th>周五</th><th>周六</th><th>周日</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><div class="day-cell"><div class="day-header"><span class="day-number">20</span></div><div class="empty-content">--</div></div></td>
+                    <td><div class="day-cell"><div class="day-header"><span class="day-number">21</span></div><div class="empty-content">--</div></div></td>
+                    <td><div class="day-cell"><div class="day-header"><span class="day-number">22</span></div><div class="empty-content">--</div></div></td>
+                    <td><div class="day-cell"><div class="day-header"><span class="day-number">23</span></div><div class="empty-content">--</div></div></td>
+                    <td><div class="day-cell"><div class="day-header"><span class="day-number">24</span></div><div class="empty-content">--</div></div></td>
+                    <td class="weekend"><div class="day-cell"><div class="day-header"><span class="day-number">25</span></div><div class="empty-content"><span class="amount holiday">休市</span></div></div></td>
+                    <td class="weekend"><div class="day-cell"><div class="day-header"><span class="day-number">26</span></div><div class="empty-content"><span class="amount holiday">休市</span></div></div></td>
+                </tr>
+            </tbody>
+        </table>
+        <div style="text-align:left;font-size:12px;color:#8b949e;margin:-15px 0 25px 5px;">第4周 7/20-7/26</div>
+
+        <!-- 第5周 -->
+        <table class="week-table">
+            <thead>
+                <tr>
+                    <th>周一</th><th>周二</th><th>周三</th><th>周四</th><th>周五</th><th>周六</th><th>周日</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><div class="day-cell"><div class="day-header"><span class="day-number">27</span></div><div class="empty-content">--</div></div></td>
+                    <td><div class="day-cell"><div class="day-header"><span class="day-number">28</span></div><div class="empty-content">--</div></div></td>
+                    <td><div class="day-cell"><div class="day-header"><span class="day-number">29</span></div><div class="empty-content">--</div></div></td>
+                    <td><div class="day-cell"><div class="day-header"><span class="day-number">30</span></div><div class="empty-content">--</div></div></td>
+                    <td><div class="day-cell"><div class="day-header"><span class="day-number">31</span></div><div class="empty-content">--</div></div></td>
+                    <td class="other-month"><div class="day-cell"><div class="day-header"><span class="day-number other">1</span></div><div class="empty-content">--</div></div></td>
+                    <td class="other-month"><div class="day-cell"><div class="day-header"><span class="day-number other">2</span></div><div class="empty-content">--</div></div></td>
+                </tr>
+            </tbody>
+        </table>
+        <div style="text-align:left;font-size:12px;color:#8b949e;margin:-15px 0 25px 5px;">第5周 7/27-8/2</div>
+
         <!-- 月度汇总 -->
         <div class="monthly-summary">
             <div class="summary-box">
                 <h3 class="buy">▲ 净买入TOP10</h3>
                 <ul class="rank-list">
-                    <li class="rank-item">
-                        <span class="rank-num top">1</span>
-                        <span class="rank-name">华天科技</span>
-                        <span class="rank-code">002185</span>
-                        <span class="rank-amount buy">+6.45亿</span>
-                    </li>
-                    <li class="rank-item">
-                        <span class="rank-num top">2</span>
-                        <span class="rank-name">东山精密</span>
-                        <span class="rank-code">002384</span>
-                        <span class="rank-amount buy">+11.16亿</span>
-                    </li>
-                    <li class="rank-item">
-                        <span class="rank-num top">3</span>
-                        <span class="rank-name">天娱数科</span>
-                        <span class="rank-code">002354</span>
-                        <span class="rank-amount buy">+3.44亿</span>
-                    </li>
-                    <li class="rank-item">
-                        <span class="rank-num other">4</span>
-                        <span class="rank-name">双环传动</span>
-                        <span class="rank-code">002472</span>
-                        <span class="rank-amount buy">+2.49亿</span>
-                    </li>
-                    <li class="rank-item">
-                        <span class="rank-num other">5</span>
-                        <span class="rank-name">昊华科技</span>
-                        <span class="rank-code">600378</span>
-                        <span class="rank-amount buy">+7.35亿</span>
-                    </li>
-                    <li class="rank-item">
-                        <span class="rank-num other">6</span>
-                        <span class="rank-name">中科飞测</span>
-                        <span class="rank-code">688361</span>
-                        <span class="rank-amount buy">+6.20亿</span>
-                    </li>
-                    <li class="rank-item">
-                        <span class="rank-num other">7</span>
-                        <span class="rank-name">多氟多</span>
-                        <span class="rank-code">002407</span>
-                        <span class="rank-amount buy">+5.74亿</span>
-                    </li>
-                    <li class="rank-item">
-                        <span class="rank-num other">8</span>
-                        <span class="rank-name">京东方A</span>
-                        <span class="rank-code">000725</span>
-                        <span class="rank-amount buy">+4.96亿</span>
-                    </li>
-                    <li class="rank-item">
-                        <span class="rank-num other">9</span>
-                        <span class="rank-name">富创精密</span>
-                        <span class="rank-code">688409</span>
-                        <span class="rank-amount buy">+4.44亿</span>
-                    </li>
-                    <li class="rank-item">
-                        <span class="rank-num other">10</span>
-                        <span class="rank-name">锋龙股份</span>
-                        <span class="rank-code">002931</span>
-                        <span class="rank-amount buy">+0.73亿</span>
-                    </li>
+                    <li class="rank-item"><span class="rank-num top">1</span><span class="rank-name">华天科技</span><span class="rank-code">002185</span><span class="rank-amount buy">+6.45亿</span></li>
+                    <li class="rank-item"><span class="rank-num top">2</span><span class="rank-name">东山精密</span><span class="rank-code">002384</span><span class="rank-amount buy">+11.16亿</span></li>
+                    <li class="rank-item"><span class="rank-num top">3</span><span class="rank-name">天娱数科</span><span class="rank-code">002354</span><span class="rank-amount buy">+3.44亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">4</span><span class="rank-name">双环传动</span><span class="rank-code">002472</span><span class="rank-amount buy">+2.49亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">5</span><span class="rank-name">昊华科技</span><span class="rank-code">600378</span><span class="rank-amount buy">+7.35亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">6</span><span class="rank-name">中科飞测</span><span class="rank-code">688361</span><span class="rank-amount buy">+6.20亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">7</span><span class="rank-name">多氟多</span><span class="rank-code">002407</span><span class="rank-amount buy">+5.74亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">8</span><span class="rank-name">京东方A</span><span class="rank-code">000725</span><span class="rank-amount buy">+4.96亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">9</span><span class="rank-name">富创精密</span><span class="rank-code">688409</span><span class="rank-amount buy">+4.44亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">10</span><span class="rank-name">锋龙股份</span><span class="rank-code">002931</span><span class="rank-amount buy">+0.73亿</span></li>
                 </ul>
             </div>
             <div class="summary-box">
                 <h3 class="sell">▼ 净卖出TOP10</h3>
                 <ul class="rank-list">
-                    <li class="rank-item">
-                        <span class="rank-num top">1</span>
-                        <span class="rank-name">华工科技</span>
-                        <span class="rank-code">000988</span>
-                        <span class="rank-amount sell">-9.36亿</span>
-                    </li>
-                    <li class="rank-item">
-                        <span class="rank-num top">2</span>
-                        <span class="rank-name">多氟多</span>
-                        <span class="rank-code">002407</span>
-                        <span class="rank-amount sell">-4.93亿</span>
-                    </li>
-                    <li class="rank-item">
-                        <span class="rank-num top">3</span>
-                        <span class="rank-name">美诺华</span>
-                        <span class="rank-code">603538</span>
-                        <span class="rank-amount sell">-3.20亿</span>
-                    </li>
-                    <li class="rank-item">
-                        <span class="rank-num other">4</span>
-                        <span class="rank-name">沪电股份</span>
-                        <span class="rank-code">002463</span>
-                        <span class="rank-amount sell">-2.95亿</span>
-                    </li>
-                    <li class="rank-item">
-                        <span class="rank-num other">5</span>
-                        <span class="rank-name">北方华创</span>
-                        <span class="rank-code">002371</span>
-                        <span class="rank-amount sell">-2.81亿</span>
-                    </li>
-                    <li class="rank-item">
-                        <span class="rank-num other">6</span>
-                        <span class="rank-name">平潭发展</span>
-                        <span class="rank-code">000592</span>
-                        <span class="rank-amount sell">-2.10亿</span>
-                    </li>
-                    <li class="rank-item">
-                        <span class="rank-num other">7</span>
-                        <span class="rank-name">东山精密</span>
-                        <span class="rank-code">002384</span>
-                        <span class="rank-amount sell">-2.36亿</span>
-                    </li>
-                    <li class="rank-item">
-                        <span class="rank-num other">8</span>
-                        <span class="rank-name">黄河旋风</span>
-                        <span class="rank-code">600172</span>
-                        <span class="rank-amount sell">-1.25亿</span>
-                    </li>
-                    <li class="rank-item">
-                        <span class="rank-num other">9</span>
-                        <span class="rank-name">华电辽能</span>
-                        <span class="rank-code">600396</span>
-                        <span class="rank-amount sell">-1.30亿</span>
-                    </li>
-                    <li class="rank-item">
-                        <span class="rank-num other">10</span>
-                        <span class="rank-name">山东玻纤</span>
-                        <span class="rank-code">605006</span>
-                        <span class="rank-amount sell">-0.17亿</span>
-                    </li>
+                    <li class="rank-item"><span class="rank-num top">1</span><span class="rank-name">华工科技</span><span class="rank-code">000988</span><span class="rank-amount sell">-9.36亿</span></li>
+                    <li class="rank-item"><span class="rank-num top">2</span><span class="rank-name">多氟多</span><span class="rank-code">002407</span><span class="rank-amount sell">-4.93亿</span></li>
+                    <li class="rank-item"><span class="rank-num top">3</span><span class="rank-name">美诺华</span><span class="rank-code">603538</span><span class="rank-amount sell">-3.20亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">4</span><span class="rank-name">沪电股份</span><span class="rank-code">002463</span><span class="rank-amount sell">-2.95亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">5</span><span class="rank-name">北方华创</span><span class="rank-code">002371</span><span class="rank-amount sell">-2.81亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">6</span><span class="rank-name">平潭发展</span><span class="rank-code">000592</span><span class="rank-amount sell">-2.10亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">7</span><span class="rank-name">东山精密</span><span class="rank-code">002384</span><span class="rank-amount sell">-2.36亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">8</span><span class="rank-name">黄河旋风</span><span class="rank-code">600172</span><span class="rank-amount sell">-1.25亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">9</span><span class="rank-name">华电辽能</span><span class="rank-code">600396</span><span class="rank-amount sell">-1.30亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">10</span><span class="rank-name">山东玻纤</span><span class="rank-code">605006</span><span class="rank-amount sell">-0.17亿</span></li>
                 </ul>
             </div>
         </div>
-        
-        <!-- 周度汇总 -->
-        <div class="weekly-summary">
-            <h3>📊 周度汇总</h3>
-            <div class="week-grid">
-                <div class="week-box">
-                    <div class="week-title">第1周 7/1-7/4</div>
-                    <div class="week-stocks">
-                        <div class="week-section">
-                            <div class="week-section-title">▲ 净买入TOP3</div>
-                            <div class="week-stock-item">
-                                <span class="week-stock-rank">1</span>
-                                <span class="week-stock-name">东山精密</span>
-                                <span class="stock-amount up">+11.16亿</span>
-                            </div>
-                            <div class="week-stock-item">
-                                <span class="week-stock-rank">2</span>
-                                <span class="week-stock-name">昊华科技</span>
-                                <span class="stock-amount up">+7.35亿</span>
-                            </div>
-                            <div class="week-stock-item">
-                                <span class="week-stock-rank">3</span>
-                                <span class="week-stock-name">中科飞测</span>
-                                <span class="stock-amount up">+6.20亿</span>
-                            </div>
-                        </div>
-                        <div class="week-section">
-                            <div class="week-section-title">▼ 净卖出TOP3</div>
-                            <div class="week-stock-item">
-                                <span class="week-stock-rank">1</span>
-                                <span class="week-stock-name">华工科技</span>
-                                <span class="stock-amount down">-9.36亿</span>
-                            </div>
-                            <div class="week-stock-item">
-                                <span class="week-stock-rank">2</span>
-                                <span class="week-stock-name">多氟多</span>
-                                <span class="stock-amount down">-4.93亿</span>
-                            </div>
-                            <div class="week-stock-item">
-                                <span class="week-stock-rank">3</span>
-                                <span class="week-stock-name">美诺华</span>
-                                <span class="stock-amount down">-3.20亿</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="week-box">
-                    <div class="week-title">第2周 7/7-7/11</div>
-                    <div class="week-stocks">
-                        <div class="week-section">
-                            <div class="week-section-title">▲ 净买入TOP3</div>
-                            <div class="week-stock-item">
-                                <span class="week-stock-rank">1</span>
-                                <span class="week-stock-name">华天科技</span>
-                                <span class="stock-amount up">+6.45亿</span>
-                            </div>
-                            <div class="week-stock-item">
-                                <span class="week-stock-rank">2</span>
-                                <span class="week-stock-name">锋龙股份</span>
-                                <span class="stock-amount up">+0.73亿</span>
-                            </div>
-                            <div class="week-stock-item">
-                                <span class="week-stock-rank">3</span>
-                                <span class="week-stock-name">百合花</span>
-                                <span class="stock-amount up">+0.65亿</span>
-                            </div>
-                        </div>
-                        <div class="week-section">
-                            <div class="week-section-title">▼ 净卖出TOP3</div>
-                            <div class="week-stock-item">
-                                <span class="week-stock-rank">1</span>
-                                <span class="week-stock-name">黄河旋风</span>
-                                <span class="stock-amount down">-1.25亿</span>
-                            </div>
-                            <div class="week-stock-item">
-                                <span class="week-stock-rank">2</span>
-                                <span class="week-stock-name">美诺华</span>
-                                <span class="stock-amount down">-0.81亿</span>
-                            </div>
-                            <div class="week-stock-item">
-                                <span class="week-stock-rank">3</span>
-                                <span class="week-stock-name">天娱数科</span>
-                                <span class="stock-amount down">-0.28亿</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
+
         <!-- 数据口径说明 -->
         <div class="data-source">
             <h3>📋 数据口径说明</h3>
             <table class="source-table">
                 <thead>
                     <tr>
-                        <th>口径</th>
-                        <th>来源</th>
-                        <th>精确度</th>
-                        <th>覆盖范围</th>
-                        <th>说明</th>
+                        <th>口径</th><th>来源</th><th>精确度</th><th>覆盖范围</th><th>说明</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -1204,16 +621,16 @@
                 </tbody>
             </table>
         </div>
-        
+
         <div class="footer-note">
             <strong>说明：</strong><br>
-            1. ⚠️ 本页面已移除全市场净流入汇总数据（本月累计/今年累计/今日净流入等）。原因：港交所自2024年5月13日起已停更北向资金实时交易数据，2024年8月16日起停更每日净流入数据，全市场汇总已无法从官方渠道获取可靠数据。<br>
-            2. 本日历仅保留龙虎榜北向席位净买卖数据——该数据来自沪深交易所盘后官方披露的龙虎榜北向席位明细，经证券时报·数据宝、东方财富Choice等权威财经媒体整理发布，为目前可获取的唯一精确北向交易数据。<br>
-            3. 龙虎榜数据 ≠ 北向资金全貌，仅覆盖当日价格/换手率异动的上榜个股，不覆盖未上榜个股的北向交易。<br>
+            1. ⚠️ 本页面已移除全市场净流入汇总数据。原因：港交所自2024年5月13日起已停更北向资金实时交易数据，2024年8月16日起停更每日净流入数据。<br>
+            2. 本日历仅保留龙虎榜北向席位净买卖数据——该数据来自沪深交易所盘后官方披露的龙虎榜北向席位明细。<br>
+            3. 龙虎榜数据 ≠ 北向资金全貌，仅覆盖当日价格/换手率异动的上榜个股。<br>
             4. 7月1日因港股休市，北向通道关闭。<br>
-            5. 7月8日数据将于当日收盘后更新。
+            5. 7月8日数据已于当日收盘后更新。
         </div>
-        
+
         <div class="update-time">
             北向资金日历 · 每日净买入TOP5 + 净卖出TOP5<br>
             数据来源：沪深交易所龙虎榜 / 证券时报·数据宝 / 东方财富Choice<br>
