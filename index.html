@@ -168,12 +168,21 @@
         .calendar-day {
             border-right: 1px solid #30363d;
             border-top: 1px solid #30363d;
-            min-height: 220px;
+            height: 280px;
             padding: 10px;
             background: #0d1117;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
         }
         .calendar-day.weekend {
             background: #161b22;
+        }
+        .calendar-day .empty-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .calendar-day.other-month {
             background: #0d1117;
@@ -547,8 +556,7 @@
                     <div class="day-header">
                         <span class="day-number">1</span>
                     </div>
-                    <div class="amount holiday" style="text-align: center; margin-top: 30px;">北向通道关闭</div>
-                    <div style="font-size: 11px; color: #6e7681; text-align: center; margin-top: 6px;">港股休市·A股正常交易</div>
+                    <div class="empty-content" style="flex-direction: column;"><div class="amount holiday">北向通道关闭</div><div style="font-size: 11px; color: #6e7681; margin-top: 6px;">港股休市·A股正常交易</div></div>
                 </div>
                 
                 <!-- 2日 -->
@@ -673,7 +681,7 @@
                     <div class="day-header">
                         <span class="day-number">4</span>
                     </div>
-                    <div class="amount holiday" style="text-align: center; margin-top: 40px;">休市</div>
+                    <div class="empty-content"><div class="amount holiday">休市</div></div>
                 </div>
                 
                 <!-- 7月5日 周日 休市 -->
@@ -681,7 +689,7 @@
                     <div class="day-header">
                         <span class="day-number">5</span>
                     </div>
-                    <div class="amount holiday" style="text-align: center; margin-top: 40px;">休市</div>
+                    <div class="empty-content"><div class="amount holiday">休市</div></div>
                 </div>
                 
                 <!-- 7月6日 周一 -->
@@ -867,15 +875,13 @@
                             <span class="stock-name">中核科技</span>
                             <span class="stock-amount down">-0.05亿</span>
                         </div></div>
-                </div>
-                </div>
                 
                 <!-- 7月9日 -->
                 <div class="calendar-day">
                     <div class="day-header">
                         <span class="day-number">9</span>
                     </div>
-                    <div class="amount" style="text-align: center; color: #6e7681; margin-top: 40px;">--</div>
+                    <div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div>
                 </div>
                 
                 <!-- 7月10日 -->
@@ -883,7 +889,7 @@
                     <div class="day-header">
                         <span class="day-number">10</span>
                     </div>
-                    <div class="amount" style="text-align: center; color: #6e7681; margin-top: 40px;">--</div>
+                    <div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div>
                 </div>
                 
                 <!-- 7月11日 周五 -->
@@ -891,7 +897,7 @@
                     <div class="day-header">
                         <span class="day-number">11</span>
                     </div>
-                    <div class="amount" style="text-align: center; color: #6e7681; margin-top: 40px;">--</div>
+                    <div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div>
                 </div>
                 
                 <!-- 7月12日 周六 -->
@@ -899,7 +905,7 @@
                     <div class="day-header">
                         <span class="day-number">12</span>
                     </div>
-                    <div class="amount holiday" style="text-align: center; margin-top: 40px;">休市</div>
+                    <div class="empty-content"><div class="amount holiday">休市</div></div>
                 </div>
                 
                 <!-- 7月13日 周日 -->
@@ -907,30 +913,30 @@
                     <div class="day-header">
                         <span class="day-number">13</span>
                     </div>
-                    <div class="amount holiday" style="text-align: center; margin-top: 40px;">休市</div>
+                    <div class="empty-content"><div class="amount holiday">休市</div></div>
                 </div>
                 
                 <!-- 继续填充剩余日期 -->
-                <div class="calendar-day"><div class="day-header"><span class="day-number">14</span></div><div class="amount" style="text-align: center; color: #6e7681; margin-top: 40px;">--</div></div>
-                <div class="calendar-day"><div class="day-header"><span class="day-number">15</span></div><div class="amount" style="text-align: center; color: #6e7681; margin-top: 40px;">--</div></div>
-                <div class="calendar-day"><div class="day-header"><span class="day-number">16</span></div><div class="amount" style="text-align: center; color: #6e7681; margin-top: 40px;">--</div></div>
-                <div class="calendar-day"><div class="day-header"><span class="day-number">17</span></div><div class="amount" style="text-align: center; color: #6e7681; margin-top: 40px;">--</div></div>
-                <div class="calendar-day"><div class="day-header"><span class="day-number">18</span></div><div class="amount" style="text-align: center; color: #6e7681; margin-top: 40px;">--</div></div>
-                <div class="calendar-day weekend"><div class="day-header"><span class="day-number">19</span></div><div class="amount holiday" style="text-align: center; margin-top: 40px;">休市</div></div>
-                <div class="calendar-day weekend"><div class="day-header"><span class="day-number">20</span></div><div class="amount holiday" style="text-align: center; margin-top: 40px;">休市</div></div>
+                <div class="calendar-day"><div class="day-header"><span class="day-number">14</span></div><div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div></div>
+                <div class="calendar-day"><div class="day-header"><span class="day-number">15</span></div><div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div></div>
+                <div class="calendar-day"><div class="day-header"><span class="day-number">16</span></div><div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div></div>
+                <div class="calendar-day"><div class="day-header"><span class="day-number">17</span></div><div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div></div>
+                <div class="calendar-day"><div class="day-header"><span class="day-number">18</span></div><div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div></div>
+                <div class="calendar-day weekend"><div class="day-header"><span class="day-number">19</span></div><div class="empty-content"><div class="amount holiday">休市</div></div></div>
+                <div class="calendar-day weekend"><div class="day-header"><span class="day-number">20</span></div><div class="empty-content"><div class="amount holiday">休市</div></div></div>
                 
-                <div class="calendar-day"><div class="day-header"><span class="day-number">21</span></div><div class="amount" style="text-align: center; color: #6e7681; margin-top: 40px;">--</div></div>
-                <div class="calendar-day"><div class="day-header"><span class="day-number">22</span></div><div class="amount" style="text-align: center; color: #6e7681; margin-top: 40px;">--</div></div>
-                <div class="calendar-day"><div class="day-header"><span class="day-number">23</span></div><div class="amount" style="text-align: center; color: #6e7681; margin-top: 40px;">--</div></div>
-                <div class="calendar-day"><div class="day-header"><span class="day-number">24</span></div><div class="amount" style="text-align: center; color: #6e7681; margin-top: 40px;">--</div></div>
-                <div class="calendar-day"><div class="day-header"><span class="day-number">25</span></div><div class="amount" style="text-align: center; color: #6e7681; margin-top: 40px;">--</div></div>
-                <div class="calendar-day weekend"><div class="day-header"><span class="day-number">26</span></div><div class="amount holiday" style="text-align: center; margin-top: 40px;">休市</div></div>
-                <div class="calendar-day weekend"><div class="day-header"><span class="day-number">27</span></div><div class="amount holiday" style="text-align: center; margin-top: 40px;">休市</div></div>
+                <div class="calendar-day"><div class="day-header"><span class="day-number">21</span></div><div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div></div>
+                <div class="calendar-day"><div class="day-header"><span class="day-number">22</span></div><div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div></div>
+                <div class="calendar-day"><div class="day-header"><span class="day-number">23</span></div><div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div></div>
+                <div class="calendar-day"><div class="day-header"><span class="day-number">24</span></div><div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div></div>
+                <div class="calendar-day"><div class="day-header"><span class="day-number">25</span></div><div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div></div>
+                <div class="calendar-day weekend"><div class="day-header"><span class="day-number">26</span></div><div class="empty-content"><div class="amount holiday">休市</div></div></div>
+                <div class="calendar-day weekend"><div class="day-header"><span class="day-number">27</span></div><div class="empty-content"><div class="amount holiday">休市</div></div></div>
                 
-                <div class="calendar-day"><div class="day-header"><span class="day-number">28</span></div><div class="amount" style="text-align: center; color: #6e7681; margin-top: 40px;">--</div></div>
-                <div class="calendar-day"><div class="day-header"><span class="day-number">29</span></div><div class="amount" style="text-align: center; color: #6e7681; margin-top: 40px;">--</div></div>
-                <div class="calendar-day"><div class="day-header"><span class="day-number">30</span></div><div class="amount" style="text-align: center; color: #6e7681; margin-top: 40px;">--</div></div>
-                <div class="calendar-day"><div class="day-header"><span class="day-number">31</span></div><div class="amount" style="text-align: center; color: #6e7681; margin-top: 40px;">--</div></div>
+                <div class="calendar-day"><div class="day-header"><span class="day-number">28</span></div><div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div></div>
+                <div class="calendar-day"><div class="day-header"><span class="day-number">29</span></div><div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div></div>
+                <div class="calendar-day"><div class="day-header"><span class="day-number">30</span></div><div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div></div>
+                <div class="calendar-day"><div class="day-header"><span class="day-number">31</span></div><div class="empty-content"><div class="amount" style="color: #6e7681;">--</div></div></div>
                 <div class="calendar-day other-month"><div class="day-header"><span class="day-number other">1</span></div></div>
                 <div class="calendar-day other-month"><div class="day-header"><span class="day-number other">2</span></div></div>
                 <div class="calendar-day other-month"><div class="day-header"><span class="day-number other">3</span></div></div>
