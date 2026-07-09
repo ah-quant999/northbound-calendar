@@ -249,24 +249,24 @@
             </div>
 
             <div class="card-row">
-                <a class="card important" href="重要日历_202607.html" target="_blank">
+                <div class="card important" onclick="openCal('重要日历_202607.html')">
                     <div class="card-icon">📅</div>
                     <h3>重要日历</h3>
                     <p>宏观数据、财报、FOMC<br>等关键事件</p>
                     <span class="arrow">→</span>
-                </a>
-                <a class="card resonance" href="机游共振日历.html" target="_blank">
+                </div>
+                <div class="card resonance" href="机游共振日历.html" target="_blank">
                     <div class="card-icon">⭐</div>
                     <h3>机游共振日历</h3>
                     <p>龙虎榜机构 + 游资<br>席位共振数据</p>
                     <span class="arrow">→</span>
-                </a>
-                <a class="card northbound" href="index.html" target="_blank">
+                </div>
+                <div class="card northbound" href="index.html" target="_blank">
                     <div class="card-icon">🏦</div>
                     <h3>北向资金日历</h3>
                     <p>北向资金每日<br>净流入 / 流出数据</p>
                     <span class="arrow">→</span>
-                </a>
+                </div>
             </div>
 
             <div class="logout">
@@ -318,6 +318,9 @@
             document.getElementById("errorMsg").style.display = "none";
         }
 
+        function openCal(url) {
+            window.open(url + '?from=portal', '_blank');
+        }
         window.onload = function() {
             const role = sessionStorage.getItem("portal_role");
             if (role) showPanel(role);

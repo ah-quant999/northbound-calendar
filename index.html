@@ -1469,6 +1469,15 @@
 
 <script>
 (function(){
+    // 检查URL参数：从portal跳转过来的
+    (function(){
+        var p = new URLSearchParams(location.search);
+        if (p.get('from') === 'portal') {
+            sessionStorage.setItem("cal_auth_" + location.pathname, "1");
+            var u = location.pathname + location.hash;
+            history.replaceState(null, '', u);
+        }
+    })();
     var path = location.pathname;
     if (sessionStorage.getItem("portal_role") || sessionStorage.getItem("cal_auth_" + path)) {
         var el = document.getElementById("authOverlay");
