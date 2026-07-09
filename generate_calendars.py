@@ -592,7 +592,7 @@ def get_legend_blocks(year, month):
 
     blocks = [
         {
-            'color': '#f0883e',
+            'color': '#ff8c42',
             'title': '重要政策',
             'detail': '中国政府/监管机构发布的重大政策、法规、规划等',
             'items': [
@@ -600,7 +600,7 @@ def get_legend_blocks(year, month):
             ]
         },
         {
-            'color': '#f7c948',
+            'color': '#ffd700',
             'title': '央行/LPR',
             'detail': '央行货币政策、利率决议、LPR报价等',
             'items': [
@@ -608,7 +608,7 @@ def get_legend_blocks(year, month):
             ]
         },
         {
-            'color': '#d29922',
+            'color': '#e8b830',
             'title': '中国数据',
             'detail': '国家统计局/央行发布的宏观经济数据',
             'items': [
@@ -618,7 +618,7 @@ def get_legend_blocks(year, month):
             ]
         },
         {
-            'color': '#f78166',
+            'color': '#ff6b55',
             'title': '财报截止',
             'detail': 'A股财报披露法定截止日',
             'items': [
@@ -626,7 +626,7 @@ def get_legend_blocks(year, month):
             ]
         },
         {
-            'color': '#79c0ff',
+            'color': '#4da6ff',
             'title': '期权交割',
             'detail': '各交易所期权合约到期日，涉及多空博弈',
             'items': [
@@ -636,7 +636,7 @@ def get_legend_blocks(year, month):
             ]
         },
         {
-            'color': '#a5d6ff',
+            'color': '#6cb4ff',
             'title': '期货交割',
             'detail': '期货合约最后交易日，交割前后波动加大',
             'items': [
@@ -645,7 +645,7 @@ def get_legend_blocks(year, month):
             ]
         },
         {
-            'color': '#ff7b72',
+            'color': '#ff5a52',
             'title': 'A50交割',
             'detail': '新加坡富时A50期货交割日，外资对冲A股关键窗口',
             'items': [
@@ -654,13 +654,13 @@ def get_legend_blocks(year, month):
             ]
         },
         {
-            'color': '#8b949e',
+            'color': '#78828a',
             'title': '港股休市',
             'detail': '香港交易所休市日，港股通/沪深股通同步暂停',
             'items': get_hk_holiday_items(year, month)
         },
         {
-            'color': '#3fb950',
+            'color': '#2ea043',
             'title': '台股财报',
             'detail': '台股财报季',
             'items': [
@@ -668,25 +668,25 @@ def get_legend_blocks(year, month):
             ]
         },
         {
-            'color': '#d2a8ff',
+            'color': '#c084fc',
             'title': '苹果/华为发布',
             'detail': '两大科技巨头新品发布/重要财报',
             'items': get_phone_items(year, month)
         },
         {
-            'color': '#f85149',
+            'color': '#e63946',
             'title': 'FOMC',
             'detail': '美联储货币政策会议，全球资本市场核心事件',
             'items': get_fomc_items(year, month)
         },
         {
-            'color': '#6e7681',
+            'color': '#5a6270',
             'title': '美股休市',
             'detail': 'NYSE/Nasdaq休市日',
             'items': get_us_holiday_items(year, month)
         },
         {
-            'color': '#58a6ff',
+            'color': '#388bfd',
             'title': '美股财报',
             'detail': f'{month_name} 美股财报季',
             'items': [
@@ -695,7 +695,7 @@ def get_legend_blocks(year, month):
             ]
         },
         {
-            'color': '#7ee787',
+            'color': '#4ade80',
             'title': '欧股财报',
             'detail': '欧洲主要公司财报发布',
             'items': [
@@ -703,7 +703,7 @@ def get_legend_blocks(year, month):
             ]
         },
         {
-            'color': '#e3b341',
+            'color': '#f0c040',
             'title': '日股财报',
             'detail': '日股财报季',
             'items': [
@@ -711,7 +711,7 @@ def get_legend_blocks(year, month):
             ]
         },
         {
-            'color': '#bc8cff',
+            'color': '#a855f7',
             'title': '韩股财报',
             'detail': '韩国主要公司财报发布',
             'items': [
@@ -719,7 +719,7 @@ def get_legend_blocks(year, month):
             ]
         },
         {
-            'color': '#8b949e',
+            'color': '#ff528a',
             'title': 'SG公假',
             'detail': '新加坡公共假期',
             'items': get_sg_holiday_items(year, month)
@@ -949,23 +949,23 @@ def generate_month_html(year, month, today_date=None):
     lines.append('            white-space: nowrap;')
     lines.append('        }')
     lines.append('        .category-tag.today { background: #d29922; color: #fff; }')
-    lines.append('        .category-tag.policy { background: #f0883e; color: #fff; }')
-    lines.append('        .category-tag.cbank { background: #f7c948; color: #0d1117; }')
-    lines.append('        .category-tag.cndata { background: #d29922; color: #fff; }')
-    lines.append('        .category-tag.earn-end { background: #f78166; color: #fff; }')
-    lines.append('        .category-tag.option { background: #79c0ff; color: #0d1117; }')
-    lines.append('        .category-tag.futures { background: #a5d6ff; color: #0d1117; }')
-    lines.append('        .category-tag.a50 { background: #ff7b72; color: #fff; }')
-    lines.append('        .category-tag.hk-holiday { background: #8b949e; color: #fff; }')
-    lines.append('        .category-tag.tw { background: #3fb950; color: #fff; }')
-    lines.append('        .category-tag.phone { background: #d2a8ff; color: #fff; }')
-    lines.append('        .category-tag.fomc { background: #f85149; color: #fff; }')
-    lines.append('        .category-tag.us-holiday { background: #6e7681; color: #fff; }')
-    lines.append('        .category-tag.us-earn { background: #58a6ff; color: #fff; }')
-    lines.append('        .category-tag.eu-earn { background: #7ee787; color: #0d1117; }')
-    lines.append('        .category-tag.jp-earn { background: #e3b341; color: #0d1117; }')
-    lines.append('        .category-tag.kr-earn { background: #bc8cff; color: #fff; }')
-    lines.append('        .category-tag.sg-holiday { background: #8b949e; color: #fff; }')
+    lines.append('        .category-tag.policy { background: #ff8c42; color: #fff; }')
+    lines.append('        .category-tag.cbank { background: #ffd700; color: #fff; }')
+    lines.append('        .category-tag.cndata { background: #e8b830; color: #fff; }')
+    lines.append('        .category-tag.earn-end { background: #ff6b55; color: #fff; }')
+    lines.append('        .category-tag.option { background: #4da6ff; color: #fff; }')
+    lines.append('        .category-tag.futures { background: #6cb4ff; color: #fff; }')
+    lines.append('        .category-tag.a50 { background: #ff5a52; color: #fff; }')
+    lines.append('        .category-tag.hk-holiday { background: #78828a; color: #fff; }')
+    lines.append('        .category-tag.tw { background: #2ea043; color: #fff; }')
+    lines.append('        .category-tag.phone { background: #c084fc; color: #fff; }')
+    lines.append('        .category-tag.fomc { background: #e63946; color: #fff; }')
+    lines.append('        .category-tag.us-holiday { background: #5a6270; color: #fff; }')
+    lines.append('        .category-tag.us-earn { background: #388bfd; color: #fff; }')
+    lines.append('        .category-tag.eu-earn { background: #4ade80; color: #fff; }')
+    lines.append('        .category-tag.jp-earn { background: #f0c040; color: #fff; }')
+    lines.append('        .category-tag.kr-earn { background: #a855f7; color: #fff; }')
+    lines.append('        .category-tag.sg-holiday { background: #ff528a; color: #fff; }')
     lines.append('')
     lines.append('        /* 周列表 */')
     lines.append('        .week-table {')
@@ -1041,23 +1041,23 @@ def generate_month_html(year, month, today_date=None):
     lines.append('            line-height: 1.3;')
     lines.append('        }')
     lines.append('')
-    lines.append('        .event-item.policy { background: #f0883e; border-left: 3px solid #f0883e; color: #fff; }')
-    lines.append('        .event-item.cbank { background: #f7c948; border-left: 3px solid #f7c948; color: #0d1117; }')
-    lines.append('        .event-item.macro { background: #d29922; border-left: 3px solid #d29922; color: #fff; }')
-    lines.append('        .event-item.earn-end { background: #f78166; border-left: 3px solid #f78166; color: #fff; }')
-    lines.append('        .event-item.option { background: #79c0ff; border-left: 3px solid #79c0ff; color: #0d1117; }')
-    lines.append('        .event-item.futures { background: #a5d6ff; border-left: 3px solid #a5d6ff; color: #0d1117; }')
-    lines.append('        .event-item.a50 { background: #ff7b72; border-left: 3px solid #ff7b72; color: #fff; }')
-    lines.append('        .event-item.hk-holiday { background: #8b949e; border-left: 3px solid #8b949e; color: #fff; }')
-    lines.append('        .event-item.tw-stock { background: #3fb950; border-left: 3px solid #3fb950; color: #fff; }')
-    lines.append('        .event-item.phone { background: #d2a8ff; border-left: 3px solid #d2a8ff; color: #fff; }')
-    lines.append('        .event-item.fomc { background: #f85149; border-left: 3px solid #f85149; color: #fff; }')
-    lines.append('        .event-item.us-holiday { background: #6e7681; border-left: 3px solid #6e7681; color: #fff; }')
-    lines.append('        .event-item.us-stock { background: #58a6ff; border-left: 3px solid #58a6ff; color: #fff; }')
-    lines.append('        .event-item.eu-earn { background: #7ee787; border-left: 3px solid #7ee787; color: #0d1117; }')
-    lines.append('        .event-item.jp-earn { background: #e3b341; border-left: 3px solid #e3b341; color: #0d1117; }')
-    lines.append('        .event-item.kr-stock { background: #bc8cff; border-left: 3px solid #bc8cff; color: #fff; }')
-    lines.append('        .event-item.sg-holiday { background: #ff6b9d; border-left: 3px solid #ff6b9d; color: #fff; }')
+    lines.append('        .event-item.policy { background: #ff8c42; border-left: 3px solid #ff8c42; color: #fff; }')
+    lines.append('        .event-item.cbank { background: #ffd700; border-left: 3px solid #ffd700; color: #fff; }')
+    lines.append('        .event-item.macro { background: #e8b830; border-left: 3px solid #e8b830; color: #fff; }')
+    lines.append('        .event-item.earn-end { background: #ff6b55; border-left: 3px solid #ff6b55; color: #fff; }')
+    lines.append('        .event-item.option { background: #4da6ff; border-left: 3px solid #4da6ff; color: #fff; }')
+    lines.append('        .event-item.futures { background: #6cb4ff; border-left: 3px solid #6cb4ff; color: #fff; }')
+    lines.append('        .event-item.a50 { background: #ff5a52; border-left: 3px solid #ff5a52; color: #fff; }')
+    lines.append('        .event-item.hk-holiday { background: #78828a; border-left: 3px solid #78828a; color: #fff; }')
+    lines.append('        .event-item.tw-stock { background: #2ea043; border-left: 3px solid #2ea043; color: #fff; }')
+    lines.append('        .event-item.phone { background: #c084fc; border-left: 3px solid #c084fc; color: #fff; }')
+    lines.append('        .event-item.fomc { background: #e63946; border-left: 3px solid #e63946; color: #fff; }')
+    lines.append('        .event-item.us-holiday { background: #5a6270; border-left: 3px solid #5a6270; color: #fff; }')
+    lines.append('        .event-item.us-stock { background: #388bfd; border-left: 3px solid #388bfd; color: #fff; }')
+    lines.append('        .event-item.eu-earn { background: #4ade80; border-left: 3px solid #4ade80; color: #fff; }')
+    lines.append('        .event-item.jp-earn { background: #f0c040; border-left: 3px solid #f0c040; color: #fff; }')
+    lines.append('        .event-item.kr-stock { background: #a855f7; border-left: 3px solid #a855f7; color: #fff; }')
+    lines.append('        .event-item.sg-holiday { background: #ff528a; border-left: 3px solid #ff528a; color: #fff; }')
     lines.append('')
     lines.append('        .day-cell .empty-content {')
     lines.append('            flex: 1;')
