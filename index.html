@@ -184,6 +184,78 @@
             font-size: 12px;
         }
 
+        /* 周度汇总 */
+        .weekly-summary {
+            margin-bottom: 30px;
+        }
+        .weekly-summary h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #c9d1d9;
+        }
+        .week-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 15px;
+        }
+        .week-box {
+            background: #21262d;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #30363d;
+        }
+        .week-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #c9d1d9;
+        }
+        .week-stocks {
+            font-size: 12px;
+        }
+        .week-stock-item {
+            display: flex;
+            align-items: center;
+            padding: 4px 0;
+        }
+        .week-stock-rank {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #58a6ff;
+            color: #fff;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+        .week-stock-name {
+            flex: 1;
+            color: #c9d1d9;
+        }
+        .week-stock-amount {
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+        .week-section {
+            margin-bottom: 8px;
+        }
+        .week-section-title {
+            font-size: 11px;
+            color: #8b949e;
+            margin-bottom: 3px;
+        }
+        .summary-note {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #30363d;
+            font-size: 11px;
+            color: #6e7681;
+            text-align: center;
+        }
+        
         /* 月度汇总 */
         .monthly-summary {
             display: grid;
@@ -553,37 +625,190 @@
         </table>
         <div style="text-align:left;font-size:12px;color:#8b949e;margin:-15px 0 25px 5px;">第5周 7/27-8/2</div>
 
+        <!-- 周度汇总 -->
+        <div class="weekly-summary">
+            <h3>📊 周度汇总</h3>
+            <div class="week-grid">
+                <div class="week-box">
+                    <div class="week-title">第1周 7/1-7/5</div>
+                    <div class="week-stocks">
+                        <div class="week-section">
+                            <div class="week-section-title">✅ 买入TOP3</div>
+                            <div class="week-stock-item">
+                                <span class="week-stock-rank">1</span>
+                                <span class="week-stock-name">东山精密</span>
+                                <span class="week-stock-amount" style="color:#3fb950;">+11.16亿</span>
+                            </div>
+                            <div class="week-stock-item">
+                                <span class="week-stock-rank">2</span>
+                                <span class="week-stock-name">昊华科技</span>
+                                <span class="week-stock-amount" style="color:#3fb950;">+7.35亿</span>
+                            </div>
+                            <div class="week-stock-item">
+                                <span class="week-stock-rank">3</span>
+                                <span class="week-stock-name">中科飞测</span>
+                                <span class="week-stock-amount" style="color:#3fb950;">+6.20亿</span>
+                            </div>
+                        </div>
+                        <div class="week-section">
+                            <div class="week-section-title">❌ 卖出TOP3</div>
+                            <div class="week-stock-item">
+                                <span class="week-stock-rank">1</span>
+                                <span class="week-stock-name">多氟多</span>
+                                <span class="week-stock-amount" style="color:#f85149;">-4.93亿</span>
+                            </div>
+                            <div class="week-stock-item">
+                                <span class="week-stock-rank">2</span>
+                                <span class="week-stock-name">美诺华</span>
+                                <span class="week-stock-amount" style="color:#f85149;">-3.20亿</span>
+                            </div>
+                            <div class="week-stock-item">
+                                <span class="week-stock-rank">3</span>
+                                <span class="week-stock-name">平潭发展</span>
+                                <span class="week-stock-amount" style="color:#f85149;">-2.10亿</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="week-box">
+                    <div class="week-title">第2周 7/6-7/12</div>
+                    <div class="week-stocks">
+                        <div class="week-section">
+                            <div class="week-section-title">✅ 买入TOP3</div>
+                            <div class="week-stock-item">
+                                <span class="week-stock-rank">1</span>
+                                <span class="week-stock-name">华天科技</span>
+                                <span class="week-stock-amount" style="color:#3fb950;">+6.45亿</span>
+                            </div>
+                            <div class="week-stock-item">
+                                <span class="week-stock-rank">2</span>
+                                <span class="week-stock-name">中钨高新</span>
+                                <span class="week-stock-amount" style="color:#3fb950;">+3.35亿</span>
+                            </div>
+                            <div class="week-stock-item">
+                                <span class="week-stock-rank">3</span>
+                                <span class="week-stock-name">埃斯顿</span>
+                                <span class="week-stock-amount" style="color:#3fb950;">+2.52亿</span>
+                            </div>
+                        </div>
+                        <div class="week-section">
+                            <div class="week-section-title">❌ 卖出TOP3</div>
+                            <div class="week-stock-item">
+                                <span class="week-stock-rank">1</span>
+                                <span class="week-stock-name">美诺华</span>
+                                <span class="week-stock-amount" style="color:#f85149;">-2.22亿</span>
+                            </div>
+                            <div class="week-stock-item">
+                                <span class="week-stock-rank">2</span>
+                                <span class="week-stock-name">杭电股份</span>
+                                <span class="week-stock-amount" style="color:#f85149;">-1.39亿</span>
+                            </div>
+                            <div class="week-stock-item">
+                                <span class="week-stock-rank">3</span>
+                                <span class="week-stock-name">天娱数科</span>
+                                <span class="week-stock-amount" style="color:#f85149;">-1.38亿</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="week-box">
+                    <div class="week-title">第3周 7/13-7/19</div>
+                    <div class="week-stocks">
+                        <div class="week-section">
+                            <div class="week-section-title">✅ 买入TOP3</div>
+                            <div class="week-stock-item">
+                                <span class="week-stock-rank">1</span>
+                                <span class="week-stock-name">暂无数据</span>
+                                <span class="week-stock-amount" style="color:#6e7681;">--</span>
+                            </div>
+                        </div>
+                        <div class="week-section">
+                            <div class="week-section-title">❌ 卖出TOP3</div>
+                            <div class="week-stock-item">
+                                <span class="week-stock-rank">1</span>
+                                <span class="week-stock-name">暂无数据</span>
+                                <span class="week-stock-amount" style="color:#6e7681;">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="week-box">
+                    <div class="week-title">第4周 7/20-7/26</div>
+                    <div class="week-stocks">
+                        <div class="week-section">
+                            <div class="week-section-title">✅ 买入TOP3</div>
+                            <div class="week-stock-item">
+                                <span class="week-stock-rank">1</span>
+                                <span class="week-stock-name">暂无数据</span>
+                                <span class="week-stock-amount" style="color:#6e7681;">--</span>
+                            </div>
+                        </div>
+                        <div class="week-section">
+                            <div class="week-section-title">❌ 卖出TOP3</div>
+                            <div class="week-stock-item">
+                                <span class="week-stock-rank">1</span>
+                                <span class="week-stock-name">暂无数据</span>
+                                <span class="week-stock-amount" style="color:#6e7681;">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="week-box">
+                    <div class="week-title">第5周 7/27-8/2</div>
+                    <div class="week-stocks">
+                        <div class="week-section">
+                            <div class="week-section-title">✅ 买入TOP3</div>
+                            <div class="week-stock-item">
+                                <span class="week-stock-rank">1</span>
+                                <span class="week-stock-name">暂无数据</span>
+                                <span class="week-stock-amount" style="color:#6e7681;">--</span>
+                            </div>
+                        </div>
+                        <div class="week-section">
+                            <div class="week-section-title">❌ 卖出TOP3</div>
+                            <div class="week-stock-item">
+                                <span class="week-stock-rank">1</span>
+                                <span class="week-stock-name">暂无数据</span>
+                                <span class="week-stock-amount" style="color:#6e7681;">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- 月度汇总 -->
         <div class="monthly-summary">
             <div class="summary-box">
                 <h3 class="buy">▲ 净买入TOP10</h3>
                 <ul class="rank-list">
-                    <li class="rank-item"><span class="rank-num top">1</span><span class="rank-name">华天科技</span><span class="rank-code">002185</span><span class="rank-amount buy">+6.45亿</span></li>
-                    <li class="rank-item"><span class="rank-num top">2</span><span class="rank-name">东山精密</span><span class="rank-code">002384</span><span class="rank-amount buy">+11.16亿</span></li>
-                    <li class="rank-item"><span class="rank-num top">3</span><span class="rank-name">天娱数科</span><span class="rank-code">002354</span><span class="rank-amount buy">+3.44亿</span></li>
-                    <li class="rank-item"><span class="rank-num other">4</span><span class="rank-name">双环传动</span><span class="rank-code">002472</span><span class="rank-amount buy">+2.49亿</span></li>
-                    <li class="rank-item"><span class="rank-num other">5</span><span class="rank-name">昊华科技</span><span class="rank-code">600378</span><span class="rank-amount buy">+7.35亿</span></li>
-                    <li class="rank-item"><span class="rank-num other">6</span><span class="rank-name">中科飞测</span><span class="rank-code">688361</span><span class="rank-amount buy">+6.20亿</span></li>
-                    <li class="rank-item"><span class="rank-num other">7</span><span class="rank-name">多氟多</span><span class="rank-code">002407</span><span class="rank-amount buy">+5.74亿</span></li>
-                    <li class="rank-item"><span class="rank-num other">8</span><span class="rank-name">京东方A</span><span class="rank-code">000725</span><span class="rank-amount buy">+4.96亿</span></li>
-                    <li class="rank-item"><span class="rank-num other">9</span><span class="rank-name">富创精密</span><span class="rank-code">688409</span><span class="rank-amount buy">+4.44亿</span></li>
-                    <li class="rank-item"><span class="rank-num other">10</span><span class="rank-name">锋龙股份</span><span class="rank-code">002931</span><span class="rank-amount buy">+0.73亿</span></li>
+                    <li class="rank-item"><span class="rank-num top">1</span><span class="rank-name">东山精密</span><span class="rank-code">002384</span><span class="rank-amount buy">+11.16亿</span></li>
+                    <li class="rank-item"><span class="rank-num top">2</span><span class="rank-name">昊华科技</span><span class="rank-code">600378</span><span class="rank-amount buy">+7.35亿</span></li>
+                    <li class="rank-item"><span class="rank-num top">3</span><span class="rank-name">华天科技</span><span class="rank-code">002185</span><span class="rank-amount buy">+6.45亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">4</span><span class="rank-name">中科飞测</span><span class="rank-code">688361</span><span class="rank-amount buy">+6.20亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">5</span><span class="rank-name">富创精密</span><span class="rank-code">688409</span><span class="rank-amount buy">+4.44亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">6</span><span class="rank-name">埃斯顿</span><span class="rank-code">002747</span><span class="rank-amount buy">+4.07亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">7</span><span class="rank-name">天娱数科</span><span class="rank-code">002354</span><span class="rank-amount buy">+3.44亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">8</span><span class="rank-name">中钨高新</span><span class="rank-code">000657</span><span class="rank-amount buy">+3.35亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">9</span><span class="rank-name">彤程新材</span><span class="rank-code">603650</span><span class="rank-amount buy">+2.81亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">10</span><span class="rank-name">双环传动</span><span class="rank-code">002472</span><span class="rank-amount buy">+2.49亿</span></li>
                 </ul>
             </div>
             <div class="summary-box">
                 <h3 class="sell">▼ 净卖出TOP10</h3>
                 <ul class="rank-list">
-                    <li class="rank-item"><span class="rank-num top">1</span><span class="rank-name">华工科技</span><span class="rank-code">000988</span><span class="rank-amount sell">-9.36亿</span></li>
+                    <li class="rank-item"><span class="rank-num top">1</span><span class="rank-name">美诺华</span><span class="rank-code">603538</span><span class="rank-amount sell">-5.42亿</span></li>
                     <li class="rank-item"><span class="rank-num top">2</span><span class="rank-name">多氟多</span><span class="rank-code">002407</span><span class="rank-amount sell">-4.93亿</span></li>
-                    <li class="rank-item"><span class="rank-num top">3</span><span class="rank-name">美诺华</span><span class="rank-code">603538</span><span class="rank-amount sell">-3.20亿</span></li>
-                    <li class="rank-item"><span class="rank-num other">4</span><span class="rank-name">沪电股份</span><span class="rank-code">002463</span><span class="rank-amount sell">-2.95亿</span></li>
-                    <li class="rank-item"><span class="rank-num other">5</span><span class="rank-name">北方华创</span><span class="rank-code">002371</span><span class="rank-amount sell">-2.81亿</span></li>
-                    <li class="rank-item"><span class="rank-num other">6</span><span class="rank-name">平潭发展</span><span class="rank-code">000592</span><span class="rank-amount sell">-2.10亿</span></li>
-                    <li class="rank-item"><span class="rank-num other">7</span><span class="rank-name">东山精密</span><span class="rank-code">002384</span><span class="rank-amount sell">-2.36亿</span></li>
-                    <li class="rank-item"><span class="rank-num other">8</span><span class="rank-name">黄河旋风</span><span class="rank-code">600172</span><span class="rank-amount sell">-1.25亿</span></li>
-                    <li class="rank-item"><span class="rank-num other">9</span><span class="rank-name">华电辽能</span><span class="rank-code">600396</span><span class="rank-amount sell">-1.30亿</span></li>
-                    <li class="rank-item"><span class="rank-num other">10</span><span class="rank-name">山东玻纤</span><span class="rank-code">605006</span><span class="rank-amount sell">-0.17亿</span></li>
+                    <li class="rank-item"><span class="rank-num top">3</span><span class="rank-name">平潭发展</span><span class="rank-code">000592</span><span class="rank-amount sell">-2.10亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">4</span><span class="rank-name">杭电股份</span><span class="rank-code">603618</span><span class="rank-amount sell">-1.39亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">5</span><span class="rank-name">天娱数科</span><span class="rank-code">002354</span><span class="rank-amount sell">-1.38亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">6</span><span class="rank-name">华电辽能</span><span class="rank-code">600396</span><span class="rank-amount sell">-1.30亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">7</span><span class="rank-name">黄河旋风</span><span class="rank-code">600172</span><span class="rank-amount sell">-1.25亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">8</span><span class="rank-name">雷赛智能</span><span class="rank-code">002979</span><span class="rank-amount sell">-1.04亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">9</span><span class="rank-name">信雅达</span><span class="rank-code">600571</span><span class="rank-amount sell">-1.03亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">10</span><span class="rank-name">福赛科技</span><span class="rank-code">301529</span><span class="rank-amount sell">-0.84亿</span></li>
                 </ul>
+                <div class="summary-note">统计口径：龙虎榜席位月度累计净买卖</div>
             </div>
         </div>
 
