@@ -937,10 +937,36 @@
     <div id="day-detail-panel">
         <div class="detail-header">
             <span class="detail-title" id="detail-title-text"></span>
-            <button class="detail-close-btn" onclick="closeDayDetail()">关闭</button>
+            <button class="detail-close-btn" onclick="closeDayDetail()">✕</button>
         </div>
         <div id="detail-events-list"></div>
     </div>
+
+    <!-- ========== 今日事件 ========== -->
+    <div class="today-events-section">
+        <div class="today-events-title">📅 今日事件(4个) · 2026-07-09</div>
+        <div class="today-event-item">
+            <span class="today-event-dot" style="background:#e63946;"></span>
+            <span class="today-event-text"><span class="today-event-star">★</span>🇺🇸 美联储6月会议纪要 ✅ 已发布</span>
+            <span class="today-event-cls" style="background:#e63946;color:#fff;">FOMC</span>
+        </div>
+        <div class="today-event-item">
+            <span class="today-event-dot" style="background:#e8b830;"></span>
+            <span class="today-event-text">🇨🇳 CPI/PPI数据</span>
+            <span class="today-event-cls" style="background:#e8b830;color:#fff;">中国数据</span>
+        </div>
+        <div class="today-event-item">
+            <span class="today-event-dot" style="background:#e8b830;"></span>
+            <span class="today-event-text">🇨🇳 6月CPI/PPI ✅ 已发布</span>
+            <span class="today-event-cls" style="background:#e8b830;color:#fff;">中国数据</span>
+        </div>
+        <div class="today-event-item">
+            <span class="today-event-dot" style="background:#388bfd;"></span>
+            <span class="today-event-text">PEP 百事 盘前</span>
+            <span class="today-event-cls" style="background:#388bfd;color:#fff;">美股财报</span>
+        </div>
+    </div>
+
     <!-- ========== 色块标注区 ========== -->
     <div class="legend-section">
         <h3>🎨 色块标注说明</h3>
@@ -1152,32 +1178,6 @@
 
         </div>
     </div>
-
-    <!-- ========== 今日事件 ========== -->
-    <div class="today-events-section">
-        <div class="today-events-title">📅 今日事件(4个) · 2026-07-09</div>
-        <div class="today-event-item">
-            <span class="today-event-dot" style="background:#e63946;"></span>
-            <span class="today-event-text"><span class="today-event-star">★</span>🇺🇸 美联储6月会议纪要 ✅ 已发布</span>
-            <span class="today-event-cls" style="background:#e63946;color:#fff;">FOMC</span>
-        </div>
-        <div class="today-event-item">
-            <span class="today-event-dot" style="background:#e8b830;"></span>
-            <span class="today-event-text">🇨🇳 CPI/PPI数据</span>
-            <span class="today-event-cls" style="background:#e8b830;color:#fff;">中国数据</span>
-        </div>
-        <div class="today-event-item">
-            <span class="today-event-dot" style="background:#e8b830;"></span>
-            <span class="today-event-text">🇨🇳 6月CPI/PPI ✅ 已发布</span>
-            <span class="today-event-cls" style="background:#e8b830;color:#fff;">中国数据</span>
-        </div>
-        <div class="today-event-item">
-            <span class="today-event-dot" style="background:#388bfd;"></span>
-            <span class="today-event-text">PEP 百事 盘前</span>
-            <span class="today-event-cls" style="background:#388bfd;color:#fff;">美股财报</span>
-        </div>
-    </div>
-
     <div class="footer-note">
         <strong>📋 数据来源与说明</strong><br>
         1. 🇨🇳 <strong>中国宏观数据</strong>：国家统计局/央行常规发布日历。CPI/PPI每月9日，PMI月末最后一日，工业/零售/固投每月15日前后，LPR每月20日。<br>
@@ -1248,7 +1248,7 @@
 
         var mm = String(CURRENT_MONTH).padStart(2, "0");
         var dd = String(dayNum).padStart(2, "0");
-        titleEl.textContent = CURRENT_YEAR + "-" + mm + "-" + dd + " · 共" + eventsData.length + "个事件";
+        titleEl.textContent = dayNum + "日 事件详情";
 
         // 渲染事件列表
         var html = "";
