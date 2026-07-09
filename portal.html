@@ -3,99 +3,235 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>阿狸咪量化 · 数据面板</title>
+    <title>九宝日历精选</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            background: #0d1117;
+            background: #faf6f2;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
-            color: #c9d1d9;
+            color: #5a4e3e;
         }
         .container {
-            max-width: 520px;
+            max-width: 820px;
             width: 100%;
         }
+
+        /* ===== 登录页 ===== */
         .login-box {
-            background: #161b22;
-            border-radius: 12px;
-            border: 1px solid #30363d;
-            padding: 40px;
+            background: #fffdfa;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(180, 160, 140, 0.12);
+            padding: 48px 40px;
             text-align: center;
+            max-width: 420px;
+            margin: 0 auto;
         }
-        .login-box .logo { font-size: 36px; margin-bottom: 8px; }
-        .login-box h1 { font-size: 22px; color: #58a6ff; margin-bottom: 6px; }
-        .login-box .subtitle { color: #8b949e; font-size: 13px; margin-bottom: 28px; }
+        .login-box .logo-icon {
+            width: 56px; height: 56px;
+            background: linear-gradient(135deg, #ffb5c7, #b5e0d7);
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px; margin: 0 auto 14px;
+        }
+        .login-box h1 {
+            font-size: 22px; color: #7a6b5a;
+            font-weight: 700; letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        .login-box .subtitle {
+            color: #b5a898; font-size: 13px;
+            margin-bottom: 28px;
+        }
         .login-box input {
-            width: 100%; padding: 12px 16px; background: #0d1117;
-            border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9;
-            font-size: 15px; outline: none; transition: border 0.2s; margin-bottom: 14px;
+            width: 100%; padding: 12px 16px;
+            background: #f7f2eb;
+            border: 1.5px solid #e8ddd0;
+            border-radius: 10px; color: #5a4e3e;
+            font-size: 15px; outline: none; transition: all 0.2s;
+            margin-bottom: 14px;
         }
-        .login-box input:focus { border-color: #58a6ff; }
-        .login-box input::placeholder { color: #484f58; }
+        .login-box input:focus {
+            border-color: #ffb5c7;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(255, 181, 199, 0.2);
+        }
+        .login-box input::placeholder { color: #c8bba8; }
         .login-box .btn {
-            width: 100%; padding: 12px; background: #238636; border: none;
-            border-radius: 6px; color: #fff; font-size: 15px; font-weight: 600;
-            cursor: pointer; transition: background 0.2s;
+            width: 100%; padding: 12px;
+            background: linear-gradient(135deg, #ffb5c7, #ffd1b5);
+            border: none; border-radius: 10px;
+            color: #7a5a4a; font-size: 15px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s;
         }
-        .login-box .btn:hover { background: #2ea043; }
-        .login-box .error { color: #f85149; font-size: 13px; margin-top: 10px; display: none; }
-        .login-box .hint { color: #484f58; font-size: 12px; margin-top: 18px; }
+        .login-box .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(255, 181, 199, 0.35);
+        }
+        .login-box .error {
+            color: #e8706a; font-size: 13px;
+            margin-top: 10px; display: none;
+        }
+        .login-box .hint {
+            color: #c8bba8; font-size: 12px;
+            margin-top: 18px;
+        }
+
+        /* ===== 面板页 ===== */
         .panel { display: none; }
-        .panel .header { text-align: center; padding: 20px 0; margin-bottom: 24px; }
-        .panel .header h1 { font-size: 22px; color: #58a6ff; margin-bottom: 6px; }
+        .panel .header {
+            text-align: center; padding: 20px 0 28px;
+        }
+        .panel .header .logo-icon {
+            width: 48px; height: 48px;
+            background: linear-gradient(135deg, #ffb5c7, #b5e0d7);
+            border-radius: 14px;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 22px; margin-bottom: 10px;
+        }
+        .panel .header h1 {
+            font-size: 22px; color: #7a6b5a;
+            font-weight: 700; letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
         .panel .header .role-tag {
-            display: inline-block; padding: 2px 10px; border-radius: 10px;
-            font-size: 11px; font-weight: 600;
+            display: inline-block; padding: 3px 14px; border-radius: 12px;
+            font-size: 11px; font-weight: 600; margin-bottom: 4px;
         }
         .panel .header .role-tag.admin {
-            background: rgba(210,153,34,0.2); color: #d29922;
-            border: 1px solid rgba(210,153,34,0.4);
+            background: #ffe8cc; color: #c4905a;
+            border: 1px solid #ffdbb5;
         }
         .panel .header .role-tag.vip {
-            background: rgba(88,166,255,0.15); color: #58a6ff;
-            border: 1px solid rgba(88,166,255,0.3);
+            background: #e8f0ff; color: #7a9ac4;
+            border: 1px solid #ccd8f0;
         }
-        .panel .header .subtitle { color: #8b949e; font-size: 13px; margin-top: 4px; }
-        .panel .card-grid { display: flex; flex-direction: column; gap: 12px; }
+        .panel .header .subtitle {
+            color: #b5a898; font-size: 13px; margin-top: 2px;
+        }
+
+        /* 三张并排卡片 */
+        .panel .card-row {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-bottom: 28px;
+        }
         .panel .card {
-            background: #21262d; border: 1px solid #30363d; border-radius: 10px;
-            padding: 20px; text-decoration: none; color: #c9d1d9;
-            transition: border-color 0.2s, background 0.2s;
-            display: flex; align-items: center; gap: 16px;
+            flex: 1;
+            max-width: 240px;
+            background: #fffdfa;
+            border-radius: 18px;
+            padding: 28px 20px;
+            text-decoration: none;
+            color: #5a4e3e;
+            transition: all 0.25s;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(180, 160, 140, 0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1.5px solid transparent;
         }
-        .panel .card:hover { border-color: #58a6ff; background: #1c2128; }
-        .panel .card .icon {
-            font-size: 28px; flex-shrink: 0; width: 44px; height: 44px;
-            display: flex; align-items: center; justify-content: center; border-radius: 10px;
+        .panel .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 32px rgba(180, 160, 140, 0.18);
         }
-        .panel .card .icon.gold { background: rgba(210,153,34,0.12); }
-        .panel .card .icon.blue { background: rgba(88,166,255,0.12); }
-        .panel .card .icon.green { background: rgba(46,160,67,0.12); }
-        .panel .card .info h3 { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
-        .panel .card .info p { font-size: 12px; color: #6e7681; }
-        .panel .card .arrow { margin-left: auto; color: #484f58; font-size: 18px; flex-shrink: 0; }
-        .panel .card:hover .arrow { color: #58a6ff; }
-        .panel .logout { text-align: center; margin-top: 24px; }
-        .panel .logout a { color: #484f58; font-size: 13px; text-decoration: none; cursor: pointer; }
-        .panel .logout a:hover { color: #8b949e; }
-        .panel .footer-note { text-align: center; margin-top: 18px; font-size: 11px; color: #484f58; }
-        @media (max-width: 480px) {
-            .login-box { padding: 28px 20px; }
-            .panel .card { padding: 16px; }
+        .panel .card .card-icon {
+            width: 52px; height: 52px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; margin-bottom: 14px;
+        }
+        /* 重要日历 - 薰衣草紫 */
+        .panel .card.important {
+            border-color: #d7c4ff;
+        }
+        .panel .card.important .card-icon {
+            background: #ede0ff;
+        }
+        .panel .card.important:hover {
+            border-color: #c9b1ff;
+            background: #f8f3ff;
+        }
+        /* 机游共振 - 蜜桃粉 */
+        .panel .card.resonance {
+            border-color: #ffd1b5;
+        }
+        .panel .card.resonance .card-icon {
+            background: #ffede0;
+        }
+        .panel .card.resonance:hover {
+            border-color: #ffb5c7;
+            background: #fff5f0;
+        }
+        /* 北向资金 - 薄荷绿 */
+        .panel .card.northbound {
+            border-color: #b5e0d7;
+        }
+        .panel .card.northbound .card-icon {
+            background: #e0f5ed;
+        }
+        .panel .card.northbound:hover {
+            border-color: #8dd0c0;
+            background: #f0faf5;
+        }
+        .panel .card h3 {
+            font-size: 15px; font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .panel .card p {
+            font-size: 12px; color: #b5a898;
+            line-height: 1.5;
+        }
+        .panel .card .arrow {
+            margin-top: 12px;
+            font-size: 14px;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+        .panel .card:hover .arrow {
+            opacity: 1;
+        }
+
+        .panel .logout {
+            text-align: center; margin-top: 4px;
+        }
+        .panel .logout a {
+            color: #c8bba8; font-size: 13px;
+            text-decoration: none; cursor: pointer;
+            transition: color 0.2s;
+        }
+        .panel .logout a:hover { color: #b5a898; }
+        .panel .footer-note {
+            text-align: center; margin-top: 14px;
+            font-size: 11px; color: #d8cdc0;
+        }
+
+        @media (max-width: 640px) {
+            .panel .card-row {
+                flex-direction: column;
+                align-items: center;
+            }
+            .panel .card {
+                max-width: 100%;
+                width: 100%;
+            }
+            .login-box { padding: 36px 24px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- 登录页 -->
         <div class="login-box" id="loginPage">
-            <div class="logo">📊</div>
-            <h1>阿狸咪量化</h1>
-            <div class="subtitle">数据面板 · 请输入密码</div>
+            <div class="logo-icon">📅</div>
+            <h1>九宝日历精选</h1>
+            <div class="subtitle">日历面板 · 请输入密码</div>
             <input type="password" id="passwordInput" placeholder="输入密码" autocomplete="off"
                    onkeydown="if(event.key==='Enter')login()">
             <button class="btn" onclick="login()">进入面板</button>
@@ -103,38 +239,36 @@
             <div class="hint">管理员 / 贵宾专用入口</div>
         </div>
 
+        <!-- 面板页 -->
         <div class="panel" id="panelPage">
             <div class="header">
-                <h1>📊 阿狸咪量化</h1>
+                <div class="logo-icon">📅</div>
+                <h1>九宝日历精选</h1>
                 <div><span class="role-tag" id="roleTag">管理员</span></div>
                 <div class="subtitle" id="welcomeMsg">欢迎回来</div>
             </div>
-            <div class="card-grid">
-                <a class="card" href="机游共振日历.html" target="_blank">
-                    <div class="icon gold">⭐</div>
-                    <div class="info">
-                        <h3>机游共振日历</h3>
-                        <p>龙虎榜机构 + 游资席位共振数据</p>
-                    </div>
+
+            <div class="card-row">
+                <a class="card important" href="重要日历_202607.html" target="_blank">
+                    <div class="card-icon">📅</div>
+                    <h3>重要日历</h3>
+                    <p>宏观数据、财报、FOMC<br>等关键事件</p>
                     <span class="arrow">→</span>
                 </a>
-                <a class="card" href="重要日历_202607.html" target="_blank">
-                    <div class="icon blue">📅</div>
-                    <div class="info">
-                        <h3>重要日历</h3>
-                        <p>宏观数据、财报、FOMC 等关键事件</p>
-                    </div>
+                <a class="card resonance" href="机游共振日历.html" target="_blank">
+                    <div class="card-icon">⭐</div>
+                    <h3>机游共振日历</h3>
+                    <p>龙虎榜机构 + 游资<br>席位共振数据</p>
                     <span class="arrow">→</span>
                 </a>
-                <a class="card" href="index.html" target="_blank">
-                    <div class="icon green">🏦</div>
-                    <div class="info">
-                        <h3>北向资金日历</h3>
-                        <p>北向资金每日净流入 / 流出数据</p>
-                    </div>
+                <a class="card northbound" href="index.html" target="_blank">
+                    <div class="card-icon">🏦</div>
+                    <h3>北向资金日历</h3>
+                    <p>北向资金每日<br>净流入 / 流出数据</p>
                     <span class="arrow">→</span>
                 </a>
             </div>
+
             <div class="logout">
                 <a onclick="logout()">← 退出登录</a>
             </div>
