@@ -291,9 +291,41 @@
             .legend-grid { grid-template-columns: 1fr; }
         }
     </style>
+
+    <style>
+        .back-to-portal-btn {
+            position: absolute;
+            top: 18px;
+            left: 18px;
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: #fff !important;
+            font-size: 15px;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 25px;
+            box-shadow: 0 4px 15px rgba(238, 90, 36, 0.5);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+        }
+        .back-to-portal-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 6px 20px rgba(238, 90, 36, 0.7);
+            background: linear-gradient(135deg, #ff7b7b, #ff6a3d);
+        }
+        .container {
+            position: relative;
+        }
+    </style>
+
 </head>
 <body>
 <div class="container">
+    <!-- 返回九宝日历精选 -->
+    <a href="portal.html" class="back-to-portal-btn">← 九宝日历精选</a>
+
     <div class="header">
         <div class="nav-bar">
             <a href="重要日历_202710.html" class="nav-arrow">← 2027年10月</a>

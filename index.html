@@ -443,6 +443,35 @@
         }
 
         </style>
+
+    <style>
+        .back-to-portal-btn {
+            position: absolute;
+            top: 18px;
+            left: 18px;
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: #fff !important;
+            font-size: 15px;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 25px;
+            box-shadow: 0 4px 15px rgba(238, 90, 36, 0.5);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+        }
+        .back-to-portal-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 6px 20px rgba(238, 90, 36, 0.7);
+            background: linear-gradient(135deg, #ff7b7b, #ff6a3d);
+        }
+        .container {
+            position: relative;
+        }
+    </style>
+
 </head>
 <body>
     
@@ -454,11 +483,13 @@
                onkeydown="if(event.key==='Enter')authLogin()">
         <button class="btn" onclick="authLogin()">验证</button>
         <div class="err" id="authErr">密码错误</div>
-        <div class="back-link"><a href="portal.html">← 返回登录页</a></div>
     </div>
 </div>
 
 <div class="container">
+    <!-- 返回九宝日历精选 -->
+    <a href="portal.html" class="back-to-portal-btn">← 九宝日历精选</a>
+
         <div class="header">
             <h1>龙虎榜北向席位日历</h1>
             <div class="month-nav">
@@ -1408,9 +1439,7 @@
             数据来源：沪深交易所龙虎榜 / 证券时报·数据宝 / 东方财富Choice<br>
             口径：龙虎榜北向席位净买卖 | 仅供参考，不构成投资建议<br>
             生成日期：2026-07-09 17:00
-        </div>    <div class="back-to-portal">
-        <a href="portal.html">← 返回九宝日历精选</a>
-    </div>
+        </div>
 
         <!-- 数据口径说明 -->
         <div class="data-source">
