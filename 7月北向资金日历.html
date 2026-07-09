@@ -42,6 +42,36 @@
             font-size: 13px;
         }
 
+        .month-nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        .month-nav .nav-link {
+            color: #58a6ff;
+            text-decoration: none;
+            padding: 4px 14px;
+            border-radius: 4px;
+            transition: background 0.2s;
+            font-size: 14px;
+        }
+        .month-nav .nav-link:hover {
+            background: #21262d;
+        }
+        .month-nav .nav-link.disabled {
+            color: #484f58;
+            pointer-events: none;
+            cursor: default;
+        }
+        .month-nav .nav-current {
+            color: #c9d1d9;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
         /* 图例 */
         .legend {
             display: flex;
@@ -362,8 +392,13 @@
 <body>
     <div class="container">
         <div class="header">
+            <div class="month-nav">
+                <a href="6月北向资金日历.html" class="nav-link disabled">← 6月</a>
+                <span class="nav-current">2026年7月</span>
+                <a href="8月北向资金日历.html" class="nav-link">8月 →</a>
+            </div>
             <h1>2026年7月 龙虎榜北向席位日历</h1>
-            <div class="subtitle">龙虎榜北向席位数据 | 数据更新时间：2026-07-08 17:00</div>
+            <div class="subtitle">龙虎榜北向席位数据 | 每日更新 17:30 | 数据更新时间：2026-07-08 17:00</div>
         </div>
 
         <!-- 图例 -->
@@ -901,4 +936,14 @@
                         <td>港交所/券商统计</td>
                         <td class="stars">☆☆☆☆☆</td>
                         <td>已停更</td>
-                        <td>⚠️ 2024年5月起港交所已停更北向资金实时及盘后净流入数据，全市�
+                        <td>⚠️ 2024年5月起港交所已停更北向资金实时及盘后净流入数据，全市场汇总数据不可靠，已移除</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        
+</div>
+</body>
+</html
+    >
