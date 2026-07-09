@@ -666,9 +666,10 @@ def get_legend_blocks(year, month):
         {
             'color': '#2ea043',
             'title': '台股财报',
-            'detail': '台股财报季',
+            'detail': '台股关注股票',
             'items': [
-                '暂无数据，待各公司公布具体日期后补充'
+                '台积电TSMC',
+                '联发科MediaTek'
             ]
         },
         {
@@ -692,34 +693,43 @@ def get_legend_blocks(year, month):
         {
             'color': '#388bfd',
             'title': '美股财报',
-            'detail': f'{month_name} 美股财报季',
+            'detail': '美股关注股票',
             'items': [
-                '暂无数据，待各公司公布具体日期后补充',
-                '⚠️ 财报日期可能调整，以公司官方公告为准'
+                '特斯拉TSLA',
+                '谷歌GOOGL',
+                '微软MSFT',
+                '苹果AAPL',
+                '亚马逊AMZN',
+                'Meta',
+                '英伟达NVDA',
+                '美光MU'
             ]
         },
         {
             'color': '#4ade80',
             'title': '欧股财报',
-            'detail': '欧洲主要公司财报发布',
+            'detail': '欧股关注股票',
             'items': [
-                '暂无数据，待各公司公布具体日期后补充'
+                'ASML阿斯麦'
             ]
         },
         {
             'color': '#f0c040',
             'title': '日股财报',
-            'detail': '日股财报季',
+            'detail': '日股关注股票',
             'items': [
-                '暂无数据，待各公司公布具体日期后补充'
+                '铠侠Kioxia',
+                '东京电子',
+                '爱德万测试'
             ]
         },
         {
             'color': '#a855f7',
             'title': '韩股财报',
-            'detail': '韩国主要公司财报发布',
+            'detail': '韩股关注股票',
             'items': [
-                '暂无数据，待各公司公布具体日期后补充'
+                '三星电子',
+                'SK海力士'
             ]
         },
         {
@@ -1196,6 +1206,7 @@ def generate_month_html(year, month, today_date=None):
     lines.append('    </style>')
     lines.append('</head>')
     lines.append('<body>')
+    lines.append('    <a href="portal.html" style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:linear-gradient(135deg,#c9b1ff,#d7c4ff);border-radius:20px;color:#fff;font-size:13px;font-weight:600;text-decoration:none;transition:all 0.2s;box-shadow:0 2px 8px rgba(201,177,255,0.4);letter-spacing:0.5px;margin-bottom:10px;">📅 返回九宝日历精选</a>')
     lines.append('<div class="container">')
     lines.append('    <div class="header">')
     lines.append('        <div class="nav-bar">')
