@@ -141,7 +141,7 @@
             flex-shrink: 0;
         }
         .day-cell .day-number {
-            font-size: 13px;
+            font-size: 16px;
             font-weight: 600;
             color: #c9d1d9;
             width: 22px;
@@ -175,7 +175,7 @@
         }
 
         .day-cell .stock-list {
-            font-size: 11px;
+            font-size: 14px;
             line-height: 1.5;
             display: flex;
             flex-direction: column;
@@ -232,7 +232,7 @@
         }
         .day-cell .stock-amount {
             font-weight: 500;
-            font-size: 11px;
+            font-size: 14px;
             flex-shrink: 0;
         }
         .day-cell .stock-amount.up { color: #f85149; }
@@ -240,7 +240,7 @@
         .day-cell .stock-amount.resonance-amount { color: #d29922; }
 
         .day-cell .section-title {
-            font-size: 10px;
+            font-size: 14px;
             color: #6e7681;
             margin: 3px 0 2px;
             flex-shrink: 0;
@@ -451,7 +451,114 @@
         .month-section.active { display: block; }
         .month-nav .nav-link.month-btn { cursor: pointer; }
         .month-nav .nav-link.month-btn:hover { background: #1f2937; }
-</style>
+
+    /* 详情面板 */
+    #day-detail-panel {
+        display: none;
+        background: #161b22cc;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 20px 0;
+        border: 1px solid #30363d;
+    }
+    #day-detail-panel .detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    #day-detail-panel .detail-title {
+        font-size: 20px;
+        color: #fff;
+        font-weight: 600;
+    }
+    #day-detail-panel .detail-close {
+        font-size: 16px;
+        color: #8b949e;
+        cursor: pointer;
+        padding: 4px 10px;
+        border-radius: 4px;
+        transition: background 0.2s;
+    }
+    #day-detail-panel .detail-close:hover {
+        background: #21262d;
+        color: #c9d1d9;
+    }
+    #day-detail-panel .detail-section {
+        margin-bottom: 12px;
+    }
+    #day-detail-panel .detail-section-title {
+        font-size: 14px;
+        color: #6e7681;
+        margin-bottom: 6px;
+        font-weight: 600;
+    }
+    #day-detail-panel .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 0;
+        font-size: 16px;
+    }
+    #day-detail-panel .detail-item .detail-icon {
+        flex-shrink: 0;
+    }
+    #day-detail-panel .detail-item .detail-name {
+        flex: 1;
+        color: #c9d1d9;
+    }
+    #day-detail-panel .detail-item .detail-amount {
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+
+    /* 今日事件区 */
+    #today-events {
+        background: #161b22cc;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 20px 0;
+        border: 1px solid #30363d;
+    }
+    #today-events .today-title {
+        font-size: 18px;
+        color: #fff;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+    #today-events .today-section {
+        margin-bottom: 10px;
+    }
+    #today-events .today-section-title {
+        font-size: 14px;
+        color: #6e7681;
+        margin-bottom: 6px;
+        font-weight: 600;
+    }
+    #today-events .today-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 3px 0;
+        font-size: 16px;
+    }
+    #today-events .today-item .today-icon {
+        flex-shrink: 0;
+    }
+    #today-events .today-item .today-name {
+        flex: 1;
+        color: #c9d1d9;
+    }
+    #today-events .today-item .today-amount {
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+    #today-events .today-empty {
+        color: #6e7681;
+        font-size: 14px;
+    }
+
+    </style>
 </head>
 <body>
     <div class="container">
@@ -486,7 +593,7 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">1</span></div>
                             <div class="stock-list">
@@ -499,7 +606,7 @@
                             </div>
                         </div>
                     </td>
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">2</span></div>
                             <div class="stock-list">
@@ -510,7 +617,7 @@
                             </div>
                         </div>
                     </td>
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">3</span></div>
                             <div class="stock-list">
@@ -521,7 +628,7 @@
                             </div>
                         </div>
                     </td>
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">4</span></div>
                             <div class="stock-list">
@@ -532,7 +639,7 @@
                             </div>
                         </div>
                     </td>
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">5</span></div>
                             <div class="stock-list">
@@ -543,13 +650,13 @@
                             </div>
                         </div>
                     </td>
-                    <td class="weekend">
+                    <td class="weekend" onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">6</span></div>
                             <div class="empty-content"><span class="amount holiday">休市</span></div>
                         </div>
                     </td>
-                    <td class="weekend">
+                    <td class="weekend" onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">7</span></div>
                             <div class="empty-content"><span class="amount holiday">休市</span></div>
@@ -567,7 +674,7 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">8</span></div>
                             <div class="stock-list">
@@ -580,7 +687,7 @@
                             </div>
                         </div>
                     </td>
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                 <div class="day-cell">
                     <div class="day-header"><span class="day-number">9</span></div>
                     <div class="stock-list">
@@ -592,7 +699,7 @@
                     </div>
                 </div>
                     </td>
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">10</span></div>
                             <div class="stock-list">
@@ -603,7 +710,7 @@
                             </div>
                         </div>
                     </td>
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">11</span></div>
                             <div class="stock-list">
@@ -616,7 +723,7 @@
                             </div>
                         </div>
                     </td>
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">12</span></div>
                             <div class="stock-list">
@@ -629,13 +736,13 @@
                             </div>
                         </div>
                     </td>
-                    <td class="weekend">
+                    <td class="weekend" onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">13</span></div>
                             <div class="empty-content"><span class="amount holiday">休市</span></div>
                         </div>
                     </td>
-                    <td class="weekend">
+                    <td class="weekend" onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">14</span></div>
                             <div class="empty-content"><span class="amount holiday">休市</span></div>
@@ -653,7 +760,7 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">15</span></div>
                             <div class="stock-list">
@@ -666,7 +773,7 @@
                             </div>
                         </div>
                     </td>
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">16</span></div>
                             <div class="stock-list">
@@ -679,7 +786,7 @@
                             </div>
                         </div>
                     </td>
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">17</span></div>
                             <div class="stock-list">
@@ -692,7 +799,7 @@
                             </div>
                         </div>
                     </td>
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">18</span></div>
                             <div class="stock-list">
@@ -703,19 +810,19 @@
                             </div>
                         </div>
                     </td>
-                    <td class="weekend">
+                    <td class="weekend" onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">19</span></div>
                             <div class="empty-content"><span class="amount holiday">休市</span></div>
                         </div>
                     </td>
-                    <td class="weekend">
+                    <td class="weekend" onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">20</span></div>
                             <div class="empty-content"><span class="amount holiday">休市</span></div>
                         </div>
                     </td>
-                    <td class="weekend">
+                    <td class="weekend" onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">21</span></div>
                             <div class="empty-content"><span class="amount holiday">休市</span></div>
@@ -733,7 +840,7 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">22</span></div>
                             <div class="stock-list">
@@ -746,7 +853,7 @@
                             </div>
                         </div>
                     </td>
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">23</span></div>
                             <div class="stock-list">
@@ -757,7 +864,7 @@
                             </div>
                         </div>
                     </td>
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">24</span></div>
                             <div class="stock-list">
@@ -770,7 +877,7 @@
                             </div>
                         </div>
                     </td>
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">25</span></div>
                             <div class="stock-list">
@@ -783,7 +890,7 @@
                             </div>
                         </div>
                     </td>
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">26</span></div>
                             <div class="stock-list">
@@ -794,13 +901,13 @@
                             </div>
                         </div>
                     </td>
-                    <td class="weekend">
+                    <td class="weekend" onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">27</span></div>
                             <div class="empty-content"><span class="amount holiday">休市</span></div>
                         </div>
                     </td>
-                    <td class="weekend">
+                    <td class="weekend" onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">28</span></div>
                             <div class="empty-content"><span class="amount holiday">休市</span></div>
@@ -818,7 +925,7 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">29</span></div>
                             <div class="stock-list">
@@ -829,7 +936,7 @@
                             </div>
                         </div>
                     </td>
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">30</span></div>
                             <div class="stock-list">
@@ -840,31 +947,31 @@
                             </div>
                         </div>
                     </td>
-                    <td class="other-month">
+                    <td class="other-month" onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number other">1</span></div>
                             <div class="empty-content">--</div>
                         </div>
                     </td>
-                    <td class="other-month">
+                    <td class="other-month" onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number other">2</span></div>
                             <div class="empty-content">--</div>
                         </div>
                     </td>
-                    <td class="other-month">
+                    <td class="other-month" onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number other">3</span></div>
                             <div class="empty-content">--</div>
                         </div>
                     </td>
-                    <td class="other-month">
+                    <td class="other-month" onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number other">4</span></div>
                             <div class="empty-content">--</div>
                         </div>
                     </td>
-                    <td class="other-month">
+                    <td class="other-month" onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number other">5</span></div>
                             <div class="empty-content">--</div>
@@ -885,21 +992,21 @@
             <tbody>
                 <tr>
                     <!-- 6/29 周一 -->
-                    <td class="other-month">
+                    <td class="other-month" onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number other">29</span></div>
                             <div class="empty-content">--</div>
                         </div>
                     </td>
                     <!-- 6/30 周二 -->
-                    <td class="other-month">
+                    <td class="other-month" onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number other">30</span></div>
                             <div class="empty-content">--</div>
                         </div>
                     </td>
                     <!-- 7/1 周三 -->
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">1</span></div>
                             <div class="stock-list">
@@ -913,7 +1020,7 @@
                         </div>
                     </td>
                     <!-- 7/2 周四 -->
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">2</span></div>
                             <div class="stock-list">
@@ -927,7 +1034,7 @@
                         </div>
                     </td>
                     <!-- 7/3 周五 -->
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">3</span></div>
                             <div class="stock-list">
@@ -941,14 +1048,14 @@
                         </div>
                     </td>
                     <!-- 7/4 周六 -->
-                    <td class="weekend">
+                    <td class="weekend" onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">4</span></div>
                             <div class="empty-content"><span class="amount holiday">休市</span></div>
                         </div>
                     </td>
                     <!-- 7/5 周日 -->
-                    <td class="weekend">
+                    <td class="weekend" onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">5</span></div>
                             <div class="empty-content"><span class="amount holiday">休市</span></div>
@@ -969,7 +1076,7 @@
             <tbody>
                 <tr>
                     <!-- 7/6 周一 -->
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">6</span></div>
                             <div class="stock-list">
@@ -983,7 +1090,7 @@
                         </div>
                     </td>
                     <!-- 7/7 周二 -->
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">7</span></div>
                             <div class="stock-list">
@@ -997,7 +1104,7 @@
                         </div>
                     </td>
                     <!-- 7/8 周三 -->
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">8</span></div>
                             <div class="stock-list">
@@ -1011,7 +1118,7 @@
                         </div>
                     </td>
                     <!-- 7/9 周四 -->
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">9</span></div>
                             <div class="empty-content">
@@ -1021,21 +1128,21 @@
                         </div>
                     </td>
                     <!-- 7/10 周五 -->
-                    <td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">10</span></div>
                             <div class="empty-content">--</div>
                         </div>
                     </td>
                     <!-- 7/11 周六 -->
-                    <td class="weekend">
+                    <td class="weekend" onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">11</span></div>
                             <div class="empty-content"><span class="amount holiday">休市</span></div>
                         </div>
                     </td>
                     <!-- 7/12 周日 -->
-                    <td class="weekend">
+                    <td class="weekend" onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">12</span></div>
                             <div class="empty-content"><span class="amount holiday">休市</span></div>
@@ -1055,13 +1162,13 @@
             </thead>
             <tbody>
                 <tr>
-                    <td><div class="day-cell"><div class="day-header"><span class="day-number">13</span></div><div class="empty-content">--</div></div></td>
-                    <td><div class="day-cell"><div class="day-header"><span class="day-number">14</span></div><div class="empty-content">--</div></div></td>
-                    <td><div class="day-cell"><div class="day-header"><span class="day-number">15</span></div><div class="empty-content">--</div></div></td>
-                    <td><div class="day-cell"><div class="day-header"><span class="day-number">16</span></div><div class="empty-content">--</div></div></td>
-                    <td><div class="day-cell"><div class="day-header"><span class="day-number">17</span></div><div class="empty-content">--</div></div></td>
-                    <td class="weekend"><div class="day-cell"><div class="day-header"><span class="day-number">18</span></div><div class="empty-content"><span class="amount holiday">休市</span></div></div></td>
-                    <td class="weekend"><div class="day-cell"><div class="day-header"><span class="day-number">19</span></div><div class="empty-content"><span class="amount holiday">休市</span></div></div></td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number">13</span></div><div class="empty-content">--</div></div></td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number">14</span></div><div class="empty-content">--</div></div></td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number">15</span></div><div class="empty-content">--</div></div></td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number">16</span></div><div class="empty-content">--</div></div></td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number">17</span></div><div class="empty-content">--</div></div></td>
+                    <td class="weekend" onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number">18</span></div><div class="empty-content"><span class="amount holiday">休市</span></div></div></td>
+                    <td class="weekend" onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number">19</span></div><div class="empty-content"><span class="amount holiday">休市</span></div></div></td>
                 </tr>
             </tbody>
         </table>
@@ -1076,13 +1183,13 @@
             </thead>
             <tbody>
                 <tr>
-                    <td><div class="day-cell"><div class="day-header"><span class="day-number">20</span></div><div class="empty-content">--</div></div></td>
-                    <td><div class="day-cell"><div class="day-header"><span class="day-number">21</span></div><div class="empty-content">--</div></div></td>
-                    <td><div class="day-cell"><div class="day-header"><span class="day-number">22</span></div><div class="empty-content">--</div></div></td>
-                    <td><div class="day-cell"><div class="day-header"><span class="day-number">23</span></div><div class="empty-content">--</div></div></td>
-                    <td><div class="day-cell"><div class="day-header"><span class="day-number">24</span></div><div class="empty-content">--</div></div></td>
-                    <td class="weekend"><div class="day-cell"><div class="day-header"><span class="day-number">25</span></div><div class="empty-content"><span class="amount holiday">休市</span></div></div></td>
-                    <td class="weekend"><div class="day-cell"><div class="day-header"><span class="day-number">26</span></div><div class="empty-content"><span class="amount holiday">休市</span></div></div></td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number">20</span></div><div class="empty-content">--</div></div></td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number">21</span></div><div class="empty-content">--</div></div></td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number">22</span></div><div class="empty-content">--</div></div></td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number">23</span></div><div class="empty-content">--</div></div></td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number">24</span></div><div class="empty-content">--</div></div></td>
+                    <td class="weekend" onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number">25</span></div><div class="empty-content"><span class="amount holiday">休市</span></div></div></td>
+                    <td class="weekend" onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number">26</span></div><div class="empty-content"><span class="amount holiday">休市</span></div></div></td>
                 </tr>
             </tbody>
         </table>
@@ -1097,19 +1204,26 @@
             </thead>
             <tbody>
                 <tr>
-                    <td><div class="day-cell"><div class="day-header"><span class="day-number">27</span></div><div class="empty-content">--</div></div></td>
-                    <td><div class="day-cell"><div class="day-header"><span class="day-number">28</span></div><div class="empty-content">--</div></div></td>
-                    <td><div class="day-cell"><div class="day-header"><span class="day-number">29</span></div><div class="empty-content">--</div></div></td>
-                    <td><div class="day-cell"><div class="day-header"><span class="day-number">30</span></div><div class="empty-content">--</div></div></td>
-                    <td><div class="day-cell"><div class="day-header"><span class="day-number">31</span></div><div class="empty-content">--</div></div></td>
-                    <td class="other-month"><div class="day-cell"><div class="day-header"><span class="day-number other">1</span></div><div class="empty-content">--</div></div></td>
-                    <td class="other-month"><div class="day-cell"><div class="day-header"><span class="day-number other">2</span></div><div class="empty-content">--</div></div></td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number">27</span></div><div class="empty-content">--</div></div></td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number">28</span></div><div class="empty-content">--</div></div></td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number">29</span></div><div class="empty-content">--</div></div></td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number">30</span></div><div class="empty-content">--</div></div></td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number">31</span></div><div class="empty-content">--</div></div></td>
+                    <td class="other-month" onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number other">1</span></div><div class="empty-content">--</div></div></td>
+                    <td class="other-month" onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number other">2</span></div><div class="empty-content">--</div></div></td>
                 </tr>
             </tbody>
         </table>
         <div style="text-align:left;font-size:12px;color:#8b949e;margin:-15px 0 25px 5px;">第5周 7/27-8/2</div>
 
         <!-- 周度汇总 -->
+        
+        <div id="day-detail-panel"></div>
+        <div id="today-events">
+            <div class="today-title">📅 今日事件</div>
+            <div id="today-events-content"></div>
+        </div>
+
         <div class="weekly-summary">
             <h3>📊 周度汇总</h3>
             <div class="week-grid">
@@ -1423,32 +1537,32 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>机构席位</td>
-                        <td>沪深交易所龙虎榜</td>
-                        <td class="stars">★★★★★</td>
-                        <td>当日上榜个股</td>
-                        <td>机构专用席位净买卖，精确但仅覆盖异动股</td>
+                        <td onclick="showDayDetail(this)" style="cursor:pointer">机构席位</td>
+                        <td onclick="showDayDetail(this)" style="cursor:pointer">沪深交易所龙虎榜</td>
+                        <td class="stars" onclick="showDayDetail(this)" style="cursor:pointer">★★★★★</td>
+                        <td onclick="showDayDetail(this)" style="cursor:pointer">当日上榜个股</td>
+                        <td onclick="showDayDetail(this)" style="cursor:pointer">机构专用席位净买卖，精确但仅覆盖异动股</td>
                     </tr>
                     <tr>
-                        <td>游资席位</td>
-                        <td>沪深交易所龙虎榜</td>
-                        <td class="stars">★★★★☆</td>
-                        <td>当日上榜个股</td>
-                        <td>知名游资营业部动向，需结合席位识别</td>
+                        <td onclick="showDayDetail(this)" style="cursor:pointer">游资席位</td>
+                        <td onclick="showDayDetail(this)" style="cursor:pointer">沪深交易所龙虎榜</td>
+                        <td class="stars" onclick="showDayDetail(this)" style="cursor:pointer">★★★★☆</td>
+                        <td onclick="showDayDetail(this)" style="cursor:pointer">当日上榜个股</td>
+                        <td onclick="showDayDetail(this)" style="cursor:pointer">知名游资营业部动向，需结合席位识别</td>
                     </tr>
                     <tr>
-                        <td>机游共振</td>
-                        <td>机构+游资交叉验证</td>
-                        <td class="stars">★★★★★</td>
-                        <td>机构+游资同时净买入</td>
-                        <td>⭐ 机构+游资资金合力信号，市场共识度较高</td>
+                        <td onclick="showDayDetail(this)" style="cursor:pointer">机游共振</td>
+                        <td onclick="showDayDetail(this)" style="cursor:pointer">机构+游资交叉验证</td>
+                        <td class="stars" onclick="showDayDetail(this)" style="cursor:pointer">★★★★★</td>
+                        <td onclick="showDayDetail(this)" style="cursor:pointer">机构+游资同时净买入</td>
+                        <td onclick="showDayDetail(this)" style="cursor:pointer">⭐ 机构+游资资金合力信号，市场共识度较高</td>
                     </tr>
                     <tr>
-                        <td>全市场净流向</td>
-                        <td>港交所/券商统计</td>
-                        <td class="stars">☆☆☆☆☆</td>
-                        <td>已停更</td>
-                        <td>⚠️ 2024年5月起港交所已停更北向资金实时数据，本页不涉及北向</td>
+                        <td onclick="showDayDetail(this)" style="cursor:pointer">全市场净流向</td>
+                        <td onclick="showDayDetail(this)" style="cursor:pointer">港交所/券商统计</td>
+                        <td class="stars" onclick="showDayDetail(this)" style="cursor:pointer">☆☆☆☆☆</td>
+                        <td onclick="showDayDetail(this)" style="cursor:pointer">已停更</td>
+                        <td onclick="showDayDetail(this)" style="cursor:pointer">⚠️ 2024年5月起港交所已停更北向资金实时数据，本页不涉及北向</td>
                     </tr>
                 </tbody>
             </table>
@@ -1471,6 +1585,231 @@
                      else { nx.style.display='none'; } }
         }
         switchMonth(7);
+    
+    // ===== 点击展开详情 =====
+    var _detailPanel = null;
+    var _detailCurrentTd = null;
+
+    function showDayDetail(td) {
+        var panel = document.getElementById('day-detail-panel');
+        if (!panel) return;
+
+        // 如果点击同一个td，关闭面板
+        if (_detailCurrentTd === td && panel.style.display !== 'none') {
+            panel.style.display = 'none';
+            _detailCurrentTd = null;
+            return;
+        }
+        _detailCurrentTd = td;
+
+        // 找到 day-cell
+        var dayCell = td.querySelector('.day-cell');
+        if (!dayCell) return;
+
+        // 获取日期编号和月份
+        var dayNumEl = dayCell.querySelector('.day-number');
+        var dayNum = dayNumEl ? dayNumEl.textContent.trim() : '';
+        var isOther = dayNumEl && dayNumEl.classList.contains('other');
+
+        // 确定所属月份section
+        var monthSection = td.closest('.month-section');
+        var monthId = monthSection ? monthSection.id : ''; // e.g. "month-7"
+        var m = monthId.replace('month-', '');
+        // 如果是other-month的日期，调整月份
+        if (isOther) {
+            var curM = parseInt(m);
+            // 判断是上月还是下月：日期>15 说明是上月的日期
+            if (parseInt(dayNum) > 15) {
+                m = curM - 1;
+            } else {
+                m = curM + 1;
+            }
+        }
+        var dateStr = yr + '-' + (m < 10 ? '0' + m : m) + '-' + (parseInt(dayNum) < 10 ? '0' + dayNum : dayNum);
+
+        // 提取数据
+        var html = '';
+        var stockList = dayCell.querySelector('.stock-list');
+        if (stockList) {
+            var children = stockList.children;
+            var currentSection = null;
+            for (var i = 0; i < children.length; i++) {
+                var child = children[i];
+                if (child.classList.contains('section-title')) {
+                    if (currentSection) html += '</div>';
+                    currentSection = child.textContent.trim();
+                    html += '<div class="detail-section">';
+                    html += '<div class="detail-section-title">' + currentSection + '</div>';
+                } else if (child.classList.contains('stock-item')) {
+                    var icon = child.querySelector('.stock-icon');
+                    var name = child.querySelector('.stock-name');
+                    var amount = child.querySelector('.stock-amount');
+                    var iconText = icon ? icon.textContent.trim() : '';
+                    var nameText = name ? name.textContent.trim() : '';
+                    var amountText = amount ? amount.textContent.trim() : '';
+                    var amountClass = amount ? amount.className : '';
+                    var colorStyle = '';
+                    if (amountClass.indexOf('up') >= 0) colorStyle = 'color:#f85149;';
+                    else if (amountClass.indexOf('down') >= 0) colorStyle = 'color:#3fb950;';
+                    html += '<div class="detail-item">';
+                    html += '<span class="detail-icon">' + iconText + '</span>';
+                    html += '<span class="detail-name">' + nameText + '</span>';
+                    html += '<span class="detail-amount" style="' + colorStyle + '">' + amountText + '</span>';
+                    html += '</div>';
+                } else if (child.classList.contains('stock-row')) {
+                    // 机游共振的 stock-row 内含多个 stock-item
+                    var items = child.querySelectorAll('.stock-item');
+                    for (var j = 0; j < items.length; j++) {
+                        var item = items[j];
+                        var iicon = item.querySelector('.stock-icon');
+                        var iname = item.querySelector('.stock-name');
+                        var iamount = item.querySelector('.stock-amount');
+                        var iiconText = iicon ? iicon.textContent.trim() : '';
+                        var inameText = iname ? iname.textContent.trim() : '';
+                        var iamountText = iamount ? iamount.textContent.trim() : '';
+                        var icolorStyle = '';
+                        if (iname && iname.style.color) {
+                            icolorStyle = 'color:' + iname.style.color + ';';
+                        } else if (iamount) {
+                            if (iamount.classList.contains('up')) icolorStyle = 'color:#f85149;';
+                            else if (iamount.classList.contains('down')) icolorStyle = 'color:#3fb950;';
+                        }
+                        html += '<div class="detail-item">';
+                        html += '<span class="detail-icon">' + iiconText + '</span>';
+                        html += '<span class="detail-name" style="' + icolorStyle + '">' + inameText + '</span>';
+                        html += '<span class="detail-amount" style="' + icolorStyle + '">' + iamountText + '</span>';
+                        html += '</div>';
+                    }
+                }
+            }
+            if (currentSection) html += '</div>';
+        } else {
+            // empty-content
+            var empty = dayCell.querySelector('.empty-content');
+            var emptyText = empty ? empty.textContent.trim() : '暂无数据';
+            html = '<div style="color:#6e7681;font-size:16px;">' + emptyText + '</div>';
+        }
+
+        panel.innerHTML = '<div class="detail-header"><span class="detail-title">' + dateStr + ' 当日详情</span><span class="detail-close" onclick="closeDayDetail()">✕ 关闭</span></div>' + html;
+        panel.style.display = 'block';
+        panel.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+    }
+
+    function closeDayDetail() {
+        var panel = document.getElementById('day-detail-panel');
+        if (panel) panel.style.display = 'none';
+        _detailCurrentTd = null;
+    }
+
+    // ===== 今日事件 =====
+    function initTodayEvents() {
+        var container = document.getElementById('today-events-content');
+        if (!container) return;
+
+        var today = new Date();
+        var todayNum = today.getDate();
+        var todayMonth = today.getMonth() + 1;
+        var todayYear = today.getFullYear();
+
+        // 在当前页面中找今天的格子
+        // 查找所有 month-section 中对应当月的
+        var monthSection = document.getElementById('month-' + todayMonth);
+        if (!monthSection) {
+            container.innerHTML = '<div class="today-empty">今日暂无数据（当前日历未包含本月）</div>';
+            return;
+        }
+
+        // 找到今天编号的 day-cell
+        var tds = monthSection.querySelectorAll('td');
+        var todayTd = null;
+        for (var i = 0; i < tds.length; i++) {
+            var dn = tds[i].querySelector('.day-number:not(.other)');
+            if (dn && parseInt(dn.textContent.trim()) === todayNum) {
+                todayTd = tds[i];
+                break;
+            }
+        }
+
+        if (!todayTd) {
+            container.innerHTML = '<div class="today-empty">今日暂无数据</div>';
+            return;
+        }
+
+        var dayCell = todayTd.querySelector('.day-cell');
+        if (!dayCell) {
+            container.innerHTML = '<div class="today-empty">今日暂无数据</div>';
+            return;
+        }
+
+        var stockList = dayCell.querySelector('.stock-list');
+        if (!stockList) {
+            container.innerHTML = '<div class="today-empty">今日暂无数据</div>';
+            return;
+        }
+
+        // 提取数据（复用详情逻辑）
+        var html = '';
+        var children = stockList.children;
+        var currentSection = null;
+        for (var i = 0; i < children.length; i++) {
+            var child = children[i];
+            if (child.classList.contains('section-title')) {
+                if (currentSection) html += '</div>';
+                currentSection = child.textContent.trim();
+                html += '<div class="today-section">';
+                html += '<div class="today-section-title">' + currentSection + '</div>';
+            } else if (child.classList.contains('stock-item')) {
+                var icon = child.querySelector('.stock-icon');
+                var name = child.querySelector('.stock-name');
+                var amount = child.querySelector('.stock-amount');
+                var iconText = icon ? icon.textContent.trim() : '';
+                var nameText = name ? name.textContent.trim() : '';
+                var amountText = amount ? amount.textContent.trim() : '';
+                var amountClass = amount ? amount.className : '';
+                var colorStyle = '';
+                if (amountClass.indexOf('up') >= 0) colorStyle = 'color:#f85149;';
+                else if (amountClass.indexOf('down') >= 0) colorStyle = 'color:#3fb950;';
+                html += '<div class="today-item">';
+                html += '<span class="today-icon">' + iconText + '</span>';
+                html += '<span class="today-name">' + nameText + '</span>';
+                html += '<span class="today-amount" style="' + colorStyle + '">' + amountText + '</span>';
+                html += '</div>';
+            } else if (child.classList.contains('stock-row')) {
+                var items = child.querySelectorAll('.stock-item');
+                for (var j = 0; j < items.length; j++) {
+                    var item = items[j];
+                    var iicon = item.querySelector('.stock-icon');
+                    var iname = item.querySelector('.stock-name');
+                    var iamount = item.querySelector('.stock-amount');
+                    var iiconText = iicon ? iicon.textContent.trim() : '';
+                    var inameText = iname ? iname.textContent.trim() : '';
+                    var iamountText = iamount ? iamount.textContent.trim() : '';
+                    var icolorStyle = '';
+                    if (iname && iname.style.color) {
+                        icolorStyle = 'color:' + iname.style.color + ';';
+                    } else if (iamount) {
+                        if (iamount.classList.contains('up')) icolorStyle = 'color:#f85149;';
+                        else if (iamount.classList.contains('down')) icolorStyle = 'color:#3fb950;';
+                    }
+                    html += '<div class="today-item">';
+                    html += '<span class="today-icon">' + iiconText + '</span>';
+                    html += '<span class="today-name" style="' + icolorStyle + '">' + inameText + '</span>';
+                    html += '<span class="today-amount" style="' + icolorStyle + '">' + iamountText + '</span>';
+                    html += '</div>';
+                }
+            }
+        }
+        if (currentSection) html += '</div>';
+
+        if (!html) {
+            container.innerHTML = '<div class="today-empty">今日暂无数据</div>';
+        } else {
+            container.innerHTML = html;
+        }
+    }
+
+    initTodayEvents();
+
     </script>
 </body>
 </html>
