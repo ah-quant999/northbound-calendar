@@ -62,6 +62,10 @@ class YouziItem(BaseModel):
 class ResonanceItem(BaseModel):
     """共振信号"""
     stock_name: str = Field(description="共振股票名称")
+    text: str = Field(description="共振描述文本，如：机构+7.56亿+北向+5.99亿")
+    youzi_items: List[str] = Field(description="游资席位描述", default_factory=list)
+    """共振信号"""
+    stock_name: str = Field(description="共振股票名称")
     youzi_items: List[str] = Field(description="游资席位描述", default_factory=list)
 
 
@@ -252,9 +256,10 @@ async def extract_data(content: str, date: str) -> Optional[DailyData]:
         ...
     ],
     "resonance": [
-        {{"stock_name": "共振股票名称", "youzi_items": ["游资A·股票", "游资B·股票"]}},
+        {{"stock_name": "共振股票名称", "text": "机构+7.56亿+游资+5.99亿+北向+3.21亿", "youzi_items": ["游资A·股票", "游资B·股票"]}},
         ...
     ]
+注意：resonance 的 text 字段必须包含完整金额标签，格式为"机构+XX亿+游资+XX亿+北向+XX亿"，没有的数据不写标签，如只有机构+北向则写"机构+XX亿+北向+XX亿"。不要写"游资关注""翘板""共振"等描述词，只写带金额的标签。
 }}
 如果找不到相关数据，请返回：{{"institution_top5": [], "youzi_items": [], "resonance": []}}
 """
@@ -313,8 +318,15 @@ async def extract_data(content: str, date: str) -> Optional[DailyData]:
         resonance = []
         for item in data.get("resonance", []):
             if isinstance(item, dict) and "stock_name" in item:
+                text = item.get("text", "")
+                if not text:
+                    # 兼容旧格式：从 youzi_items 拼接
+                    yz_text = "、".join(item.get("youzi_items", []))
+                    if yz_text:
+                        text = yz_text
                 resonance.append(ResonanceItem(
                     stock_name=item["stock_name"],
+                    text=text,
                     youzi_items=item.get("youzi_items", []),
                 ))
 

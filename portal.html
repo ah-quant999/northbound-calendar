@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>阿狸咪量化 · 数据面板</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #0d1117;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #c9d1d9;
+        }
+        .container {
+            max-width: 520px;
+            width: 100%;
+        }
+        .login-box {
+            background: #161b22;
+            border-radius: 12px;
+            border: 1px solid #30363d;
+            padding: 40px;
+            text-align: center;
+        }
+        .login-box .logo { font-size: 36px; margin-bottom: 8px; }
+        .login-box h1 { font-size: 22px; color: #58a6ff; margin-bottom: 6px; }
+        .login-box .subtitle { color: #8b949e; font-size: 13px; margin-bottom: 28px; }
+        .login-box input {
+            width: 100%; padding: 12px 16px; background: #0d1117;
+            border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9;
+            font-size: 15px; outline: none; transition: border 0.2s; margin-bottom: 14px;
+        }
+        .login-box input:focus { border-color: #58a6ff; }
+        .login-box input::placeholder { color: #484f58; }
+        .login-box .btn {
+            width: 100%; padding: 12px; background: #238636; border: none;
+            border-radius: 6px; color: #fff; font-size: 15px; font-weight: 600;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .login-box .btn:hover { background: #2ea043; }
+        .login-box .error { color: #f85149; font-size: 13px; margin-top: 10px; display: none; }
+        .login-box .hint { color: #484f58; font-size: 12px; margin-top: 18px; }
+        .panel { display: none; }
+        .panel .header { text-align: center; padding: 20px 0; margin-bottom: 24px; }
+        .panel .header h1 { font-size: 22px; color: #58a6ff; margin-bottom: 6px; }
+        .panel .header .role-tag {
+            display: inline-block; padding: 2px 10px; border-radius: 10px;
+            font-size: 11px; font-weight: 600;
+        }
+        .panel .header .role-tag.admin {
+            background: rgba(210,153,34,0.2); color: #d29922;
+            border: 1px solid rgba(210,153,34,0.4);
+        }
+        .panel .header .role-tag.vip {
+            background: rgba(88,166,255,0.15); color: #58a6ff;
+            border: 1px solid rgba(88,166,255,0.3);
+        }
+        .panel .header .subtitle { color: #8b949e; font-size: 13px; margin-top: 4px; }
+        .panel .card-grid { display: flex; flex-direction: column; gap: 12px; }
+        .panel .card {
+            background: #21262d; border: 1px solid #30363d; border-radius: 10px;
+            padding: 20px; text-decoration: none; color: #c9d1d9;
+            transition: border-color 0.2s, background 0.2s;
+            display: flex; align-items: center; gap: 16px;
+        }
+        .panel .card:hover { border-color: #58a6ff; background: #1c2128; }
+        .panel .card .icon {
+            font-size: 28px; flex-shrink: 0; width: 44px; height: 44px;
+            display: flex; align-items: center; justify-content: center; border-radius: 10px;
+        }
+        .panel .card .icon.gold { background: rgba(210,153,34,0.12); }
+        .panel .card .icon.blue { background: rgba(88,166,255,0.12); }
+        .panel .card .icon.green { background: rgba(46,160,67,0.12); }
+        .panel .card .info h3 { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
+        .panel .card .info p { font-size: 12px; color: #6e7681; }
+        .panel .card .arrow { margin-left: auto; color: #484f58; font-size: 18px; flex-shrink: 0; }
+        .panel .card:hover .arrow { color: #58a6ff; }
+        .panel .logout { text-align: center; margin-top: 24px; }
+        .panel .logout a { color: #484f58; font-size: 13px; text-decoration: none; cursor: pointer; }
+        .panel .logout a:hover { color: #8b949e; }
+        .panel .footer-note { text-align: center; margin-top: 18px; font-size: 11px; color: #484f58; }
+        @media (max-width: 480px) {
+            .login-box { padding: 28px 20px; }
+            .panel .card { padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="login-box" id="loginPage">
+            <div class="logo">📊</div>
+            <h1>阿狸咪量化</h1>
+            <div class="subtitle">数据面板 · 请输入密码</div>
+            <input type="password" id="passwordInput" placeholder="输入密码" autocomplete="off"
+                   onkeydown="if(event.key==='Enter')login()">
+            <button class="btn" onclick="login()">进入面板</button>
+            <div class="error" id="errorMsg">密码错误，请重试</div>
+            <div class="hint">管理员 / 贵宾专用入口</div>
+        </div>
+
+        <div class="panel" id="panelPage">
+            <div class="header">
+                <h1>📊 阿狸咪量化</h1>
+                <div><span class="role-tag" id="roleTag">管理员</span></div>
+                <div class="subtitle" id="welcomeMsg">欢迎回来</div>
+            </div>
+            <div class="card-grid">
+                <a class="card" href="机游共振日历.html" target="_blank">
+                    <div class="icon gold">⭐</div>
+                    <div class="info">
+                        <h3>机游共振日历</h3>
+                        <p>龙虎榜机构 + 游资席位共振数据</p>
+                    </div>
+                    <span class="arrow">→</span>
+                </a>
+                <a class="card" href="重要日历_202607.html" target="_blank">
+                    <div class="icon blue">📅</div>
+                    <div class="info">
+                        <h3>重要日历</h3>
+                        <p>宏观数据、财报、FOMC 等关键事件</p>
+                    </div>
+                    <span class="arrow">→</span>
+                </a>
+                <a class="card" href="index.html" target="_blank">
+                    <div class="icon green">🏦</div>
+                    <div class="info">
+                        <h3>北向资金日历</h3>
+                        <p>北向资金每日净流入 / 流出数据</p>
+                    </div>
+                    <span class="arrow">→</span>
+                </a>
+            </div>
+            <div class="logout">
+                <a onclick="logout()">← 退出登录</a>
+            </div>
+            <div class="footer-note">数据仅供参考，不构成投资建议</div>
+        </div>
+    </div>
+
+    <script>
+        const ADMIN_PWD = "ggcat999";
+        const VIP_PWD = "hjd666";
+
+        function login() {
+            const pwd = document.getElementById("passwordInput").value;
+            const error = document.getElementById("errorMsg");
+            if (pwd === ADMIN_PWD) {
+                showPanel("admin");
+            } else if (pwd === VIP_PWD) {
+                showPanel("vip");
+            } else {
+                error.style.display = "block";
+                document.getElementById("passwordInput").focus();
+            }
+        }
+
+        function showPanel(role) {
+            document.getElementById("loginPage").style.display = "none";
+            document.getElementById("panelPage").style.display = "block";
+            const tag = document.getElementById("roleTag");
+            const msg = document.getElementById("welcomeMsg");
+            if (role === "admin") {
+                tag.className = "role-tag admin";
+                tag.textContent = "🔑 管理员";
+                msg.textContent = "欢迎回来，管理员";
+            } else {
+                tag.className = "role-tag vip";
+                tag.textContent = "⭐ 贵宾";
+                msg.textContent = "欢迎，贵宾用户";
+            }
+            sessionStorage.setItem("portal_role", role);
+        }
+
+        function logout() {
+            sessionStorage.removeItem("portal_role");
+            document.getElementById("panelPage").style.display = "none";
+            document.getElementById("loginPage").style.display = "block";
+            document.getElementById("passwordInput").value = "";
+            document.getElementById("errorMsg").style.display = "none";
+        }
+
+        window.onload = function() {
+            const role = sessionStorage.getItem("portal_role");
+            if (role) showPanel(role);
+        }
+    </script>
+</body>
+</html>
