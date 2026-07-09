@@ -33,17 +33,42 @@
             justify-content: space-between;
             padding: 0 10px;
         }
+        .nav-back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 20px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #c9b1ff, #d7c4ff);
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 2px 12px rgba(201,177,255,0.4);
+            transition: transform .15s, box-shadow .15s;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .nav-back-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(201,177,255,0.5);
+        }
+        .nav-center {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+            justify-content: center;
+        }
         .nav-arrow {
             color: #8b949e;
             text-decoration: none;
             font-size: 15px;
             font-weight: 500;
-            padding: 8px 16px;
-            border-radius: 6px;
-            transition: background 0.2s;
+            white-space: nowrap;
+            transition: color 0.2s;
         }
         .nav-arrow:hover {
-            background: #21262d;
             color: #58a6ff;
         }
         .nav-title {
@@ -51,17 +76,21 @@
         }
         .nav-title h1 {
             font-size: 24px;
-            font-weight: 600;
-            color: #58a6ff;
+            font-weight: 700;
+            color: #fff;
             margin-bottom: 4px;
         }
         .nav-current {
-            color: #c9d1d9;
+            color: rgba(255,255,255,0.65);
             font-size: 14px;
             font-weight: 500;
         }
         .nav-current .highlight {
-            color: #58a6ff;
+            color: #c9b1ff;
+            font-weight: 600;
+        }
+        .nav-spacer {
+            min-width: 140px;
         }
         .update-info {
             text-align: center;
@@ -446,12 +475,16 @@
 <div class="container">
     <div class="header">
         <div class="nav-bar">
-            <a href="{prev_file}" class="nav-arrow">← {prev_label}</a>
-            <div class="nav-title">
-                <h1>重要日历</h1>
-                <div class="nav-current"><span class="highlight">2026年10月</span> · 全市场重要事件一览 | 更新于2026-07-09</div>
+            <a href="portal.html" class="nav-back-btn">📅 返回九宝日历精选</a>
+            <div class="nav-center">
+                <a href="重要日历_202609.html" class="nav-arrow">← 2026年9月</a>
+                <div class="nav-title">
+                    <h1>重要日历</h1>
+                    <div class="nav-current"><span class="highlight">2026年10月</span> · 全市场重要事件一览 | 更新于2026-07-09</div>
+                </div>
+                <a href="重要日历_202611.html" class="nav-arrow">2026年11月 →</a>
             </div>
-            <a href="{next_file}" class="nav-arrow">{next_label} →</a>
+            <div class="nav-spacer"></div>
         </div>
         <div class="update-info">数据涵盖A股/港股/美股/欧股/日韩台/新加坡 | 每月1日更新 | 本次更新时间: 2026-07-09 00:00</div>
     </div>
