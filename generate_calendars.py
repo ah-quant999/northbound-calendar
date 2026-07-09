@@ -1090,23 +1090,23 @@ def generate_month_html(year, month, today_date=None, start_year=None, start_mon
     lines.append('            line-height: 1.3;')
     lines.append('        }')
     lines.append('')
-    lines.append('        .event-item.policy { background: rgba(240, 136, 62, 0.35); border-left: 3px solid #f0883e; color: #ffb088; }')
-    lines.append('        .event-item.cbank { background: rgba(247, 201, 72, 0.35); border-left: 3px solid #f7c948; color: #ffe066; }')
-    lines.append('        .event-item.macro { background: rgba(210, 153, 34, 0.35); border-left: 3px solid #d29922; color: #ffc84d; }')
-    lines.append('        .event-item.earn-end { background: rgba(247, 129, 102, 0.35); border-left: 3px solid #f78166; color: #ffaa88; }')
-    lines.append('        .event-item.option { background: rgba(121, 192, 255, 0.35); border-left: 3px solid #79c0ff; color: #99ddff; }')
-    lines.append('        .event-item.futures { background: rgba(165, 214, 255, 0.35); border-left: 3px solid #a5d6ff; color: #bbeeff; }')
-    lines.append('        .event-item.a50 { background: rgba(255, 123, 114, 0.35); border-left: 3px solid #ff7b72; color: #ff9999; }')
-    lines.append('        .event-item.hk-holiday { background: rgba(139, 148, 158, 0.35); border-left: 3px solid #8b949e; color: #ccccdd; }')
-    lines.append('        .event-item.tw-stock { background: rgba(63, 185, 80, 0.35); border-left: 3px solid #3fb950; color: #66dd77; }')
-    lines.append('        .event-item.phone { background: rgba(210, 168, 255, 0.35); border-left: 3px solid #d2a8ff; color: #ecccff; }')
-    lines.append('        .event-item.fomc { background: rgba(248, 81, 73, 0.35); border-left: 3px solid #f85149; color: #ff8888; }')
-    lines.append('        .event-item.us-holiday { background: rgba(110, 118, 129, 0.35); border-left: 3px solid #6e7681; color: #aaaacc; }')
-    lines.append('        .event-item.us-stock { background: rgba(88, 166, 255, 0.35); border-left: 3px solid #58a6ff; color: #88ccff; }')
-    lines.append('        .event-item.eu-earn { background: rgba(126, 231, 135, 0.35); border-left: 3px solid #7ee787; color: #aaffaa; }')
-    lines.append('        .event-item.jp-earn { background: rgba(227, 179, 65, 0.35); border-left: 3px solid #e3b341; color: #ffdd66; }')
-    lines.append('        .event-item.kr-stock { background: rgba(188, 140, 255, 0.35); border-left: 3px solid #bc8cff; color: #ddbbff; }')
-    lines.append('        .event-item.sg-holiday { background: rgba(255, 107, 157, 0.35); border-left: 3px solid #ff6b9d; color: #ff99bb; }')
+    lines.append('        .event-item.policy { background: #c46a28; border-left: 3px solid #f0883e; color: #ffb088; }')
+    lines.append('        .event-item.cbank { background: #c8a030; border-left: 3px solid #f7c948; color: #ffe066; }')
+    lines.append('        .event-item.macro { background: #a87818; border-left: 3px solid #d29922; color: #ffc84d; }')
+    lines.append('        .event-item.earn-end { background: #c86850; border-left: 3px solid #f78166; color: #ffaa88; }')
+    lines.append('        .event-item.option { background: #5898d0; border-left: 3px solid #79c0ff; color: #99ddff; }')
+    lines.append('        .event-item.futures { background: #78a8d0; border-left: 3px solid #a5d6ff; color: #bbeeff; }')
+    lines.append('        .event-item.a50 { background: #d06050; border-left: 3px solid #ff7b72; color: #ff9999; }')
+    lines.append('        .event-item.hk-holiday { background: #6a7480; border-left: 3px solid #8b949e; color: #ccccdd; }')
+    lines.append('        .event-item.tw-stock { background: #289040; border-left: 3px solid #3fb950; color: #66dd77; }')
+    lines.append('        .event-item.phone { background: #a880d0; border-left: 3px solid #d2a8ff; color: #ecccff; }')
+    lines.append('        .event-item.fomc { background: #c83830; border-left: 3px solid #f85149; color: #ff8888; }')
+    lines.append('        .event-item.us-holiday { background: #505860; border-left: 3px solid #6e7681; color: #aaaacc; }')
+    lines.append('        .event-item.us-stock { background: #4080c0; border-left: 3px solid #58a6ff; color: #88ccff; }')
+    lines.append('        .event-item.eu-earn { background: #50a860; border-left: 3px solid #7ee787; color: #aaffaa; }')
+    lines.append('        .event-item.jp-earn { background: #b88828; border-left: 3px solid #e3b341; color: #ffdd66; }')
+    lines.append('        .event-item.kr-stock { background: #9068c0; border-left: 3px solid #bc8cff; color: #ddbbff; }')
+    lines.append('        .event-item.sg-holiday { background: #c85080; border-left: 3px solid #ff6b9d; color: #ff99bb; }')
     lines.append('')
     lines.append('        .day-cell .empty-content {')
     lines.append('            flex: 1;')
@@ -1423,3 +1423,13 @@ def main():
         month += 1
         if month > 12:
             month = 1
+            year += 1
+
+    print(f'\n🎉 完成！共生成 {len(generated)} 个日历文件')
+    print(f'📁 输出目录: {args.output_dir}')
+    for g in generated:
+        print(f'   - {g}')
+
+
+if __name__ == '__main__':
+    main()
