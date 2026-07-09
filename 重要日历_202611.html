@@ -56,8 +56,7 @@
         .nav-center {
             display: flex;
             align-items: center;
-            gap: 16px;
-            flex: 1;
+            gap: 12px;
             justify-content: center;
         }
         .nav-arrow {
@@ -77,8 +76,9 @@
         .nav-title h1 {
             font-size: 24px;
             font-weight: 700;
-            color: #fff;
+            color: #c9b1ff;
             margin-bottom: 4px;
+            text-align: center;
         }
         .nav-current {
             color: rgba(255,255,255,0.65);
@@ -88,6 +88,19 @@
         .nav-current .highlight {
             color: #c9b1ff;
             font-weight: 600;
+        }
+        .nav-month-nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 4px;
+        }
+        .nav-month-current {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            white-space: nowrap;
         }
         .nav-spacer {
             min-width: 140px;
@@ -477,12 +490,15 @@
         <div class="nav-bar">
             <a href="portal.html" class="nav-back-btn">📅 返回九宝日历精选</a>
             <div class="nav-center">
-                <a href="重要日历_202610.html" class="nav-arrow">← 2026年10月</a>
                 <div class="nav-title">
                     <h1>重要日历</h1>
-                    <div class="nav-current"><span class="highlight">2026年11月</span> · 全市场重要事件一览 | 更新于2026-07-09</div>
+                    <div class="nav-month-nav">
+                        <a href="重要日历_202610.html" class="nav-arrow">←2026年10月</a>
+                        <span class="nav-month-current">2026年11月</span>
+                        <a href="重要日历_202612.html" class="nav-arrow">2026年12月→</a>
+                    </div>
+                    <div class="nav-current">全市场重要事件一览 | 更新于2026-07-09</div>
                 </div>
-                <a href="重要日历_202612.html" class="nav-arrow">2026年12月 →</a>
             </div>
             <div class="nav-spacer"></div>
         </div>
