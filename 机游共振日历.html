@@ -116,6 +116,8 @@
             background: #0d1117;
             width: 14.28%;
             height: 400px;
+            max-height: 400px;
+            overflow: hidden;
         }
         .week-table tbody td.weekend {
             background: #161b22;
@@ -131,12 +133,13 @@
             display: flex;
             flex-direction: column;
             height: 100%;
+            overflow: hidden;
         }
         .day-cell .day-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
             flex-shrink: 0;
         }
         .day-cell .day-number {
@@ -177,23 +180,25 @@
             font-size: 11px;
             line-height: 1.5;
             display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 2px 8px;
-            overflow: visible;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+            gap: 1px;
         }
         .day-cell .stock-row {
             display: flex;
             flex-direction: column;
-            gap: 2px 0;
-            line-height: 1.5;
+            gap: 1px;
+            line-height: 1.4;
         }
         .day-cell .stock-item {
             display: flex;
             align-items: center;
             gap: 4px;
-            white-space: nowrap;
             font-size: 10px;
+            width: 100%;
+            line-height: 1.4;
+            white-space: nowrap;
         }
         .day-cell .stock-item .stock-icon {
             font-size: 7px;
@@ -204,6 +209,7 @@
             font-size: 10px;
         }
         .day-cell .stock-item .stock-amount {
+            margin-left: auto;
             font-weight: 500;
             font-size: 10px;
             flex-shrink: 0;
@@ -239,30 +245,30 @@
         .day-cell .section-title {
             font-size: 10px;
             color: #6e7681;
-            margin: 2px 0 3px;
+            margin: 3px 0 2px;
             flex-shrink: 0;
             width: 100%;
-        }
-        .day-cell .section-title ~ .section-title {
-            margin-top: 6px;
-            padding-top: 4px;
-        }
-        .day-cell .section-title ~ .section-title.resonance-title {
             border-top: 1px solid #30363d;
-            margin-top: 6px;
-            padding-top: 4px;
+            padding-top: 3px;
+        }
+        .day-cell .section-title:first-of-type {
+            border-top: none;
+            padding-top: 0;
         }
         .day-cell .section-title.resonance-title {
             color: #d29922;
+            border-top-color: rgba(210,153,34,0.3);
         }
         .day-cell .section-title.youzi-title {
             color: #f85149;
+            border-top-color: rgba(248,81,73,0.3);
         }
         .day-cell .section-title.youzi-sell-title {
             color: #3fb950;
+            border-top-color: rgba(63,185,80,0.3);
         }
         .day-cell .section-spacer {
-            height: 6px;
+            height: 4px;
             width: 100%;
         }
 
