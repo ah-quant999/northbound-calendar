@@ -563,7 +563,7 @@
 <body>
     <div class="container">
         <div style="text-align:left;margin-bottom:10px;">
-            <a href="portal.html" style="color:#58a6ff;text-decoration:none;font-size:14px;">← 返回portal</a>
+            <a href="portal.html" style="display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border-radius:20px;background:linear-gradient(135deg,#ffb5c7,#ffd1b5);color:#fff;text-decoration:none;font-size:14px;font-weight:600;box-shadow:0 2px 12px rgba(255,181,199,0.4);transition:transform .15s,box-shadow .15s;cursor:pointer;">📅 返回九宝日历精选</a>
         </div>
         <div class="header">
             <h1>机游共振日历</h1>
@@ -1121,9 +1121,15 @@
                     <td onclick="showDayDetail(this)" style="cursor:pointer">
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">9</span></div>
-                            <div class="empty-content">
-                                <div style="font-size:10px;color:#6e7681;">今日交易中</div>
-                                <div style="font-size:10px;color:#6e7681;margin-top:2px;">收盘后更新</div>
+                            <div class="stock-list">
+                                <div class="section-title">▲ 机构净买入TOP5</div>
+                                <div class="stock-row"><span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">华瑞股份</span><span class="stock-amount up">+1736万</span></span></div>
+                                <div class="section-spacer"></div>
+                                <div class="section-title">▼ 游资席位动向</div>
+                                <div class="stock-row"><span class="stock-item">暂无数据</span></div>
+                                <div class="section-spacer"></div>
+                                <div class="section-title">★ 机游共振</div>
+                                <div class="stock-row"><span class="stock-item">暂无共振信号</span></div>
                             </div>
                         </div>
                     </td>
