@@ -2,9 +2,6 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>重要日历 - 2026年9月</title>
     <style>
@@ -25,7 +22,8 @@
             padding: 30px;
         }
         .header {
-            padding: 15px 0;
+            text-align: center;
+            padding: 20px 0;
             border-bottom: 1px solid #30363d;
             margin-bottom: 20px;
         }
@@ -91,23 +89,23 @@
             white-space: nowrap;
         }
         .category-tag.today { background: #d29922; color: #fff; }
-        .category-tag.policy { background: #f0883e; color: #fff; }
-        .category-tag.cbank { background: #f7c948; color: #0d1117; }
-        .category-tag.cndata { background: #d29922; color: #fff; }
-        .category-tag.earn-end { background: #f78166; color: #fff; }
-        .category-tag.option { background: #79c0ff; color: #0d1117; }
-        .category-tag.futures { background: #a5d6ff; color: #0d1117; }
-        .category-tag.a50 { background: #ff7b72; color: #fff; }
-        .category-tag.hk-holiday { background: #8b949e; color: #fff; }
-        .category-tag.tw { background: #3fb950; color: #fff; }
-        .category-tag.phone { background: #d2a8ff; color: #fff; }
-        .category-tag.fomc { background: #f85149; color: #fff; }
-        .category-tag.us-holiday { background: #6e7681; color: #fff; }
-        .category-tag.us-earn { background: #58a6ff; color: #fff; }
-        .category-tag.eu-earn { background: #7ee787; color: #0d1117; }
-        .category-tag.jp-earn { background: #e3b341; color: #0d1117; }
-        .category-tag.kr-earn { background: #bc8cff; color: #fff; }
-        .category-tag.sg-holiday { background: #ff6b9d; color: #fff; }
+        .category-tag.policy { background: #ff8c42; color: #fff; }
+        .category-tag.cbank { background: #ffd700; color: #fff; }
+        .category-tag.cndata { background: #e8b830; color: #fff; }
+        .category-tag.earn-end { background: #ff6b55; color: #fff; }
+        .category-tag.option { background: #4da6ff; color: #fff; }
+        .category-tag.futures { background: #6cb4ff; color: #fff; }
+        .category-tag.a50 { background: #ff5a52; color: #fff; }
+        .category-tag.hk-holiday { background: #78828a; color: #fff; }
+        .category-tag.tw { background: #2ea043; color: #fff; }
+        .category-tag.phone { background: #c084fc; color: #fff; }
+        .category-tag.fomc { background: #e63946; color: #fff; }
+        .category-tag.us-holiday { background: #5a6270; color: #fff; }
+        .category-tag.us-earn { background: #388bfd; color: #fff; }
+        .category-tag.eu-earn { background: #4ade80; color: #fff; }
+        .category-tag.jp-earn { background: #f0c040; color: #fff; }
+        .category-tag.kr-earn { background: #a855f7; color: #fff; }
+        .category-tag.sg-holiday { background: #ff528a; color: #fff; }
 
         /* 周列表 */
         .week-table {
@@ -151,11 +149,11 @@
             flex-shrink: 0;
         }
         .day-cell .day-number {
-            font-size: 13px;
+            font-size: 16px;
             font-weight: 600;
             color: #c9d1d9;
-            width: 22px;
-            height: 22px;
+            width: 26px;
+            height: 26px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -170,7 +168,7 @@
         }
 
         .day-cell .event-list {
-            font-size: 10.5px;
+            font-size: 14px;
             line-height: 1.35;
             flex: 1;
             overflow-y: auto;
@@ -179,27 +177,27 @@
             padding: 2px 4px;
             margin-bottom: 2px;
             border-radius: 3px;
-            font-size: 10.5px;
-            line-height: 1.3;
+            font-size: 14px;
+            line-height: 1.4;
         }
 
-        .event-item.policy { background: #c46a28; border-left: 3px solid #f0883e; color: #ffb088; }
-        .event-item.cbank { background: #c8a030; border-left: 3px solid #f7c948; color: #ffe066; }
-        .event-item.macro { background: #a87818; border-left: 3px solid #d29922; color: #ffc84d; }
-        .event-item.earn-end { background: #c86850; border-left: 3px solid #f78166; color: #ffaa88; }
-        .event-item.option { background: #5898d0; border-left: 3px solid #79c0ff; color: #99ddff; }
-        .event-item.futures { background: #78a8d0; border-left: 3px solid #a5d6ff; color: #bbeeff; }
-        .event-item.a50 { background: #d06050; border-left: 3px solid #ff7b72; color: #ff9999; }
-        .event-item.hk-holiday { background: #6a7480; border-left: 3px solid #8b949e; color: #ccccdd; }
-        .event-item.tw-stock { background: #289040; border-left: 3px solid #3fb950; color: #66dd77; }
-        .event-item.phone { background: #a880d0; border-left: 3px solid #d2a8ff; color: #ecccff; }
-        .event-item.fomc { background: #c83830; border-left: 3px solid #f85149; color: #ff8888; }
-        .event-item.us-holiday { background: #505860; border-left: 3px solid #6e7681; color: #aaaacc; }
-        .event-item.us-stock { background: #4080c0; border-left: 3px solid #58a6ff; color: #88ccff; }
-        .event-item.eu-earn { background: #50a860; border-left: 3px solid #7ee787; color: #aaffaa; }
-        .event-item.jp-earn { background: #b88828; border-left: 3px solid #e3b341; color: #ffdd66; }
-        .event-item.kr-stock { background: #9068c0; border-left: 3px solid #bc8cff; color: #ddbbff; }
-        .event-item.sg-holiday { background: #c85080; border-left: 3px solid #ff6b9d; color: #ff99bb; }
+        .event-item.policy { background: #ff8c42; border-left: 3px solid #ff8c42; color: #fff; }
+        .event-item.cbank { background: #ffd700; border-left: 3px solid #ffd700; color: #fff; }
+        .event-item.macro { background: #e8b830; border-left: 3px solid #e8b830; color: #fff; }
+        .event-item.earn-end { background: #ff6b55; border-left: 3px solid #ff6b55; color: #fff; }
+        .event-item.option { background: #4da6ff; border-left: 3px solid #4da6ff; color: #fff; }
+        .event-item.futures { background: #6cb4ff; border-left: 3px solid #6cb4ff; color: #fff; }
+        .event-item.a50 { background: #ff5a52; border-left: 3px solid #ff5a52; color: #fff; }
+        .event-item.hk-holiday { background: #78828a; border-left: 3px solid #78828a; color: #fff; }
+        .event-item.tw-stock { background: #2ea043; border-left: 3px solid #2ea043; color: #fff; }
+        .event-item.phone { background: #c084fc; border-left: 3px solid #c084fc; color: #fff; }
+        .event-item.fomc { background: #e63946; border-left: 3px solid #e63946; color: #fff; }
+        .event-item.us-holiday { background: #5a6270; border-left: 3px solid #5a6270; color: #fff; }
+        .event-item.us-stock { background: #388bfd; border-left: 3px solid #388bfd; color: #fff; }
+        .event-item.eu-earn { background: #4ade80; border-left: 3px solid #4ade80; color: #fff; }
+        .event-item.jp-earn { background: rgba(240,192,64,0.8); border-left: 3px solid #f0c040; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        .event-item.kr-stock { background: rgba(168,85,247,0.8); border-left: 3px solid #a855f7; color: #fff; }
+        .event-item.sg-holiday { background: rgba(255,82,138,0.8); border-left: 3px solid #ff528a; color: #fff; }
 
         .day-cell .empty-content {
             flex: 1;
@@ -223,22 +221,22 @@
         }
         .legend-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 12px;
         }
         .legend-block {
-            background: #21262d;
-            border-radius: 8px;
+            border-radius: 10px;
             padding: 14px 16px;
-            border: 1px solid #30363d;
+            border: 1px solid rgba(255,255,255,0.06);
         }
         .legend-block .legend-header {
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-bottom: 8px;
-            font-size: 13px;
-            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
         }
         .legend-block .legend-header .color-dot {
             width: 12px;
@@ -246,10 +244,16 @@
             border-radius: 3px;
             flex-shrink: 0;
         }
+        .legend-block .legend-subtitle {
+            font-size: 11px;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
         .legend-block .legend-detail {
-            font-size: 11.5px;
-            line-height: 1.6;
-            color: #8b949e;
+            font-size: 12px;
+            line-height: 1.7;
+            color: rgba(255,255,255,0.95);
         }
         .legend-block .legend-detail ul {
             list-style: none;
@@ -257,7 +261,7 @@
             margin: 4px 0 0 0;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 2px 8px;
+            gap: 1px 12px;
         }
         .legend-block .legend-detail ul li {
             padding: 1px 0;
@@ -285,12 +289,155 @@
             color: #6e7681;
         }
 
+        /* 日期格子可点击 */
+        .week-table tbody td.clickable {
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .week-table tbody td.clickable:hover {
+            background: #1a2332 !important;
+        }
+
+        /* 日期详情面板 */
+        #day-detail-panel {
+            display: none;
+            background: rgba(22, 27, 34, 0.96);
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 24px 28px;
+            margin: 20px 0;
+        }
+        #day-detail-panel.active {
+            display: block;
+        }
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #30363d;
+        }
+        .detail-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #58a6ff;
+        }
+        .detail-close-btn {
+            background: #21262d;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            padding: 6px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.15s;
+        }
+        .detail-close-btn:hover {
+            background: #30363d;
+        }
+        .detail-event-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .detail-event-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 4px;
+        }
+        .detail-event-text {
+            font-size: 16px;
+            color: #e6edf3;
+            line-height: 1.5;
+            flex: 1;
+        }
+        .detail-event-star {
+            color: #e63946;
+            font-size: 16px;
+            margin-right: 4px;
+        }
+        .detail-event-cls {
+            font-size: 12px;
+            padding: 2px 10px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* 今日事件区块 */
+        .today-events-section {
+            margin-top: 30px;
+            padding: 24px 28px;
+            background: rgba(22, 27, 34, 0.96);
+            border: 1px solid #30363d;
+            border-radius: 12px;
+        }
+        .today-events-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #d29922;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #30363d;
+        }
+        .today-event-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .today-event-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 4px;
+        }
+        .today-event-text {
+            font-size: 16px;
+            color: #e6edf3;
+            line-height: 1.5;
+            flex: 1;
+        }
+        .today-event-star {
+            color: #e63946;
+            font-size: 16px;
+            margin-right: 4px;
+        }
+        .today-event-cls {
+            font-size: 12px;
+            padding: 2px 10px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .today-events-empty {
+            color: #8b949e;
+            font-size: 16px;
+            text-align: center;
+            padding: 20px;
+        }
+
         @media (max-width: 768px) {
             .container { padding: 10px; }
             .week-table tbody td { min-height: 120px; padding: 4px; }
             .day-cell { min-height: 120px; }
-            .day-cell .event-list { font-size: 9px; }
-            .day-cell .event-item { font-size: 9px; }
+            .day-cell .event-list { font-size: 11px; }
+            .day-cell .event-item { font-size: 11px; }
             .legend-grid { grid-template-columns: 1fr; }
         }
     </style>
@@ -298,16 +445,15 @@
 <body>
 <div class="container">
     <div class="header">
-        <div class="nav-bar" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-            <a href="portal.html" style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:linear-gradient(135deg,#c9b1ff,#d7c4ff);border-radius:20px;color:#fff;font-size:13px;font-weight:600;text-decoration:none;transition:all 0.2s;box-shadow:0 2px 8px rgba(201,177,255,0.4);letter-spacing:0.5px;flex-shrink:0;">📅 返回九宝日历精选</a>
-            <div style="display:flex;align-items:center;gap:16px;flex-shrink:0;">
-                <a href="重要日历_202608.html" class="nav-arrow">←2026年8月</a>
-                <h1 style="margin:0;font-size:20px;white-space:nowrap;"><span class="highlight">2026年9月</span></h1>
-                <a href="重要日历_202610.html" class="nav-arrow">2026年10月→</a>
+        <div class="nav-bar">
+            <a href="{prev_file}" class="nav-arrow">← {prev_label}</a>
+            <div class="nav-title">
+                <h1>重要日历</h1>
+                <div class="nav-current"><span class="highlight">2026年9月</span> · 全市场重要事件一览 | 更新于2026-07-09</div>
             </div>
-            <div style="width:120px;"></div>
+            <a href="{next_file}" class="nav-arrow">{next_label} →</a>
         </div>
-        <div class="update-info">重要日历 · 全市场重要事件一览 | 更新于 2026-07-09</div>
+        <div class="update-info">数据涵盖A股/港股/美股/欧股/日韩台/新加坡 | 每月1日更新 | 本次更新时间: 2026-07-09 00:00</div>
     </div>
 
     <!-- 分类标签导航 -->
@@ -349,7 +495,7 @@
                         <div class="empty-content">--</div>
                     </div>
                 </td>
-                <td>
+                <td class="clickable" onclick="showDayDetail(1)" data-events='[]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">1</span>
@@ -357,7 +503,7 @@
                         <div class="empty-content">--</div>
                     </div>
                 </td>
-                <td>
+                <td class="clickable" onclick="showDayDetail(2)" data-events='[]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">2</span>
@@ -365,7 +511,7 @@
                         <div class="empty-content">--</div>
                     </div>
                 </td>
-                <td>
+                <td class="clickable" onclick="showDayDetail(3)" data-events='[]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">3</span>
@@ -373,7 +519,7 @@
                         <div class="empty-content">--</div>
                     </div>
                 </td>
-                <td>
+                <td class="clickable" onclick="showDayDetail(4)" data-events='[]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">4</span>
@@ -381,7 +527,7 @@
                         <div class="empty-content">--</div>
                     </div>
                 </td>
-                <td class="weekend">
+                <td class="weekend clickable" onclick="showDayDetail(5)" data-events='[]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">5</span>
@@ -389,7 +535,7 @@
                         <div class="empty-content">--</div>
                     </div>
                 </td>
-                <td class="weekend">
+                <td class="weekend clickable" onclick="showDayDetail(6)" data-events='[]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">6</span>
@@ -411,7 +557,7 @@
         </thead>
         <tbody>
             <tr>
-                <td>
+                <td class="clickable" onclick="showDayDetail(7)" data-events='[{"cls": "us-holiday", "text": "🇺🇸 美股休市"}, {"cls": "us-holiday", "text": "🇺🇸 美股休市（劳动节）"}]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">7</span>
@@ -422,7 +568,7 @@
                         </div>
                     </div>
                 </td>
-                <td>
+                <td class="clickable" onclick="showDayDetail(8)" data-events='[]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">8</span>
@@ -430,7 +576,7 @@
                         <div class="empty-content">--</div>
                     </div>
                 </td>
-                <td>
+                <td class="clickable" onclick="showDayDetail(9)" data-events='[{"cls": "macro", "text": "🇨🇳 CPI/PPI数据"}]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">9</span>
@@ -440,7 +586,7 @@
                         </div>
                     </div>
                 </td>
-                <td>
+                <td class="clickable" onclick="showDayDetail(10)" data-events='[]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">10</span>
@@ -448,7 +594,7 @@
                         <div class="empty-content">--</div>
                     </div>
                 </td>
-                <td>
+                <td class="clickable" onclick="showDayDetail(11)" data-events='[{"cls": "futures", "text": "📊 大商所/郑商所/广期所2609最后交易日"}]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">11</span>
@@ -458,7 +604,7 @@
                         </div>
                     </div>
                 </td>
-                <td class="weekend">
+                <td class="weekend clickable" onclick="showDayDetail(12)" data-events='[]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">12</span>
@@ -466,7 +612,7 @@
                         <div class="empty-content">--</div>
                     </div>
                 </td>
-                <td class="weekend">
+                <td class="weekend clickable" onclick="showDayDetail(13)" data-events='[]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">13</span>
@@ -488,7 +634,7 @@
         </thead>
         <tbody>
             <tr>
-                <td>
+                <td class="clickable" onclick="showDayDetail(14)" data-events='[{"cls": "futures", "text": "📊 上期所/能源中心2609最后交易日"}]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">14</span>
@@ -498,7 +644,7 @@
                         </div>
                     </div>
                 </td>
-                <td>
+                <td class="clickable" onclick="showDayDetail(15)" data-events='[{"cls": "macro", "text": "🇨🇳 工业增加值/社零/固投数据"}, {"cls": "phone", "text": "📱 华为秋季新品发布会（预计）"}]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">15</span>
@@ -509,7 +655,7 @@
                         </div>
                     </div>
                 </td>
-                <td>
+                <td class="clickable" onclick="showDayDetail(16)" data-events='[{"cls": "fomc", "text": "🇺🇸 FOMC议息会议第1天（16日）"}, {"cls": "fomc", "text": "🇺🇸 FOMC议息会议第1天（9/16）"}]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">16</span>
@@ -520,7 +666,7 @@
                         </div>
                     </div>
                 </td>
-                <td>
+                <td class="clickable" onclick="showDayDetail(17)" data-events='[{"cls": "fomc", "text": "🇺🇸 FOMC利率决议+点阵图/SEP 北京时间9/17凌晨"}]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">17</span>
@@ -530,7 +676,7 @@
                         </div>
                     </div>
                 </td>
-                <td>
+                <td class="clickable" onclick="showDayDetail(18)" data-events='[{"cls": "futures", "text": "📊 中金所IF/IH/IC/IM股指期货交割"}, {"cls": "option", "text": "📊 中金所股指期权到期"}]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">18</span>
@@ -541,7 +687,7 @@
                         </div>
                     </div>
                 </td>
-                <td class="weekend">
+                <td class="weekend clickable" onclick="showDayDetail(19)" data-events='[]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">19</span>
@@ -549,7 +695,7 @@
                         <div class="empty-content">--</div>
                     </div>
                 </td>
-                <td class="weekend">
+                <td class="weekend clickable" onclick="showDayDetail(20)" data-events='[{"cls": "cbank", "text": "🇨🇳 LPR利率报价（1年期/5年期以上）"}]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">20</span>
@@ -573,7 +719,7 @@
         </thead>
         <tbody>
             <tr>
-                <td>
+                <td class="clickable" onclick="showDayDetail(21)" data-events='[]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">21</span>
@@ -581,7 +727,7 @@
                         <div class="empty-content">--</div>
                     </div>
                 </td>
-                <td>
+                <td class="clickable" onclick="showDayDetail(22)" data-events='[]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">22</span>
@@ -589,7 +735,7 @@
                         <div class="empty-content">--</div>
                     </div>
                 </td>
-                <td>
+                <td class="clickable" onclick="showDayDetail(23)" data-events='[]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">23</span>
@@ -597,7 +743,7 @@
                         <div class="empty-content">--</div>
                     </div>
                 </td>
-                <td>
+                <td class="clickable" onclick="showDayDetail(24)" data-events='[]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">24</span>
@@ -605,7 +751,7 @@
                         <div class="empty-content">--</div>
                     </div>
                 </td>
-                <td>
+                <td class="clickable" onclick="showDayDetail(25)" data-events='[{"cls": "hk-holiday", "text": "🇭🇰 港股休市"}, {"cls": "hk-holiday", "text": "🇭🇰 港股休市（中秋节翌日）"}, {"cls": "policy", "text": "🇨🇳 A股休市"}, {"cls": "policy", "text": "🇨🇳 A股中秋休市（9/25-27）"}]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">25</span>
@@ -618,7 +764,7 @@
                         </div>
                     </div>
                 </td>
-                <td class="weekend">
+                <td class="weekend clickable" onclick="showDayDetail(26)" data-events='[{"cls": "policy", "text": "🇨🇳 A股休市"}]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">26</span>
@@ -628,7 +774,7 @@
                         </div>
                     </div>
                 </td>
-                <td class="weekend">
+                <td class="weekend clickable" onclick="showDayDetail(27)" data-events='[{"cls": "policy", "text": "🇨🇳 A股休市"}]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">27</span>
@@ -652,7 +798,7 @@
         </thead>
         <tbody>
             <tr>
-                <td>
+                <td class="clickable" onclick="showDayDetail(28)" data-events='[]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">28</span>
@@ -660,7 +806,7 @@
                         <div class="empty-content">--</div>
                     </div>
                 </td>
-                <td>
+                <td class="clickable" onclick="showDayDetail(29)" data-events='[{"cls": "a50", "text": "🇸🇬 富时A50交割日（每月倒数第二个工作日）"}]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">29</span>
@@ -670,7 +816,7 @@
                         </div>
                     </div>
                 </td>
-                <td>
+                <td class="clickable" onclick="showDayDetail(30)" data-events='[{"cls": "macro", "text": "🇨🇳 中国PMI制造业/非制造业数据"}]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">30</span>
@@ -717,16 +863,24 @@
     </table>
     <div style="text-align:left;font-size:12px;color:#8b949e;margin:-15px 0 20px 5px;">第5周 28/9-30/9</div>
 
+    <!-- ========== 日期详情面板 ========== -->
+    <div id="day-detail-panel">
+        <div class="detail-header">
+            <span class="detail-title" id="detail-title-text"></span>
+            <button class="detail-close-btn" onclick="closeDayDetail()">关闭</button>
+        </div>
+        <div id="detail-events-list"></div>
+    </div>
     <!-- ========== 色块标注区 ========== -->
     <div class="legend-section">
         <h3>🎨 色块标注说明</h3>
         <div class="legend-grid">
 
             <!-- 重要政策 -->
-            <div class="legend-block">
-                <div class="legend-header"><span class="color-dot" style="background:#f0883e;"></span>重要政策</div>
+            <div class="legend-block" style="background:#ff8c4218;">
+                <div class="legend-header"><span class="color-dot" style="background:#ff8c42;"></span>重要政策</div>
+                <div class="legend-subtitle">中国政府/监管机构发布的重大政策、法规、规划等</div>
                 <div class="legend-detail">
-                    中国政府/监管机构发布的重大政策、法规、规划等
                     <ul>
                         <li>暂无数据，待政策发布后补充</li>
                     </ul>
@@ -734,10 +888,10 @@
             </div>
 
             <!-- 央行/LPR -->
-            <div class="legend-block">
-                <div class="legend-header"><span class="color-dot" style="background:#f7c948;"></span>央行/LPR</div>
+            <div class="legend-block" style="background:#ffd70018;">
+                <div class="legend-header"><span class="color-dot" style="background:#ffd700;"></span>央行/LPR</div>
+                <div class="legend-subtitle">央行货币政策、利率决议、LPR报价等</div>
                 <div class="legend-detail">
-                    央行货币政策、利率决议、LPR报价等
                     <ul>
                         <li>9月 LPR利率报价（1年期/5年期以上）— 每月20日</li>
                     </ul>
@@ -745,10 +899,10 @@
             </div>
 
             <!-- 中国数据 -->
-            <div class="legend-block">
-                <div class="legend-header"><span class="color-dot" style="background:#d29922;"></span>中国数据</div>
+            <div class="legend-block" style="background:#e8b83018;">
+                <div class="legend-header"><span class="color-dot" style="background:#e8b830;"></span>中国数据</div>
+                <div class="legend-subtitle">国家统计局/央行发布的宏观经济数据</div>
                 <div class="legend-detail">
-                    国家统计局/央行发布的宏观经济数据
                     <ul>
                         <li>CPI/PPI — 每月9日前后</li>
                         <li>工业增加值/社零/固投 — 每月15日前后</li>
@@ -758,10 +912,10 @@
             </div>
 
             <!-- 财报截止 -->
-            <div class="legend-block">
-                <div class="legend-header"><span class="color-dot" style="background:#f78166;"></span>财报截止</div>
+            <div class="legend-block" style="background:#ff6b5518;">
+                <div class="legend-header"><span class="color-dot" style="background:#ff6b55;"></span>财报截止</div>
+                <div class="legend-subtitle">A股财报披露法定截止日</div>
                 <div class="legend-detail">
-                    A股财报披露法定截止日
                     <ul>
                         <li>本月无法规截止日</li>
                     </ul>
@@ -769,10 +923,10 @@
             </div>
 
             <!-- 期权交割 -->
-            <div class="legend-block">
-                <div class="legend-header"><span class="color-dot" style="background:#79c0ff;"></span>期权交割</div>
+            <div class="legend-block" style="background:#4da6ff18;">
+                <div class="legend-header"><span class="color-dot" style="background:#4da6ff;"></span>期权交割</div>
+                <div class="legend-subtitle">各交易所期权合约到期日，涉及多空博弈</div>
                 <div class="legend-detail">
-                    各交易所期权合约到期日，涉及多空博弈
                     <ul>
                         <li>中金所股指期权 — 每月第三个周五</li>
                         <li>各商品交易所期权到期日 — 每月约13-20日间</li>
@@ -782,10 +936,10 @@
             </div>
 
             <!-- 期货交割 -->
-            <div class="legend-block">
-                <div class="legend-header"><span class="color-dot" style="background:#a5d6ff;"></span>期货交割</div>
+            <div class="legend-block" style="background:#6cb4ff18;">
+                <div class="legend-header"><span class="color-dot" style="background:#6cb4ff;"></span>期货交割</div>
+                <div class="legend-subtitle">期货合约最后交易日，交割前后波动加大</div>
                 <div class="legend-detail">
-                    期货合约最后交易日，交割前后波动加大
                     <ul>
                         <li>中金所IF/IH/IC/IM股指期货 — 每月第三个周五</li>
                         <li>各交易所2609合约最后交易日 — 约每月中旬</li>
@@ -794,10 +948,10 @@
             </div>
 
             <!-- A50交割 -->
-            <div class="legend-block">
-                <div class="legend-header"><span class="color-dot" style="background:#ff7b72;"></span>A50交割</div>
+            <div class="legend-block" style="background:#ff5a5218;">
+                <div class="legend-header"><span class="color-dot" style="background:#ff5a52;"></span>A50交割</div>
+                <div class="legend-subtitle">新加坡富时A50期货交割日，外资对冲A股关键窗口</div>
                 <div class="legend-detail">
-                    新加坡富时A50期货交割日，外资对冲A股关键窗口
                     <ul>
                         <li>2026年9月 — 倒数第二个工作日</li>
                         <li>⚠️ 交割前1-2周可能出现提前移仓波动</li>
@@ -806,10 +960,10 @@
             </div>
 
             <!-- 港股休市 -->
-            <div class="legend-block">
-                <div class="legend-header"><span class="color-dot" style="background:#8b949e;"></span>港股休市</div>
+            <div class="legend-block" style="background:#78828a18;">
+                <div class="legend-header"><span class="color-dot" style="background:#78828a;"></span>港股休市</div>
+                <div class="legend-subtitle">香港交易所休市日，港股通/沪深股通同步暂停</div>
                 <div class="legend-detail">
-                    香港交易所休市日，港股通/沪深股通同步暂停
                     <ul>
                         <li>9/25 🇭🇰 港股休市</li>
                     </ul>
@@ -817,10 +971,10 @@
             </div>
 
             <!-- 台股财报 -->
-            <div class="legend-block">
-                <div class="legend-header"><span class="color-dot" style="background:#3fb950;"></span>台股财报</div>
+            <div class="legend-block" style="background:#2ea04318;">
+                <div class="legend-header"><span class="color-dot" style="background:#2ea043;"></span>台股财报</div>
+                <div class="legend-subtitle">台股关注股票</div>
                 <div class="legend-detail">
-                    台股关注股票
                     <ul>
                         <li>台积电TSMC</li>
                         <li>联发科MediaTek</li>
@@ -829,10 +983,10 @@
             </div>
 
             <!-- 苹果/华为发布 -->
-            <div class="legend-block">
-                <div class="legend-header"><span class="color-dot" style="background:#d2a8ff;"></span>苹果/华为发布</div>
+            <div class="legend-block" style="background:#c084fc18;">
+                <div class="legend-header"><span class="color-dot" style="background:#c084fc;"></span>苹果/华为发布</div>
+                <div class="legend-subtitle">两大科技巨头新品发布/重要财报</div>
                 <div class="legend-detail">
-                    两大科技巨头新品发布/重要财报
                     <ul>
                         <li>华为秋季新品发布会 — 9月（预计）</li>
                     </ul>
@@ -840,10 +994,10 @@
             </div>
 
             <!-- FOMC -->
-            <div class="legend-block">
-                <div class="legend-header"><span class="color-dot" style="background:#f85149;"></span>FOMC</div>
+            <div class="legend-block" style="background:#e6394618;">
+                <div class="legend-header"><span class="color-dot" style="background:#e63946;"></span>FOMC</div>
+                <div class="legend-subtitle">美联储货币政策会议，全球资本市场核心事件</div>
                 <div class="legend-detail">
-                    美联储货币政策会议，全球资本市场核心事件
                     <ul>
                         <li>9/16-17 FOMC利率决议+点阵图/SEP 北京时间9/17凌晨</li>
                     </ul>
@@ -851,10 +1005,10 @@
             </div>
 
             <!-- 美股休市 -->
-            <div class="legend-block">
-                <div class="legend-header"><span class="color-dot" style="background:#6e7681;"></span>美股休市</div>
+            <div class="legend-block" style="background:#5a627018;">
+                <div class="legend-header"><span class="color-dot" style="background:#5a6270;"></span>美股休市</div>
+                <div class="legend-subtitle">NYSE/Nasdaq休市日</div>
                 <div class="legend-detail">
-                    NYSE/Nasdaq休市日
                     <ul>
                         <li>9/7 🇺🇸 美股休市</li>
                     </ul>
@@ -862,10 +1016,10 @@
             </div>
 
             <!-- 美股财报 -->
-            <div class="legend-block">
-                <div class="legend-header"><span class="color-dot" style="background:#58a6ff;"></span>美股财报</div>
+            <div class="legend-block" style="background:#388bfd18;">
+                <div class="legend-header"><span class="color-dot" style="background:#388bfd;"></span>美股财报</div>
+                <div class="legend-subtitle">美股关注股票</div>
                 <div class="legend-detail">
-                    美股关注股票
                     <ul>
                         <li>特斯拉TSLA</li>
                         <li>谷歌GOOGL</li>
@@ -880,10 +1034,10 @@
             </div>
 
             <!-- 欧股财报 -->
-            <div class="legend-block">
-                <div class="legend-header"><span class="color-dot" style="background:#7ee787;"></span>欧股财报</div>
+            <div class="legend-block" style="background:#4ade8018;">
+                <div class="legend-header"><span class="color-dot" style="background:#4ade80;"></span>欧股财报</div>
+                <div class="legend-subtitle">欧股关注股票</div>
                 <div class="legend-detail">
-                    欧股关注股票
                     <ul>
                         <li>ASML阿斯麦</li>
                     </ul>
@@ -891,10 +1045,10 @@
             </div>
 
             <!-- 日股财报 -->
-            <div class="legend-block">
-                <div class="legend-header"><span class="color-dot" style="background:#e3b341;"></span>日股财报</div>
+            <div class="legend-block" style="background:#f0c04018;">
+                <div class="legend-header"><span class="color-dot" style="background:#f0c040;"></span>日股财报</div>
+                <div class="legend-subtitle">日股关注股票</div>
                 <div class="legend-detail">
-                    日股关注股票
                     <ul>
                         <li>铠侠Kioxia</li>
                         <li>东京电子</li>
@@ -904,10 +1058,10 @@
             </div>
 
             <!-- 韩股财报 -->
-            <div class="legend-block">
-                <div class="legend-header"><span class="color-dot" style="background:#bc8cff;"></span>韩股财报</div>
+            <div class="legend-block" style="background:#a855f718;">
+                <div class="legend-header"><span class="color-dot" style="background:#a855f7;"></span>韩股财报</div>
+                <div class="legend-subtitle">韩股关注股票</div>
                 <div class="legend-detail">
-                    韩股关注股票
                     <ul>
                         <li>三星电子</li>
                         <li>SK海力士</li>
@@ -916,10 +1070,10 @@
             </div>
 
             <!-- SG公假 -->
-            <div class="legend-block">
-                <div class="legend-header"><span class="color-dot" style="background:#ff6b9d;"></span>SG公假</div>
+            <div class="legend-block" style="background:#ff528a18;">
+                <div class="legend-header"><span class="color-dot" style="background:#ff528a;"></span>SG公假</div>
+                <div class="legend-subtitle">新加坡公共假期</div>
                 <div class="legend-detail">
-                    新加坡公共假期
                     <ul>
                         <li>本月新加坡无公共假期</li>
                     </ul>
@@ -929,13 +1083,19 @@
         </div>
     </div>
 
+    <!-- ========== 今日事件 ========== -->
+    <div class="today-events-section">
+        <div class="today-events-title">📅 今日事件(0个) · 2026-07-09</div>
+        <div class="today-events-empty">今日暂无重要事件</div>
+    </div>
+
     <div class="footer-note">
         <strong>📋 数据来源与说明</strong><br>
         1. 🇨🇳 <strong>中国宏观数据</strong>：国家统计局/央行常规发布日历。CPI/PPI每月9日，PMI月末最后一日，工业/零售/固投每月15日前后，LPR每月20日。<br>
         2. 🇺🇸 <strong>美股财报</strong>：来源各公司IR页面。财报日期可能调整，以公司官方公告为准。<br>
         3. 🇺🇸 <strong>FOMC</strong>：美联储官方法定会议日程。<br>
         4. 📊 <strong>期权/期货交割</strong>：来源各交易所及期货公司公告，日期以交易所实际执行为准。<br>
-        5. 🟡 <strong>部分数据</strong>：财报日期可能调整，以公司官方公告为准。<br>
+        5. 🟡 <strong>部分数据</strong>：台股/日股/欧股财报暂无数据，待各公司公布具体日期后补充。<br>
         6. ⚠️ 本日历仅收录固定排期事件，突发事件（如临时政策会议、数据推迟发布等）无法提前预告。<br>
         7. ⚠️ 2027年A股休市日期为推算值，暂定待官方公布确认。<br>
         8. 数据来源：国家统计局、中国人民银行、美联储、各交易所及公司IR页面。仅供参考，不构成投资建议。<br>
@@ -947,36 +1107,89 @@
         更新日期：2026-07-09
     </div>
 </div>
-<div id="dayDetail" style="display:none;margin-top:24px;background:#161b22;border:1px solid #30363d;border-radius:12px;padding:24px 28px;">
-  <div id="detailTitle" style="font-size:22px;font-weight:700;color:#58a6ff;margin-bottom:16px;border-bottom:1px solid #30363d;padding-bottom:10px;"></div>
-  <div id="detailContent"></div>
-</div>
-<script>
-var detailBox=document.getElementById("dayDetail");
-var detailTitle=document.getElementById("detailTitle");
-var detailContent=document.getElementById("detailContent");
-document.querySelectorAll(".day-cell").forEach(function(cell){
-  cell.style.cursor="pointer";
-  cell.addEventListener("click",function(e){
-    var hdr=this.querySelector(".day-number");
-    if(!hdr)return;
-    var dayNum=hdr.textContent.trim();
-    var items=this.querySelectorAll(".event-item");
-    detailTitle.textContent=dayNum+"日 事件详情";
-    if(items.length===0){
-      detailContent.innerHTML="<div style=\"color:#8b949e;font-size:16px;padding:8px 0;\">当日暂无关注事件</div>";
-    }else{
-      var html="";
-      items.forEach(function(item){
-        var cls=item.className;
-        html+="<div style=\"margin-bottom:10px;padding:12px 16px;border-radius:10px;font-size:17px;line-height:1.5;\" class=\""+cls+"\">"+item.textContent+"</div>";
-      });
-      detailContent.innerHTML=html;
+    <script>
+    // ========== 分类颜色与标签映射 ==========
+    var CLS_COLORS = {
+        'policy': '#ff8c42', 'cbank': '#ffd700', 'macro': '#e8b830',
+        'earn-end': '#ff6b55', 'option': '#4da6ff', 'futures': '#6cb4ff',
+        'a50': '#ff5a52', 'hk-holiday': '#78828a', 'tw-stock': '#2ea043',
+        'phone': '#c084fc', 'fomc': '#e63946', 'us-holiday': '#5a6270',
+        'us-stock': '#388bfd', 'eu-earn': '#4ade80', 'jp-earn': '#f0c040',
+        'kr-stock': '#a855f7', 'sg-holiday': '#ff528a'
+    };
+    var CLS_LABELS = {
+        'policy': '重要政策', 'cbank': '央行/LPR', 'macro': '中国数据',
+        'earn-end': '财报截止', 'option': '期权交割', 'futures': '期货交割',
+        'a50': 'A50交割', 'hk-holiday': '港股休市', 'tw-stock': '台股财报',
+        'phone': '苹果/华为', 'fomc': 'FOMC', 'us-holiday': '美股休市',
+        'us-stock': '美股财报', 'eu-earn': '欧股财报', 'jp-earn': '日股财报',
+        'kr-stock': '韩股财报', 'sg-holiday': 'SG公假'
+    };
+    var IMPORTANT_CLS = ['fomc', 'earn-end', 'a50', 'policy'];
+    var CURRENT_YEAR = 2026;
+    var CURRENT_MONTH = 9;
+
+    var _activeDay = null;
+
+    function showDayDetail(dayNum) {
+        var panel = document.getElementById("day-detail-panel");
+        var titleEl = document.getElementById("detail-title-text");
+        var listEl = document.getElementById("detail-events-list");
+
+        // 再次点击同一天则关闭
+        if (_activeDay === dayNum && panel.classList.contains("active")) {
+            panel.classList.remove("active");
+            _activeDay = null;
+            return;
+        }
+
+        // 查找对应 td 的 data-events
+        var tds = document.querySelectorAll(".week-table td.clickable");
+        var eventsData = [];
+        for (var i = 0; i < tds.length; i++) {
+            var td = tds[i];
+            var numEl = td.querySelector(".day-number");
+            if (numEl && parseInt(numEl.textContent) === dayNum) {
+                try {
+                    eventsData = JSON.parse(td.getAttribute("data-events") || "[]");
+                } catch(e) { eventsData = []; }
+                break;
+            }
+        }
+
+        var mm = String(CURRENT_MONTH).padStart(2, "0");
+        var dd = String(dayNum).padStart(2, "0");
+        titleEl.textContent = CURRENT_YEAR + "-" + mm + "-" + dd + " · 共" + eventsData.length + "个事件";
+
+        // 渲染事件列表
+        var html = "";
+        for (var j = 0; j < eventsData.length; j++) {
+            var ev = eventsData[j];
+            var color = CLS_COLORS[ev.cls] || "#8b949e";
+            var label = CLS_LABELS[ev.cls] || ev.cls;
+            var isImportant = IMPORTANT_CLS.indexOf(ev.cls) >= 0;
+            var star = isImportant ? '<span class="detail-event-star">★</span>' : "";
+            html += '<div class="detail-event-item">';
+            html += '<span class="detail-event-dot" style="background:' + color + ';"></span>';
+            html += '<span class="detail-event-text">' + star + ev.text + '</span>';
+            html += '<span class="detail-event-cls" style="background:' + color + ';color:#fff;">' + label + '</span>';
+            html += '</div>';
+        }
+        if (eventsData.length === 0) {
+            html = '<div style="color:#8b949e;font-size:16px;text-align:center;padding:20px;">该日暂无事件</div>';
+        }
+        listEl.innerHTML = html;
+
+        panel.classList.add("active");
+        _activeDay = dayNum;
+        panel.scrollIntoView({behavior: "smooth", block: "nearest"});
     }
-    detailBox.style.display="block";
-    detailBox.scrollIntoView({behavior:"smooth",block:"start"});
-  });
-});
-</script>
+
+    function closeDayDetail() {
+        var panel = document.getElementById("day-detail-panel");
+        panel.classList.remove("active");
+        _activeDay = null;
+    }
+    </script>
 </body>
 </html>
