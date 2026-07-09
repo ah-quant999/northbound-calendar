@@ -55,9 +55,9 @@
         }
         .nav-center {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 12px;
-            justify-content: center;
+            gap: 2px;
         }
         .nav-arrow {
             color: #8b949e;
@@ -84,7 +84,7 @@
         .nav-month-nav {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
             justify-content: center;
         }
         .nav-month-current {
@@ -94,7 +94,7 @@
             white-space: nowrap;
         }
         .nav-spacer {
-            min-width: 140px;
+            display: none;
         }
 
         /* 分类标签导航栏 */
@@ -703,17 +703,15 @@
                         </div>
                     </div>
                 </td>
-                <td class="clickable" onclick="showDayDetail(19)" data-events='[{"cls": "hk-holiday", "text": "🇭🇰 港股休市"}, {"cls": "hk-holiday", "text": "🇭🇰 港股休市（端午节）"}, {"cls": "policy", "text": "🇨🇳 A股休市"}, {"cls": "policy", "text": "🇨🇳 A股端午休市（6/19-21）"}, {"cls": "us-holiday", "text": "🇺🇸 美股休市"}, {"cls": "us-holiday", "text": "🇺🇸 美股休市（六月节）"}]'>
+                <td class="clickable" onclick="showDayDetail(19)" data-events='[{"cls": "hk-holiday", "text": "🇭🇰 港股休市（端午节）"}, {"cls": "policy", "text": "🇨🇳 A股休市"}, {"cls": "policy", "text": "🇨🇳 A股端午休市（6/19-21）"}, {"cls": "us-holiday", "text": "🇺🇸 美股休市（六月节）"}]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">19</span>
                         </div>
                         <div class="event-list">
-                            <div class="event-item hk-holiday">🇭🇰 港股休市</div>
                             <div class="event-item hk-holiday">🇭🇰 港股休市（端午节）</div>
                             <div class="event-item policy">🇨🇳 A股休市</div>
                             <div class="event-item policy">🇨🇳 A股端午休市（6/19-21）</div>
-                            <div class="event-item us-holiday">🇺🇸 美股休市</div>
                             <div class="event-item us-holiday">🇺🇸 美股休市（六月节）</div>
                         </div>
                     </div>

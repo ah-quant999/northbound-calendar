@@ -55,9 +55,9 @@
         }
         .nav-center {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 12px;
-            justify-content: center;
+            gap: 2px;
         }
         .nav-arrow {
             color: #8b949e;
@@ -84,7 +84,7 @@
         .nav-month-nav {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
             justify-content: center;
         }
         .nav-month-current {
@@ -94,7 +94,7 @@
             white-space: nowrap;
         }
         .nav-spacer {
-            min-width: 140px;
+            display: none;
         }
 
         /* 分类标签导航栏 */
@@ -771,30 +771,25 @@
                         <div class="empty-content">--</div>
                     </div>
                 </td>
-                <td class="clickable" onclick="showDayDetail(24)" data-events='[{"cls": "hk-holiday", "text": "🇭🇰 港股休市"}, {"cls": "hk-holiday", "text": "🇭🇰 港股休市（平安夜半日）"}, {"cls": "us-holiday", "text": "🇺🇸 美股休市"}, {"cls": "us-holiday", "text": "🇺🇸 美股休市（圣诞前夕早收1pm）"}]'>
+                <td class="clickable" onclick="showDayDetail(24)" data-events='[{"cls": "hk-holiday", "text": "🇭🇰 港股休市（平安夜半日）"}, {"cls": "us-holiday", "text": "🇺🇸 美股休市（圣诞前夕早收1pm）"}]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">24</span>
                         </div>
                         <div class="event-list">
-                            <div class="event-item hk-holiday">🇭🇰 港股休市</div>
                             <div class="event-item hk-holiday">🇭🇰 港股休市（平安夜半日）</div>
-                            <div class="event-item us-holiday">🇺🇸 美股休市</div>
                             <div class="event-item us-holiday">🇺🇸 美股休市（圣诞前夕早收1pm）</div>
                         </div>
                     </div>
                 </td>
-                <td class="clickable" onclick="showDayDetail(25)" data-events='[{"cls": "hk-holiday", "text": "🇭🇰 港股休市"}, {"cls": "hk-holiday", "text": "🇭🇰 港股休市（圣诞节）"}, {"cls": "sg-holiday", "text": "🇸🇬 SG公假"}, {"cls": "sg-holiday", "text": "🇸🇬 SG公假（圣诞节）"}, {"cls": "us-holiday", "text": "🇺🇸 美股休市"}, {"cls": "us-holiday", "text": "🇺🇸 美股休市（圣诞节）"}]'>
+                <td class="clickable" onclick="showDayDetail(25)" data-events='[{"cls": "hk-holiday", "text": "🇭🇰 港股休市（圣诞节）"}, {"cls": "sg-holiday", "text": "🇸🇬 SG公假（圣诞节）"}, {"cls": "us-holiday", "text": "🇺🇸 美股休市（圣诞节）"}]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">25</span>
                         </div>
                         <div class="event-list">
-                            <div class="event-item hk-holiday">🇭🇰 港股休市</div>
                             <div class="event-item hk-holiday">🇭🇰 港股休市（圣诞节）</div>
-                            <div class="event-item sg-holiday">🇸🇬 SG公假</div>
                             <div class="event-item sg-holiday">🇸🇬 SG公假（圣诞节）</div>
-                            <div class="event-item us-holiday">🇺🇸 美股休市</div>
                             <div class="event-item us-holiday">🇺🇸 美股休市（圣诞节）</div>
                         </div>
                     </div>
@@ -855,13 +850,12 @@
                         </div>
                     </div>
                 </td>
-                <td class="clickable" onclick="showDayDetail(31)" data-events='[{"cls": "hk-holiday", "text": "🇭🇰 港股休市"}, {"cls": "hk-holiday", "text": "🇭🇰 港股休市（新年前夜半日）"}, {"cls": "macro", "text": "🇨🇳 中国PMI制造业/非制造业数据"}]'>
+                <td class="clickable" onclick="showDayDetail(31)" data-events='[{"cls": "hk-holiday", "text": "🇭🇰 港股休市（新年前夜半日）"}, {"cls": "macro", "text": "🇨🇳 中国PMI制造业/非制造业数据"}]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">31</span>
                         </div>
                         <div class="event-list">
-                            <div class="event-item hk-holiday">🇭🇰 港股休市</div>
                             <div class="event-item hk-holiday">🇭🇰 港股休市（新年前夜半日）</div>
                             <div class="event-item macro">🇨🇳 中国PMI制造业/非制造业数据</div>
                         </div>

@@ -55,9 +55,9 @@
         }
         .nav-center {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 12px;
-            justify-content: center;
+            gap: 2px;
         }
         .nav-arrow {
             color: #8b949e;
@@ -84,7 +84,7 @@
         .nav-month-nav {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
             justify-content: center;
         }
         .nav-month-current {
@@ -94,7 +94,7 @@
             white-space: nowrap;
         }
         .nav-spacer {
-            min-width: 140px;
+            display: none;
         }
 
         /* 分类标签导航栏 */
@@ -544,13 +544,12 @@
                         <div class="empty-content">--</div>
                     </div>
                 </td>
-                <td class="clickable" onclick="showDayDetail(1)" data-events='[{"cls": "hk-holiday", "text": "🇭🇰 港股休市"}, {"cls": "hk-holiday", "text": "🇭🇰 港股休市（国庆日）"}, {"cls": "policy", "text": "🇨🇳 A股休市"}, {"cls": "policy", "text": "🇨🇳 A股国庆休市（10/1-7）"}]'>
+                <td class="clickable" onclick="showDayDetail(1)" data-events='[{"cls": "hk-holiday", "text": "🇭🇰 港股休市（国庆日）"}, {"cls": "policy", "text": "🇨🇳 A股休市"}, {"cls": "policy", "text": "🇨🇳 A股国庆休市（10/1-7）"}]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">1</span>
                         </div>
                         <div class="event-list">
-                            <div class="event-item hk-holiday">🇭🇰 港股休市</div>
                             <div class="event-item hk-holiday">🇭🇰 港股休市（国庆日）</div>
                             <div class="event-item policy">🇨🇳 A股休市</div>
                             <div class="event-item policy">🇨🇳 A股国庆休市（10/1-7）</div>
@@ -757,13 +756,12 @@
         </thead>
         <tbody>
             <tr>
-                <td class="clickable" onclick="showDayDetail(19)" data-events='[{"cls": "hk-holiday", "text": "🇭🇰 港股休市"}, {"cls": "hk-holiday", "text": "🇭🇰 港股休市（重阳节）"}]'>
+                <td class="clickable" onclick="showDayDetail(19)" data-events='[{"cls": "hk-holiday", "text": "🇭🇰 港股休市（重阳节）"}]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">19</span>
                         </div>
                         <div class="event-list">
-                            <div class="event-item hk-holiday">🇭🇰 港股休市</div>
                             <div class="event-item hk-holiday">🇭🇰 港股休市（重阳节）</div>
                         </div>
                     </div>

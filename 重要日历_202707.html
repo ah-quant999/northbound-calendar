@@ -55,9 +55,9 @@
         }
         .nav-center {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 12px;
-            justify-content: center;
+            gap: 2px;
         }
         .nav-arrow {
             color: #8b949e;
@@ -84,7 +84,7 @@
         .nav-month-nav {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
             justify-content: center;
         }
         .nav-month-current {
@@ -94,7 +94,7 @@
             white-space: nowrap;
         }
         .nav-spacer {
-            min-width: 140px;
+            display: none;
         }
 
         /* 分类标签导航栏 */
@@ -592,13 +592,12 @@
         </thead>
         <tbody>
             <tr>
-                <td class="clickable" onclick="showDayDetail(5)" data-events='[{"cls": "us-holiday", "text": "🇺🇸 美股休市"}, {"cls": "us-holiday", "text": "🇺🇸 美股休市（独立日补假）"}]'>
+                <td class="clickable" onclick="showDayDetail(5)" data-events='[{"cls": "us-holiday", "text": "🇺🇸 美股休市（独立日补假）"}]'>
                     <div class="day-cell">
                         <div class="day-header">
                             <span class="day-number">5</span>
                         </div>
                         <div class="event-list">
-                            <div class="event-item us-holiday">🇺🇸 美股休市</div>
                             <div class="event-item us-holiday">🇺🇸 美股休市（独立日补假）</div>
                         </div>
                     </div>
