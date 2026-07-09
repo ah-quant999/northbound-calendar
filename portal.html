@@ -249,19 +249,19 @@
             </div>
 
             <div class="card-row">
-                <a class="card important" href="重要日历.html?from=portal" target="_blank">
+                <a class="card important" href="重要日历.html?from=portal">
                     <div class="card-icon">📅</div>
                     <h3>重要日历</h3>
                     <p>宏观数据、财报、FOMC<br>等关键事件</p>
                     <span class="arrow">→</span>
                 </a>
-                <a class="card resonance" href="机游共振日历.html?from=portal" target="_blank">
+                <a class="card resonance" href="机游共振日历.html?from=portal">
                     <div class="card-icon">⭐</div>
                     <h3>机游共振日历</h3>
                     <p>龙虎榜机构 + 游资<br>席位共振数据</p>
                     <span class="arrow">→</span>
                 </a>
-                <a class="card northbound" href="index.html?from=portal" target="_blank">
+                <a class="card northbound" href="index.html?from=portal">
                     <div class="card-icon">🏦</div>
                     <h3>北向资金日历</h3>
                     <p>北向资金每日<br>净流入 / 流出数据</p>
@@ -323,18 +323,7 @@
         }
         window.onload = function() {
             const role = sessionStorage.getItem("portal_role");
-            if (role) {
-                showPanel(role);
-                return;
-            }
-            // 从日历回退：直接进面板
-            const params = new URLSearchParams(location.search);
-            if (params.get('from') === 'calendar') {
-                sessionStorage.setItem("portal_role", "admin");
-                showPanel("admin");
-                // 清除URL参数
-                window.history.replaceState({}, '', location.pathname);
-            }
+            if (role) showPanel(role);
         }
     </script>
 </body>
