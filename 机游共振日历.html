@@ -1517,4 +1517,11 @@
             curM = m; document.getElementById('nav-year').textContent = yr + '年 ' + mn[m];
             var p = document.getElementById('nav-prev'), nx = document.getElementById('nav-next');
             if(p) { if(m>1) { p.style.display=''; p.innerHTML='← '+mn[m-1]; p.onclick=function(){switchMonth(m-1);}; }
-                    else { p.style.displa
+                    else { p.style.display='none'; } }
+            if(nx) { if(m<12) { nx.style.display=''; nx.innerHTML=mn[m+1]+' →'; nx.onclick=function(){switchMonth(m+1);}; }
+                     else { nx.style.display='none'; } }
+        }
+        switchMonth(7);
+    </script>
+</body>
+</html>
