@@ -176,14 +176,17 @@
         .day-cell .stock-list {
             font-size: 11px;
             line-height: 1.5;
-            flex: 1;
-            overflow-y: auto;
-            word-break: break-all;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 2px 8px;
+            overflow: visible;
         }
         .day-cell .stock-item {
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 3px;
+            gap: 2px;
+            white-space: nowrap;
         }
         .day-cell .stock-icon {
             font-size: 7px;
@@ -217,11 +220,16 @@
             color: #6e7681;
             margin: 2px 0 3px;
             flex-shrink: 0;
+            width: 100%;
         }
         .day-cell .section-title ~ .section-title {
-            margin-top: 10px;
+            margin-top: 6px;
+            padding-top: 4px;
+        }
+        .day-cell .section-title ~ .section-title.resonance-title {
             border-top: 1px solid #30363d;
-            padding-top: 6px;
+            margin-top: 6px;
+            padding-top: 4px;
         }
         .day-cell .section-title.resonance-title {
             color: #d29922;
@@ -1509,11 +1517,4 @@
             curM = m; document.getElementById('nav-year').textContent = yr + '年 ' + mn[m];
             var p = document.getElementById('nav-prev'), nx = document.getElementById('nav-next');
             if(p) { if(m>1) { p.style.display=''; p.innerHTML='← '+mn[m-1]; p.onclick=function(){switchMonth(m-1);}; }
-                    else { p.style.display='none'; } }
-            if(nx) { if(m<12) { nx.style.display=''; nx.innerHTML=mn[m+1]+' →'; nx.onclick=function(){switchMonth(m+1);}; }
-                     else { nx.style.display='none'; } }
-        }
-        switchMonth(7);
-    </script>
-</body>
-</html>
+                    else { p.style.displa
