@@ -224,8 +224,12 @@ def get_recurring_events(year, month):
             'text': '🇨🇳 CPI/PPI数据'
         })
 
-    # 工业/零售/固投 - 每月15日前后
+    # 工业/零售/固投 - 每月15日前后（遇周末顺延到下一工作日）
     ind_day = 15
+    if is_weekend(year, month, ind_day):
+        ind_day += 1
+        while is_weekend(year, month, ind_day):
+            ind_day += 1
     if ind_day <= days_in_month:
         events.append({
             'day': ind_day,
@@ -824,6 +828,15 @@ def generate_month_html(year, month, today_date=None):
         today_date = date.today()
 
     month_name = f"{year}年{month}月"
+    # 计算上下月导航
+    prev_m = month - 1 if month > 1 else 12
+    prev_y = year if month > 1 else year - 1
+    next_m = month + 1 if month < 12 else 1
+    next_y = year if month < 12 else year + 1
+    prev_label = f"{prev_y}年{prev_m}月"
+    next_label = f"{next_y}年{next_m}月"
+    prev_file = f"重要日历_{prev_y}{prev_m:02d}.html"
+    next_file = f"重要日历_{next_y}{next_m:02d}.html"
     days_in_month = calendar.monthrange(year, month)[1]
     first_weekday = date(year, month, 1).weekday()  # 0=周一
 
@@ -919,15 +932,47 @@ def generate_month_html(year, month, today_date=None):
     lines.append('            border-bottom: 1px solid #30363d;')
     lines.append('            margin-bottom: 20px;')
     lines.append('        }')
-    lines.append('        .header h1 {')
-    lines.append('            font-size: 28px;')
+    lines.append('        .nav-bar {')
+    lines.append('            display: flex;')
+    lines.append('            align-items: center;')
+    lines.append('            justify-content: space-between;')
+    lines.append('            padding: 0 10px;')
+    lines.append('        }')
+    lines.append('        .nav-arrow {')
+    lines.append('            color: #8b949e;')
+    lines.append('            text-decoration: none;')
+    lines.append('            font-size: 15px;')
+    lines.append('            font-weight: 500;')
+    lines.append('            padding: 8px 16px;')
+    lines.append('            border-radius: 6px;')
+    lines.append('            transition: background 0.2s;')
+    lines.append('        }')
+    lines.append('        .nav-arrow:hover {')
+    lines.append('            background: #21262d;')
+    lines.append('            color: #58a6ff;')
+    lines.append('        }')
+    lines.append('        .nav-title {')
+    lines.append('            text-align: center;')
+    lines.append('        }')
+    lines.append('        .nav-title h1 {')
+    lines.append('            font-size: 24px;')
     lines.append('            font-weight: 600;')
     lines.append('            color: #58a6ff;')
-    lines.append('            margin-bottom: 8px;')
+    lines.append('            margin-bottom: 4px;')
     lines.append('        }')
-    lines.append('        .header .subtitle {')
-    lines.append('            color: #8b949e;')
-    lines.append('            font-size: 13px;')
+    lines.append('        .nav-current {')
+    lines.append('            color: #c9d1d9;')
+    lines.append('            font-size: 14px;')
+    lines.append('            font-weight: 500;')
+    lines.append('        }')
+    lines.append('        .nav-current .highlight {')
+    lines.append('            color: #58a6ff;')
+    lines.append('        }')
+    lines.append('        .update-info {')
+    lines.append('            text-align: center;')
+    lines.append('            margin-top: 8px;')
+    lines.append('            font-size: 12px;')
+    lines.append('            color: #6e7681;')
     lines.append('        }')
     lines.append('')
     lines.append('        /* 分类标签导航栏 */')
@@ -1153,8 +1198,15 @@ def generate_month_html(year, month, today_date=None):
     lines.append('<body>')
     lines.append('<div class="container">')
     lines.append('    <div class="header">')
-    lines.append('        <h1>📅 重要日历</h1>')
-    lines.append(f'        <div class="subtitle">{month_name} · 全市场重要事件一览 | 更新于 {today_date.strftime("%Y-%m-%d")}</div>')
+    lines.append('        <div class="nav-bar">')
+    lines.append('            <a href="{prev_file}" class="nav-arrow">← {prev_label}</a>')
+    lines.append('            <div class="nav-title">')
+    lines.append('                <h1>重要日历</h1>')
+    lines.append('                <div class="nav-current"><span class="highlight">{month_name}</span> · 全市场重要事件一览</div>')
+    lines.append('            </div>')
+    lines.append('            <a href="{next_file}" class="nav-arrow">{next_label} →</a>')
+    lines.append('        </div>')
+    lines.append(f'        <div class="update-info">数据涵盖A股/港股/美股/欧股/日韩台/新加坡 | 每月1日更新 | 本次更新时间: {today_date.strftime("%Y-%m-%d %H:%M")}</div>')
     lines.append('    </div>')
     lines.append('')
     lines.append('    <!-- 分类标签导航 -->')
