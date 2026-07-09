@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>重要日历</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #0d1117;
+            min-height: 100vh;
+            padding: 20px;
+            color: #c9d1d9;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #161b22;
+            border-radius: 12px;
+            border: 1px solid #30363d;
+            padding: 30px;
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #30363d;
+            margin-bottom: 25px;
+        }
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #58a6ff;
+            margin-bottom: 8px;
+        }
+        .header .subtitle {
+            color: #8b949e;
+            font-size: 13px;
+        }
+
+        /* 图例 */
+        .legend {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+            font-size: 12px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .legend-dot.macro { background: #d29922; }
+        .legend-dot.us-stock { background: #58a6ff; }
+        .legend-dot.tw-stock { background: #3fb950; }
+        .legend-dot.kr-stock { background: #bc8cff; }
+        .legend-dot.fomc { background: #f85149; }
+
+        /* 周列表 */
+        .week-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .week-table thead th {
+            background: #21262d;
+            color: #c9d1d9;
+            padding: 10px 8px;
+            font-size: 13px;
+            font-weight: 500;
+            text-align: center;
+            border: 1px solid #30363d;
+        }
+        .week-table tbody td {
+            border: 1px solid #30363d;
+            vertical-align: top;
+            padding: 8px;
+            background: #0d1117;
+            width: 14.28%;
+            height: 200px;
+        }
+        .week-table tbody td.weekend {
+            background: #161b22;
+        }
+        .week-table tbody td.other-month {
+            opacity: 0.4;
+        }
+
+        .day-cell {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .day-cell .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+            flex-shrink: 0;
+        }
+        .day-cell .day-number {
+            font-size: 13px;
+            font-weight: 600;
+            color: #c9d1d9;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        .day-cell .day-number.today {
+            background: #58a6ff;
+            color: #fff;
+        }
+        .day-cell .day-number.other {
+            color: #6e7681;
+        }
+
+        .day-cell .event-list {
+            font-size: 11px;
+            line-height: 1.4;
+            flex: 1;
+            overflow-y: auto;
+        }
+        .day-cell .event-item {
+            padding: 3px 5px;
+            margin-bottom: 3px;
+            border-radius: 3px;
+            font-size: 11px;
+            line-height: 1.3;
+        }
+        .day-cell .event-item.macro {
+            background: rgba(210, 153, 34, 0.15);
+            border-left: 2px solid #d29922;
+            color: #d29922;
+        }
+        .day-cell .event-item.us-stock {
+            background: rgba(88, 166, 255, 0.15);
+            border-left: 2px solid #58a6ff;
+            color: #58a6ff;
+        }
+        .day-cell .event-item.tw-stock {
+            background: rgba(63, 185, 80, 0.15);
+            border-left: 2px solid #3fb950;
+            color: #3fb950;
+        }
+        .day-cell .event-item.kr-stock {
+            background: rgba(188, 140, 255, 0.15);
+            border-left: 2px solid #bc8cff;
+            color: #bc8cff;
+        }
+        .day-cell .event-item.fomc {
+            background: rgba(248, 81, 73, 0.15);
+            border-left: 2px solid #f85149;
+            color: #f85149;
+        }
+        .day-cell .event-item .event-time {
+            color: #8b949e;
+            font-size: 10px;
+        }
+        .day-cell .empty-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6e7681;
+            font-size: 12px;
+        }
+
+        /* 月度汇总 */
+        .monthly-summary {
+            margin-top: 30px;
+        }
+        .monthly-summary h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #c9d1d9;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        .summary-box {
+            background: #21262d;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #30363d;
+        }
+        .summary-box h4 {
+            font-size: 13px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .summary-box h4 .count-badge {
+            background: #30363d;
+            color: #8b949e;
+            font-size: 11px;
+            padding: 1px 6px;
+            border-radius: 8px;
+            font-weight: 400;
+        }
+        .summary-list {
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        .summary-list .event-line {
+            padding: 2px 0;
+            display: flex;
+            gap: 6px;
+        }
+        .summary-list .event-line .event-date {
+            color: #6e7681;
+            flex-shrink: 0;
+            width: 50px;
+        }
+        .summary-list .event-line.macro .event-name { color: #d29922; }
+        .summary-list .event-line.us-stock .event-name { color: #58a6ff; }
+        .summary-list .event-line.fomc .event-name { color: #f85149; }
+
+        .footer-note {
+            margin-top: 30px;
+            padding: 20px;
+            background: #21262d;
+            border-radius: 8px;
+            border: 1px solid #30363d;
+            font-size: 12px;
+            color: #8b949e;
+            line-height: 1.6;
+        }
+        .footer-note strong { color: #c9d1d9; }
+
+        .update-time {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #6e7681;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            .week-table tbody td { height: 150px; padding: 4px; }
+            .day-cell .event-list { font-size: 10px; }
+            .day-cell .event-item { font-size: 10px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>📅 重要日历</h1>
+        <div class="subtitle">中国宏观数据 · 美股财报 · FOMC | 更新时间：2026-07-09</div>
+    </div>
+
+    <!-- 图例 -->
+    <div class="legend">
+        <div class="legend-item"><span class="legend-dot macro"></span><span>中国宏观数据</span></div>
+        <div class="legend-item"><span class="legend-dot us-stock"></span><span>美股财报</span></div>
+        <div class="legend-item"><span class="legend-dot tw-stock"></span><span>台股财报</span></div>
+        <div class="legend-item"><span class="legend-dot kr-stock"></span><span>韩股财报</span></div>
+        <div class="legend-item"><span class="legend-dot fomc"></span><span>FOMC相关</span></div>
+    </div>
+
+    <!-- 7月 -->
+    <table class="week-table">
+        <thead>
+            <tr>
+                <th>周一</th><th>周二</th><th>周三</th><th>周四</th><th>周五</th><th>周六</th><th>周日</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="other-month"><div class="day-cell"><div class="day-header"><span class="day-number other">29</span></div><div class="empty-content">--</div></div></td>
+                <td class="other-month"><div class="day-cell"><div class="day-header"><span class="day-number other">30</span></div><div class="empty-content">--</div></div></td>
+                <td><div class="day-cell"><div class="day-header"><span class="day-number">1</span></div><div class="event-list"><div class="event-item macro">🇨🇳 6月财新制造业PMI</div></div></div></td>
+                <td><div class="day-cell"><div class="day-header"><span class="day-number">2</span></div><div class="empty-content">--</div></div></td>
+                <td><div class="day-cell"><div class="day-header"><span class="day-number">3</span></div><div class="empty-content">--</div></div></td>
+                <td class="weekend"><div class="day-cell"><div class="day-header"><span class="day-number">4</span></div><div class="empty-content"><span style="color:#6e7681;">休市</span></div></div></td>
+                <td class="weekend"><div class="day-cell"><div class="day-header"><span class="day-number">5</span></div><div class="empty-content"><span style="color:#6e7681;">休市</span></div></div></td>
+            </tr>
+        </tbody>
+    </table>
+    <div style="text-align:left;font-size:12px;color:#8b949e;margin:-15px 0 25px 5px;">第1周 6/29-7/5</div>
+
+    <table class="week-table">
+        <thead>
+            <tr>
+                <th>周一</th><th>周二</th><th>周三</th><th>周四</th><th>周五</th><th>周六</th><th>周日</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><div class="day-cell"><div class="day-header"><span class="day-number">6</span></div><div class="empty-content">--</div></div></td>
+                <td><div class="day-cell"><div class="day-header"><span class="day-number">7</span></div><div class="empty-content">--</div></div></td>
+                <td><div class="day-cell"><div class="day-header"><span class="day-number">8</span></div><div class="empty-content">--</div></div></td>
+                <td>
+                    <div class="day-cell">
+                        <div class="day-header"><span class="day-number">9</span></div>
+                        <div class="event-list">
+                            <div class="event-item macro">🇨🇳 6月CPI/PPI</div>
+                            <div class="event-item us-stock">PEP 百事 <span class="event-time">盘前</span></div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="day-cell">
+                        <div class="day-header"><span class="day-number">10</span></div>
+                        <div class="event-list">
+                            <div class="event-item us-stock">DAL 达美航空 <span class="event-time">盘前</span></div>
+                        </div>
+                    </div>
+                </td>
+                <td class="weekend"><div class="day-cell"><div class="day-header"><span class="day-number">11</span></div><div class="empty-content"><span style="color:#6e7681;">休市</span></div></div></td>
+                <td class="weekend"><div class="day-cell"><div class="day-header"><span class="day-number">12</span></div><div class="empty-content"><span style="color:#6e7681;">休市</span></div></div></td>
+            </tr>
+        </tbody>
+    </table>
+    <div style="text-align:left;font-size:12px;color:#8b949e;margin:-15px 0 25px 5px;">第2周 7/6-7/12</div>
+
+    <table class="week-table">
+        <thead>
+            <tr>
+                <th>周一</th><th>周二</th><th>周三</th><th>周四</th><th>周五</th><th>周六</th><th>周日</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <div class="day-cell">
+                        <div class="day-header"><span class="day-number">13</span></div>
+                        <div class="empty-content">--</div>
+                    </div>
+                </td>
+                <td>
+                    <div class="day-cell">
+                        <div class="day-header"><span class="day-number">14</span></div>
+                        <div class="event-list">
+                            <div class="event-item macro">🇺🇸 6月CPI <span class="event-time">20:30</span></div>
+                            <div class="event-item us-stock">JPM 摩根大通 <span class="event-time">盘前</span></div>
+                            <div class="event-item us-stock">GS 高盛 <span class="event-time">盘前</span></div>
+                            <div class="event-item us-stock">BAC 美银 <span class="event-time">盘前</span></div>
+                            <div class="event-item us-stock">WFC 富国银行 <span class="event-time">盘前</span></div>
+                            <div class="event-item us-stock">C 花旗集团 <span class="event-time">盘前</span></div>
+                            <div class="event-item us-stock">FAST 快扣 <span class="event-time">盘前</span></div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="day-cell">
+                        <div class="day-header"><span class="day-number">15</span></div>
+                        <div class="event-list">
+                            <div class="event-item macro">🇨🇳 6月工业/零售/固投</div>
+                            <div class="event-item us-stock">MS 摩根士丹利 <span class="event-time">盘前</span></div>
+                            <div class="event-item us-stock">BLK 贝莱德 <span class="event-time">盘前</span></div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="day-cell">
+                        <div class="day-header"><span class="day-number">16</span></div>
+                        <div class="event-list">
+                            <div class="event-item us-stock">NFLX 奈飞 <span class="event-time">盘后</span></div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="day-cell">
+                        <div class="day-header"><span class="day-number">17</span></div>
+                        <div class="empty-content">--</div>
+                    </div>
+                </td>
+                <td class="weekend"><div class="day-cell"><div class="day-header"><span class="day-number">18</span></div><div class="empty-content"><span style="color:#6e7681;">休市</span></div></div></td>
+                <td class="weekend"><div class="day-cell"><div class="day-header"><span class="day-number">19</span></div><div class="empty-content"><span style="color:#6e7681;">休市</span></div></div></td>
+            </tr>
+        </tbody>
+    </table>
+    <div style="text-align:left;font-size:12px;color:#8b949e;margin:-15px 0 25px 5px;">第3周 7/13-7/19</div>
+
+    <table class="week-table">
+        <thead>
+            <tr>
+                <th>周一</th><th>周二</th><th>周三</th><th>周四</th><th>周五</th><th>周六</th><th>周日</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <div class="day-cell">
+                        <div class="day-header"><span class="day-number">20</span></div>
+                        <div class="event-list">
+                            <div class="event-item macro">🇨🇳 LPR利率</div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="day-cell">
+                        <div class="day-header"><span class="day-number">21</span></div>
+                        <div class="empty-content">--</div>
+                    </div>
+                </td>
+                <td>
+                    <div class="day-cell">
+                        <div class="day-header"><span class="day-number">22</span></div>
+                        <div class="event-list">
+                            <div class="event-item us-stock">TSLA 特斯拉 <span class="event-time">盘后</span></div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="day-cell">
+                        <div class="day-header"><span class="day-number">23</span></div>
+                        <div class="event-list">
+                            <div class="event-item us-stock">GOOGL 谷歌 <span class="event-time">盘后</span></div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="day-cell">
+                        <div class="day-header"><span class="day-number">24</span></div>
+                        <div class="empty-content">--</div>
+                    </div>
+                </td>
+                <td class="weekend"><div class="day-cell"><div class="day-header"><span class="day-number">25</span></div><div class="empty-content"><span style="color:#6e7681;">休市</span></div></div></td>
+                <td class="weekend"><div class="day-cell"><div class="day-header"><span class="day-number">26</span></div><div class="empty-content"><span style="color:#6e7681;">休市</span></div></div></td>
+            </tr>
+        </tbody>
+    </table>
+    <div style="text-align:left;font-size:12px;color:#8b949e;margin:-15px 0 25px 5px;">第4周 7/20-7/26</div>
+
+    <table class="week-table">
+        <thead>
+            <tr>
+                <th>周一</th><th>周二</th><th>周三</th><th>周四</th><th>周五</th><th>周六</th><th>周日</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <div class="day-cell">
+                        <div class="day-header"><span class="day-number">27</span></div>
+                        <div class="empty-content">--</div>
+                    </div>
+                </td>
+                <td>
+                    <div class="day-cell">
+                        <div class="day-header"><span class="day-number">28</span></div>
+                        <div class="event-list">
+                            <div class="event-item fomc">🇺🇸 FOMC第一天</div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="day-cell">
+                        <div class="day-header"><span class="day-number">29</span></div>
+                        <div class="event-list">
+                            <div class="event-item fomc">🇺🇸 FOMC利率决议 <span class="event-time">凌晨02:00</span></div>
+                            <div class="event-item us-stock">MSFT 微软 <span class="event-time">盘后</span></div>
+                            <div class="event-item us-stock">META <span class="event-time">盘后</span></div>
+                            <div class="event-item us-stock">ADP <span class="event-time">盘前</span></div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="day-cell">
+                        <div class="day-header"><span class="day-number">30</span></div>
+                        <div class="event-list">
+                            <div class="event-item us-stock">AAPL 苹果 <span class="event-time">盘后</span></div>
+                            <div class="event-item us-stock">AMZN 亚马逊 <span class="event-time">盘后</span></div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="day-cell">
+                        <div class="day-header"><span class="day-number">31</span></div>
+                        <div class="event-list">
+                            <div class="event-item macro">🇨🇳 7月PMI</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="weekend"><div class="day-cell"><div class="day-header"><span class="day-number" class="other">1</span></div><div class="empty-content"><span style="color:#6e7681;">休市</span></div></div></td>
+                <td class="weekend"><div class="day-cell"><div class="day-header"><span class="day-number" class="other">2</span></div><div class="empty-content"><span style="color:#6e7681;">休市</span></div></div></td>
+            </tr>
+        </tbody>
+    </table>
+    <div style="text-align:left;font-size:12px;color:#8b949e;margin:-15px 0 25px 5px;">第5周 7/27-8/2</div>
+
+    <!-- 月度汇总 -->
+    <div class="monthly-summary">
+        <h3>📊 7月重要事件汇总</h3>
+        <div class="summary-grid">
+            <div class="summary-box">
+                <h4 style="color:#d29922;">🇨🇳 中国宏观数据 <span class="count-badge">5项</span></h4>
+                <div class="summary-list">
+                    <div class="event-line macro"><span class="event-date">7/1</span><span class="event-name">6月财新制造业PMI</span></div>
+                    <div class="event-line macro"><span class="event-date">7/9</span><span class="event-name">6月CPI/PPI ✅ 已发布</span></div>
+                    <div class="event-line macro"><span class="event-date">7/15</span><span class="event-name">6月工业/零售/固投</span></div>
+                    <div class="event-line macro"><span class="event-date">7/20</span><span class="event-name">LPR利率</span></div>
+                    <div class="event-line macro"><span class="event-date">7/31</span><span class="event-name">7月PMI</span></div>
+                </div>
+            </div>
+            <div class="summary-box">
+                <h4 style="color:#58a6ff;">🇺🇸 美股财报 <span class="count-badge">14+公司</span></h4>
+                <div class="summary-list">
+                    <div class="event-line us-stock"><span class="event-date">7/9</span><span class="event-name">PEP 百事</span></div>
+                    <div class="event-line us-stock"><span class="event-date">7/10</span><span class="event-name">DAL 达美航空</span></div>
+                    <div class="event-line us-stock"><span class="event-date">7/14</span><span class="event-name">JPM/GS/BAC/WFC/C/FAST 银行财报潮</span></div>
+                    <div class="event-line us-stock"><span class="event-date">7/15</span><span class="event-name">MS/BLK 摩士丹利/贝莱德</span></div>
+                    <div class="event-line us-stock"><span class="event-date">7/16</span><span class="event-name">NFLX 奈飞</span></div>
+                    <div class="event-line us-stock"><span class="event-date">7/22</span><span class="event-name">TSLA 特斯拉</span></div>
+                    <div class="event-line us-stock"><span class="event-date">7/23</span><span class="event-name">GOOGL 谷歌</span></div>
+                    <div class="event-line us-stock"><span class="event-date">7/29</span><span class="event-name">MSFT/META/ADP</span></div>
+                    <div class="event-line us-stock"><span class="event-date">7/30</span><span class="event-name">AAPL/AMZN 苹果/亚马逊</span></div>
+                </div>
+            </div>
+            <div class="summary-box">
+                <h4 style="color:#f85149;">🇺🇸 FOMC <span class="count-badge">1次</span></h4>
+                <div class="summary-list">
+                    <div class="event-line fomc"><span class="event-date">7/28-29</span><span class="event-name">FOMC议息会议（无点阵图）</span></div>
+                    <div class="event-line fomc"><span class="event-date">7/30</span><span class="event-name">利率决议+新闻发布会 凌晨02:00</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-note">
+        <strong>📋 数据来源与说明</strong><br>
+        1. 🇨🇳 <strong>中国宏观数据</strong>：国家统计局/央行常规发布日历。CPI/PPI每月9日，PMI月末最后一日，工业/零售/固投每月15日前后，LPR每月20日。<br>
+        2. 🇺🇸 <strong>美股财报</strong>：来源 FindFin财报日历及公司IR页面。财报日期可能调整，以公司官方公告为准。<br>
+        3. 🇺🇸 <strong>FOMC</strong>：美联储官方法定会议日程。7月28-29日会议，北京时间7月30日凌晨02:00公布决议，本次不发布点阵图/SEP。<br>
+        4. 🟡 <strong>台股/韩股财报</strong>：暂无数据——台股/韩股Q2财报季通常在7月下旬至8月初，待各公司公布具体日期后补充。<br>
+        5. ⚠️ 本日历仅收录固定排期事件，突发事件（如临时政策会议、数据推迟发布等）无法提前预告。<br>
+        6. 数据来源：国家统计局、中国人民银行、美联储、FindFin、各公司IR页面。仅供参考，不构成投资建议。
+    </div>
+
+    <div class="update-time">
+        重要日历 · 2026年7月版<br>
+        数据来源：国家统计局/央行/美联储/各公司IR | 仅供参考，不构成投资建议<br>
+        生成日期：2026-07-09
+    </div>
+</div>
+</body>
+</html>
