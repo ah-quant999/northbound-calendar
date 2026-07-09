@@ -85,7 +85,7 @@
             padding: 8px;
             background: #0d1117;
             width: 14.28%;
-            height: 300px;
+            height: 400px;
         }
         .week-table tbody td.weekend {
             background: #161b22;
@@ -144,7 +144,7 @@
         }
 
         .day-cell .stock-list {
-            font-size: 11px;
+            font-size: 12px;
             line-height: 1.3;
             flex: 1;
             overflow-y: auto;
@@ -167,7 +167,7 @@
             text-overflow: ellipsis;
             white-space: nowrap;
             color: #c9d1d9;
-            font-size: 11px;
+            font-size: 12px;
         }
         .day-cell .stock-name.resonance-name {
             color: #d29922;
@@ -175,7 +175,7 @@
         }
         .day-cell .stock-amount {
             font-weight: 500;
-            font-size: 11px;
+            font-size: 12px;
             flex-shrink: 0;
         }
         .day-cell .stock-amount.up { color: #f85149; }
@@ -183,7 +183,7 @@
         .day-cell .stock-amount.resonance-amount { color: #d29922; }
 
         .day-cell .section-title {
-            font-size: 10px;
+            font-size: 11px;
             color: #6e7681;
             margin: 2px 0 1px;
             flex-shrink: 0;
@@ -363,9 +363,9 @@
         @media (max-width: 768px) {
             .container { padding: 10px; }
             .week-table tbody td { height: 220px; padding: 4px; }
-            .day-cell .stock-list { font-size: 9px; }
-            .day-cell .stock-name { font-size: 9px; }
-            .day-cell .stock-amount { font-size: 9px; }
+            .day-cell .stock-list { font-size: 10px; }
+            .day-cell .stock-name { font-size: 10px; }
+            .day-cell .stock-amount { font-size: 10px; }
             .monthly-summary { grid-template-columns: 1fr; }
         }
     </style>
@@ -411,9 +411,17 @@
                     <td>
                         <div class="day-cell">
                             <div class="day-header"><span class="day-number">1</span></div>
-                            <div class="empty-content">
-                                <div class="amount holiday">非交易日</div>
-                                <div style="font-size:10px;color:#6e7681;margin-top:4px;">无龙虎榜数据</div>
+                            <div class="stock-list">
+                                <div class="section-title">▲ 机构净买入TOP5</div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">昊华科技</span><span class="stock-amount up">+5.36亿</span></div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">锐捷网络</span><span class="stock-amount up">+3.17亿</span></div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">雅克科技</span><span class="stock-amount up">+2.82亿</span></div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">多氟多</span><span class="stock-amount up">+2.65亿</span></div>
+                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">阳谷华泰</span><span class="stock-amount up">+1.61亿</span></div>
+                                <div class="section-title">▼ 游资席位动向</div>
+                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">联储上海松林路</span><span class="stock-amount up">+1.27亿</span></div>
+                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">中金上海分公司</span><span class="stock-amount up">+8166万</span></div>
+                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">开源西安太华路</span><span class="stock-amount up">+6783万</span></div>
                             </div>
                         </div>
                     </td>
