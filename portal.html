@@ -236,7 +236,7 @@
                    onkeydown="if(event.key==='Enter')login()">
             <button class="btn" onclick="login()">进入面板</button>
             <div class="error" id="errorMsg">密码错误，请重试</div>
-            <div class="hint">管理员 / 贵宾专用入口</div>
+            <div class="hint">密码登录</div>
         </div>
 
         <!-- 面板页 -->
@@ -277,37 +277,25 @@
     </div>
 
     <script>
-        const ADMIN_PWD = "ggcat999";
-        const VIP_PWD = "hjd666";
+        const CAL_PWD = "hjd666";
 
         function login() {
             const pwd = document.getElementById("passwordInput").value;
             const error = document.getElementById("errorMsg");
-            if (pwd === ADMIN_PWD) {
-                showPanel("admin");
-            } else if (pwd === VIP_PWD) {
-                showPanel("vip");
+            if (pwd === CAL_PWD) {
+                showPanel();
             } else {
                 error.style.display = "block";
                 document.getElementById("passwordInput").focus();
             }
         }
 
-        function showPanel(role) {
+        function showPanel() {
             document.getElementById("loginPage").style.display = "none";
             document.getElementById("panelPage").style.display = "block";
-            const tag = document.getElementById("roleTag");
-            const msg = document.getElementById("welcomeMsg");
-            if (role === "admin") {
-                tag.className = "role-tag admin";
-                tag.textContent = "🔑 管理员";
-                msg.textContent = "欢迎回来，管理员";
-            } else {
-                tag.className = "role-tag vip";
-                tag.textContent = "⭐ 贵宾";
-                msg.textContent = "欢迎，贵宾用户";
-            }
-            sessionStorage.setItem("portal_role", role);
+            document.getElementById("roleTag").textContent = "📅 已登录";
+            document.getElementById("welcomeMsg").textContent = "欢迎回来";
+            sessionStorage.setItem("portal_role", "1");
         }
 
         function logout() {
@@ -318,12 +306,8 @@
             document.getElementById("errorMsg").style.display = "none";
         }
 
-        function openCal(url) {
-            window.open(url + '?from=portal', '_blank');
-        }
         window.onload = function() {
-            const role = sessionStorage.getItem("portal_role");
-            if (role) showPanel(role);
+            if (sessionStorage.getItem("portal_role")) showPanel();
         }
     </script>
 </body>
