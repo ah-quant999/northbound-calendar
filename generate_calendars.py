@@ -9,6 +9,7 @@
 
 import argparse
 import calendar
+import json
 import os
 from datetime import datetime, date, timedelta
 
@@ -79,28 +80,40 @@ def get_week_label(week_num, days_in_month, year, month):
 
 HOLIDAYS_2026 = {
     'hk': {
-        # 港股休市2026（仅保留无specific event的日期）
+        # 港股休市2026
         1: [1],
-        2: [16, 17, 18, 19],
+        2: [16, 17, 18, 19],  # 2/16半日，17-19全日
         4: [3, 6, 7],
         5: [1, 25],
+        6: [19],
         7: [1],
+        9: [25],
+        10: [1, 19],
+        12: [24, 25, 31],  # 12/24半日, 12/31半日
     },
     'us': {
-        # 美股休市2026（仅保留无specific event的日期，其余由specific events覆盖）
+        # 美股休市2026
         1: [1],
         2: [16],
         4: [3],
         5: [25],
+        6: [19],
+        7: [3],
+        9: [7],
+        11: [26, 27],  # 11/27早收1pm
+        12: [24, 25],  # 12/24早收1pm
     },
     'sg': {
-        # SG公假2026（仅保留无specific event的日期）
+        # SG公假2026
         1: [1],
         2: [17, 18],
         3: [21],
         4: [3],
         5: [1, 27],
         6: [1],
+        8: [10],
+        11: [9],
+        12: [25],
     },
     'cn': {
         # A股休市2026
@@ -130,22 +143,39 @@ FOMC_2026 = {
 
 HOLIDAYS_2027 = {
     'hk': {
-        # 港股休市2027（仅保留无specific event的日期）
+        # 港股休市2027
         1: [1],
         2: [6, 7, 8, 9],
-        5: [1],
+        3: [26, 27, 29],
+        4: [5],
+        5: [1, 13],
+        6: [9],
         7: [1],
-        10: [1],
+        9: [16],
+        10: [1, 8],
+        12: [25, 27],
     },
     'us': {
-        # 美股休市2027（仅保留无specific event的日期）
+        # 美股休市2027
         1: [1],
+        2: [15],
+        3: [26],
+        5: [31],
+        6: [18],
+        7: [5],
+        9: [6],
+        11: [25, 26],  # 11/26早收
+        12: [24, 25],
     },
     'sg': {
-        # SG公假2027（仅保留无specific event的日期）
+        # SG公假2027
         1: [1],
         2: [6, 7, 8],
-        5: [1],
+        3: [10, 26],
+        5: [1, 17, 20],
+        8: [9],
+        10: [28],
+        12: [25],
     },
     'cn': {
         # A股休市2027（暂定，待官方公布确认）
@@ -569,7 +599,8 @@ def get_legend_blocks(year, month):
         {
             'color': '#ff8c42',
             'title': '重要政策',
-            'detail': '中国政府/监管机构发布的重大政策、法规、规划等',
+            'subtitle': '中国政府/监管机构发布的重大政策、法规、规划等',
+            'detail': '',
             'items': [
                 '暂无数据，待政策发布后补充'
             ]
@@ -577,7 +608,8 @@ def get_legend_blocks(year, month):
         {
             'color': '#ffd700',
             'title': '央行/LPR',
-            'detail': '央行货币政策、利率决议、LPR报价等',
+            'subtitle': '央行货币政策、利率决议、LPR报价等',
+            'detail': '',
             'items': [
                 f'{month}月 LPR利率报价（1年期/5年期以上）— 每月20日'
             ]
@@ -585,7 +617,8 @@ def get_legend_blocks(year, month):
         {
             'color': '#e8b830',
             'title': '中国数据',
-            'detail': '国家统计局/央行发布的宏观经济数据',
+            'subtitle': '国家统计局/央行发布的宏观经济数据',
+            'detail': '',
             'items': [
                 f'CPI/PPI — 每月9日前后',
                 f'工业增加值/社零/固投 — 每月15日前后',
@@ -595,7 +628,8 @@ def get_legend_blocks(year, month):
         {
             'color': '#ff6b55',
             'title': '财报截止',
-            'detail': 'A股财报披露法定截止日',
+            'subtitle': 'A股财报披露法定截止日',
+            'detail': '',
             'items': [
                 get_earn_deadline_text(year, month)
             ]
@@ -603,7 +637,8 @@ def get_legend_blocks(year, month):
         {
             'color': '#4da6ff',
             'title': '期权交割',
-            'detail': '各交易所期权合约到期日，涉及多空博弈',
+            'subtitle': '各交易所期权合约到期日，涉及多空博弈',
+            'detail': '',
             'items': [
                 '中金所股指期权 — 每月第三个周五',
                 '各商品交易所期权到期日 — 每月约13-20日间',
@@ -613,7 +648,8 @@ def get_legend_blocks(year, month):
         {
             'color': '#6cb4ff',
             'title': '期货交割',
-            'detail': '期货合约最后交易日，交割前后波动加大',
+            'subtitle': '期货合约最后交易日，交割前后波动加大',
+            'detail': '',
             'items': [
                 '中金所IF/IH/IC/IM股指期货 — 每月第三个周五',
                 f'各交易所{year%100}{month:02d}合约最后交易日 — 约每月中旬',
@@ -622,7 +658,8 @@ def get_legend_blocks(year, month):
         {
             'color': '#ff5a52',
             'title': 'A50交割',
-            'detail': '新加坡富时A50期货交割日，外资对冲A股关键窗口',
+            'subtitle': '新加坡富时A50期货交割日，外资对冲A股关键窗口',
+            'detail': '',
             'items': [
                 f'{month_name} — 倒数第二个工作日',
                 '⚠️ 交割前1-2周可能出现提前移仓波动'
@@ -631,40 +668,46 @@ def get_legend_blocks(year, month):
         {
             'color': '#78828a',
             'title': '港股休市',
-            'detail': '香港交易所休市日，港股通/沪深股通同步暂停',
+            'subtitle': '香港交易所休市日，港股通/沪深股通同步暂停',
+            'detail': '',
             'items': get_hk_holiday_items(year, month)
         },
         {
             'color': '#2ea043',
             'title': '台股财报',
-            'detail': '台股关注股票',
+            'subtitle': '台股关注股票',
+            'detail': '',
             'items': [
                 '台积电TSMC',
-                '联发科MediaTek'
+                '联发科MediaTek',
             ]
         },
         {
             'color': '#c084fc',
             'title': '苹果/华为发布',
-            'detail': '两大科技巨头新品发布/重要财报',
+            'subtitle': '两大科技巨头新品发布/重要财报',
+            'detail': '',
             'items': get_phone_items(year, month)
         },
         {
             'color': '#e63946',
             'title': 'FOMC',
-            'detail': '美联储货币政策会议，全球资本市场核心事件',
+            'subtitle': '美联储货币政策会议，全球资本市场核心事件',
+            'detail': '',
             'items': get_fomc_items(year, month)
         },
         {
             'color': '#5a6270',
             'title': '美股休市',
-            'detail': 'NYSE/Nasdaq休市日',
+            'subtitle': 'NYSE/Nasdaq休市日',
+            'detail': '',
             'items': get_us_holiday_items(year, month)
         },
         {
             'color': '#388bfd',
             'title': '美股财报',
-            'detail': '美股关注股票',
+            'subtitle': '美股关注股票',
+            'detail': '',
             'items': [
                 '特斯拉TSLA',
                 '谷歌GOOGL',
@@ -673,40 +716,44 @@ def get_legend_blocks(year, month):
                 '亚马逊AMZN',
                 'Meta',
                 '英伟达NVDA',
-                '美光MU'
+                '美光MU',
             ]
         },
         {
             'color': '#4ade80',
             'title': '欧股财报',
-            'detail': '欧股关注股票',
+            'subtitle': '欧股关注股票',
+            'detail': '',
             'items': [
-                'ASML阿斯麦'
+                'ASML阿斯麦',
             ]
         },
         {
             'color': '#f0c040',
             'title': '日股财报',
-            'detail': '日股关注股票',
+            'subtitle': '日股关注股票',
+            'detail': '',
             'items': [
                 '铠侠Kioxia',
                 '东京电子',
-                '爱德万测试'
+                '爱德万测试',
             ]
         },
         {
             'color': '#a855f7',
             'title': '韩股财报',
-            'detail': '韩股关注股票',
+            'subtitle': '韩股关注股票',
+            'detail': '',
             'items': [
                 '三星电子',
-                'SK海力士'
+                'SK海力士',
             ]
         },
         {
             'color': '#ff528a',
             'title': 'SG公假',
-            'detail': '新加坡公共假期',
+            'subtitle': '新加坡公共假期',
+            'detail': '',
             'items': get_sg_holiday_items(year, month)
         },
     ]
@@ -807,6 +854,7 @@ def generate_month_html(year, month, today_date=None):
     """生成单月日历HTML"""
     if today_date is None:
         today_date = date.today()
+    today_str = today_date.strftime('%Y-%m-%d')
 
     month_name = f"{year}年{month}月"
     # 计算上下月导航
@@ -837,14 +885,29 @@ def generate_month_html(year, month, today_date=None):
     all_events.extend(get_specific_2026_events(year, month))
     all_events.extend(get_specific_2027_events(year, month))
 
-    # 去重（同一天、同类、同文本的只保留一个）
-    seen = set()
+    # 去重：同一天同一类别只保留一个（假日类用day+cls去重，保留更详细描述；其他用day+cls+text）
+    HOLIDAY_CLASSES = {'hk-holiday', 'us-holiday', 'sg-holiday', 'policy', 'fomc'}
+    seen = {}
     deduped = []
     for ev in all_events:
-        key = (ev['day'], ev['cls'], ev['text'])
-        if key not in seen:
-            seen.add(key)
-            deduped.append(ev)
+        if ev['cls'] in HOLIDAY_CLASSES:
+            # 假日类：同一天同一市场只保留描述最详细的
+            key = (ev['day'], ev['cls'])
+            if key in seen:
+                # 保留文本更长的（更具体的描述）
+                if len(ev['text']) > len(seen[key]['text']):
+                    deduped.remove(seen[key])
+                    seen[key] = ev
+                    deduped.append(ev)
+            else:
+                seen[key] = ev
+                deduped.append(ev)
+        else:
+            # 非假日类：同一天同类同文本才去重
+            key = (ev['day'], ev['cls'], ev['text'])
+            if key not in seen:
+                seen[key] = ev
+                deduped.append(ev)
     all_events = deduped
 
     # 按日期分组
@@ -919,42 +982,71 @@ def generate_month_html(year, month, today_date=None):
     lines.append('            justify-content: space-between;')
     lines.append('            padding: 0 10px;')
     lines.append('        }')
+    lines.append('        .nav-back-btn {')
+    lines.append('            display: inline-flex;')
+    lines.append('            align-items: center;')
+    lines.append('            gap: 6px;')
+    lines.append('            padding: 8px 20px;')
+    lines.append('            border-radius: 20px;')
+    lines.append('            background: linear-gradient(135deg, #c9b1ff, #d7c4ff);')
+    lines.append('            color: #fff;')
+    lines.append('            text-decoration: none;')
+    lines.append('            font-size: 14px;')
+    lines.append('            font-weight: 600;')
+    lines.append('            box-shadow: 0 2px 12px rgba(201,177,255,0.4);')
+    lines.append('            transition: transform .15s, box-shadow .15s;')
+    lines.append('            cursor: pointer;')
+    lines.append('            white-space: nowrap;')
+    lines.append('        }')
+    lines.append('        .nav-back-btn:hover {')
+    lines.append('            transform: translateY(-1px);')
+    lines.append('            box-shadow: 0 4px 16px rgba(201,177,255,0.5);')
+    lines.append('        }')
+    lines.append('        .nav-center {')
+    lines.append('            display: flex;')
+    lines.append('            flex-direction: column;')
+    lines.append('            align-items: center;')
+    lines.append('            gap: 2px;')
+    lines.append('        }')
     lines.append('        .nav-arrow {')
     lines.append('            color: #8b949e;')
     lines.append('            text-decoration: none;')
     lines.append('            font-size: 15px;')
     lines.append('            font-weight: 500;')
-    lines.append('            padding: 8px 16px;')
-    lines.append('            border-radius: 6px;')
-    lines.append('            transition: background 0.2s;')
+    lines.append('            white-space: nowrap;')
+    lines.append('            transition: color 0.2s;')
     lines.append('        }')
     lines.append('        .nav-arrow:hover {')
-    lines.append('            background: #21262d;')
     lines.append('            color: #58a6ff;')
     lines.append('        }')
-    lines.append('        .nav-title {')
-    lines.append('            text-align: center;')
-    lines.append('        }')
-    lines.append('        .nav-title h1 {')
+    lines.append('        .nav-center h1 {')
     lines.append('            font-size: 24px;')
-    lines.append('            font-weight: 600;')
-    lines.append('            color: #58a6ff;')
-    lines.append('            margin-bottom: 4px;')
+    lines.append('            font-weight: 700;')
+    lines.append('            color: #c9b1ff;')
+    lines.append('            margin-bottom: 6px;')
     lines.append('        }')
-    lines.append('        .nav-current {')
-    lines.append('            color: #c9d1d9;')
-    lines.append('            font-size: 14px;')
-    lines.append('            font-weight: 500;')
-    lines.append('        }')
-    lines.append('        .nav-current .highlight {')
-    lines.append('            color: #58a6ff;')
-    lines.append('        }')
-    lines.append('        .update-info {')
-    lines.append('            text-align: center;')
-    lines.append('            margin-top: 8px;')
-    lines.append('            font-size: 12px;')
+    lines.append('        .nav-subtitle {')
     lines.append('            color: #6e7681;')
+    lines.append('            font-size: 12px;')
+    lines.append('            margin-top: 4px;')
     lines.append('        }')
+
+    lines.append('        .nav-month-nav {')
+    lines.append('            display: flex;')
+    lines.append('            align-items: center;')
+    lines.append('            gap: 8px;')
+    lines.append('            justify-content: center;')
+    lines.append('        }')
+    lines.append('        .nav-month-current {')
+    lines.append('            font-size: 15px;')
+    lines.append('            font-weight: 600;')
+    lines.append('            color: #fff;')
+    lines.append('            white-space: nowrap;')
+    lines.append('        }')
+    lines.append('        .nav-spacer {')
+    lines.append('            display: none;')
+    lines.append('        }')
+
     lines.append('')
     lines.append('        /* 分类标签导航栏 */')
     lines.append('        .category-nav {')
@@ -1035,11 +1127,11 @@ def generate_month_html(year, month, today_date=None):
     lines.append('            flex-shrink: 0;')
     lines.append('        }')
     lines.append('        .day-cell .day-number {')
-    lines.append('            font-size: 13px;')
+    lines.append('            font-size: 16px;')
     lines.append('            font-weight: 600;')
     lines.append('            color: #c9d1d9;')
-    lines.append('            width: 22px;')
-    lines.append('            height: 22px;')
+    lines.append('            width: 26px;')
+    lines.append('            height: 26px;')
     lines.append('            display: flex;')
     lines.append('            align-items: center;')
     lines.append('            justify-content: center;')
@@ -1054,7 +1146,7 @@ def generate_month_html(year, month, today_date=None):
     lines.append('        }')
     lines.append('')
     lines.append('        .day-cell .event-list {')
-    lines.append('            font-size: 10.5px;')
+    lines.append('            font-size: 14px;')
     lines.append('            line-height: 1.35;')
     lines.append('            flex: 1;')
     lines.append('            overflow-y: auto;')
@@ -1063,8 +1155,8 @@ def generate_month_html(year, month, today_date=None):
     lines.append('            padding: 2px 4px;')
     lines.append('            margin-bottom: 2px;')
     lines.append('            border-radius: 3px;')
-    lines.append('            font-size: 10.5px;')
-    lines.append('            line-height: 1.3;')
+    lines.append('            font-size: 14px;')
+    lines.append('            line-height: 1.4;')
     lines.append('        }')
     lines.append('')
     lines.append('        .event-item.policy { background: #ff8c42; border-left: 3px solid #ff8c42; color: #fff; }')
@@ -1081,9 +1173,9 @@ def generate_month_html(year, month, today_date=None):
     lines.append('        .event-item.us-holiday { background: #5a6270; border-left: 3px solid #5a6270; color: #fff; }')
     lines.append('        .event-item.us-stock { background: #388bfd; border-left: 3px solid #388bfd; color: #fff; }')
     lines.append('        .event-item.eu-earn { background: #4ade80; border-left: 3px solid #4ade80; color: #fff; }')
-    lines.append('        .event-item.jp-earn { background: #f0c040; border-left: 3px solid #f0c040; color: #fff; }')
-    lines.append('        .event-item.kr-stock { background: #a855f7; border-left: 3px solid #a855f7; color: #fff; }')
-    lines.append('        .event-item.sg-holiday { background: #ff528a; border-left: 3px solid #ff528a; color: #fff; }')
+    lines.append('        .event-item.jp-earn { background: rgba(240,192,64,0.8); border-left: 3px solid #f0c040; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }')
+    lines.append('        .event-item.kr-stock { background: rgba(168,85,247,0.8); border-left: 3px solid #a855f7; color: #fff; }')
+    lines.append('        .event-item.sg-holiday { background: rgba(255,82,138,0.8); border-left: 3px solid #ff528a; color: #fff; }')
     lines.append('')
     lines.append('        .day-cell .empty-content {')
     lines.append('            flex: 1;')
@@ -1111,18 +1203,18 @@ def generate_month_html(year, month, today_date=None):
     lines.append('            gap: 12px;')
     lines.append('        }')
     lines.append('        .legend-block {')
-    lines.append('            background: #21262d;')
-    lines.append('            border-radius: 8px;')
+    lines.append('            border-radius: 10px;')
     lines.append('            padding: 14px 16px;')
-    lines.append('            border: 1px solid #30363d;')
+    lines.append('            border: 1px solid rgba(255,255,255,0.06);')
     lines.append('        }')
     lines.append('        .legend-block .legend-header {')
     lines.append('            display: flex;')
     lines.append('            align-items: center;')
     lines.append('            gap: 8px;')
-    lines.append('            margin-bottom: 8px;')
-    lines.append('            font-size: 13px;')
-    lines.append('            font-weight: 600;')
+    lines.append('            margin-bottom: 4px;')
+    lines.append('            font-size: 15px;')
+    lines.append('            font-weight: 700;')
+    lines.append('            color: #fff;')
     lines.append('        }')
     lines.append('        .legend-block .legend-header .color-dot {')
     lines.append('            width: 12px;')
@@ -1130,18 +1222,29 @@ def generate_month_html(year, month, today_date=None):
     lines.append('            border-radius: 3px;')
     lines.append('            flex-shrink: 0;')
     lines.append('        }')
+    lines.append('        .legend-block .legend-subtitle {')
+    lines.append('            font-size: 11px;')
+    lines.append('            color: rgba(255,255,255,0.9);')
+    lines.append('            margin-bottom: 6px;')
+    lines.append('            font-weight: 600;')
+    lines.append('        }')
     lines.append('        .legend-block .legend-detail {')
-    lines.append('            font-size: 11.5px;')
-    lines.append('            line-height: 1.6;')
-    lines.append('            color: #8b949e;')
+    lines.append('            font-size: 13px;')
+    lines.append('            line-height: 1.7;')
+    lines.append('            color: #fff;')
     lines.append('        }')
     lines.append('        .legend-block .legend-detail ul {')
     lines.append('            list-style: none;')
     lines.append('            padding: 0;')
     lines.append('            margin: 4px 0 0 0;')
+    lines.append('            display: grid;')
+    lines.append('            grid-template-columns: repeat(3, 1fr);')
+    lines.append('            gap: 1px 12px;')
     lines.append('        }')
     lines.append('        .legend-block .legend-detail ul li {')
-    lines.append('            padding: 1px 0;')
+    lines.append('            padding: 2px 0;')
+    lines.append('            color: #fff;')
+    lines.append('            font-weight: 500;')
     lines.append('        }')
     lines.append('        .legend-block .legend-detail ul li::before {')
     lines.append('            content: "· ";')
@@ -1166,12 +1269,155 @@ def generate_month_html(year, month, today_date=None):
     lines.append('            color: #6e7681;')
     lines.append('        }')
     lines.append('')
+    lines.append('        /* 日期格子可点击 */')
+    lines.append('        .week-table tbody td.clickable {')
+    lines.append('            cursor: pointer;')
+    lines.append('            transition: background 0.15s;')
+    lines.append('        }')
+    lines.append('        .week-table tbody td.clickable:hover {')
+    lines.append('            background: #1a2332 !important;')
+    lines.append('        }')
+    lines.append('')
+    lines.append('        /* 日期详情面板 */')
+    lines.append('        #day-detail-panel {')
+    lines.append('            display: none;')
+    lines.append('            background: rgba(22, 27, 34, 0.96);')
+    lines.append('            border: 1px solid #30363d;')
+    lines.append('            border-radius: 12px;')
+    lines.append('            padding: 24px 28px;')
+    lines.append('            margin: 20px 0;')
+    lines.append('        }')
+    lines.append('        #day-detail-panel.active {')
+    lines.append('            display: block;')
+    lines.append('        }')
+    lines.append('        .detail-header {')
+    lines.append('            display: flex;')
+    lines.append('            justify-content: space-between;')
+    lines.append('            align-items: center;')
+    lines.append('            margin-bottom: 18px;')
+    lines.append('            padding-bottom: 12px;')
+    lines.append('            border-bottom: 1px solid #30363d;')
+    lines.append('        }')
+    lines.append('        .detail-title {')
+    lines.append('            font-size: 20px;')
+    lines.append('            font-weight: 700;')
+    lines.append('            color: #58a6ff;')
+    lines.append('        }')
+    lines.append('        .detail-close-btn {')
+    lines.append('            background: #21262d;')
+    lines.append('            border: 1px solid #30363d;')
+    lines.append('            color: #c9d1d9;')
+    lines.append('            padding: 6px 16px;')
+    lines.append('            border-radius: 6px;')
+    lines.append('            cursor: pointer;')
+    lines.append('            font-size: 14px;')
+    lines.append('            transition: background 0.15s;')
+    lines.append('        }')
+    lines.append('        .detail-close-btn:hover {')
+    lines.append('            background: #30363d;')
+    lines.append('        }')
+    lines.append('        .detail-event-item {')
+    lines.append('            display: flex;')
+    lines.append('            align-items: flex-start;')
+    lines.append('            gap: 12px;')
+    lines.append('            padding: 10px 14px;')
+    lines.append('            margin-bottom: 8px;')
+    lines.append('            border-radius: 8px;')
+    lines.append('            background: rgba(255,255,255,0.04);')
+    lines.append('            border: 1px solid rgba(255,255,255,0.06);')
+    lines.append('        }')
+    lines.append('        .detail-event-dot {')
+    lines.append('            width: 12px;')
+    lines.append('            height: 12px;')
+    lines.append('            border-radius: 50%;')
+    lines.append('            flex-shrink: 0;')
+    lines.append('            margin-top: 4px;')
+    lines.append('        }')
+    lines.append('        .detail-event-text {')
+    lines.append('            font-size: 16px;')
+    lines.append('            color: #e6edf3;')
+    lines.append('            line-height: 1.5;')
+    lines.append('            flex: 1;')
+    lines.append('        }')
+    lines.append('        .detail-event-star {')
+    lines.append('            color: #e63946;')
+    lines.append('            font-size: 16px;')
+    lines.append('            margin-right: 4px;')
+    lines.append('        }')
+    lines.append('        .detail-event-cls {')
+    lines.append('            font-size: 12px;')
+    lines.append('            padding: 2px 10px;')
+    lines.append('            border-radius: 4px;')
+    lines.append('            white-space: nowrap;')
+    lines.append('            flex-shrink: 0;')
+    lines.append('            margin-top: 2px;')
+    lines.append('        }')
+    lines.append('')
+    lines.append('        /* 今日事件区块 */')
+    lines.append('        .today-events-section {')
+    lines.append('            margin-top: 30px;')
+    lines.append('            padding: 24px 28px;')
+    lines.append('            background: rgba(22, 27, 34, 0.96);')
+    lines.append('            border: 1px solid #30363d;')
+    lines.append('            border-radius: 12px;')
+    lines.append('        }')
+    lines.append('        .today-events-title {')
+    lines.append('            font-size: 20px;')
+    lines.append('            font-weight: 700;')
+    lines.append('            color: #d29922;')
+    lines.append('            margin-bottom: 16px;')
+    lines.append('            padding-bottom: 12px;')
+    lines.append('            border-bottom: 1px solid #30363d;')
+    lines.append('        }')
+    lines.append('        .today-event-item {')
+    lines.append('            display: flex;')
+    lines.append('            align-items: flex-start;')
+    lines.append('            gap: 12px;')
+    lines.append('            padding: 10px 14px;')
+    lines.append('            margin-bottom: 8px;')
+    lines.append('            border-radius: 8px;')
+    lines.append('            background: rgba(255,255,255,0.04);')
+    lines.append('            border: 1px solid rgba(255,255,255,0.06);')
+    lines.append('        }')
+    lines.append('        .today-event-dot {')
+    lines.append('            width: 12px;')
+    lines.append('            height: 12px;')
+    lines.append('            border-radius: 50%;')
+    lines.append('            flex-shrink: 0;')
+    lines.append('            margin-top: 4px;')
+    lines.append('        }')
+    lines.append('        .today-event-text {')
+    lines.append('            font-size: 16px;')
+    lines.append('            color: #e6edf3;')
+    lines.append('            line-height: 1.5;')
+    lines.append('            flex: 1;')
+    lines.append('        }')
+    lines.append('        .today-event-star {')
+    lines.append('            color: #e63946;')
+    lines.append('            font-size: 16px;')
+    lines.append('            margin-right: 4px;')
+    lines.append('        }')
+    lines.append('        .today-event-cls {')
+    lines.append('            font-size: 12px;')
+    lines.append('            padding: 2px 10px;')
+    lines.append('            border-radius: 4px;')
+    lines.append('            white-space: nowrap;')
+    lines.append('            flex-shrink: 0;')
+    lines.append('            margin-top: 2px;')
+    lines.append('        }')
+    lines.append('        .today-events-empty {')
+    lines.append('            color: #8b949e;')
+    lines.append('            font-size: 16px;')
+    lines.append('            text-align: center;')
+    lines.append('            padding: 20px;')
+    lines.append('        }')
+    lines.append('')
     lines.append('        @media (max-width: 768px) {')
     lines.append('            .container { padding: 10px; }')
     lines.append('            .week-table tbody td { min-height: 120px; padding: 4px; }')
     lines.append('            .day-cell { min-height: 120px; }')
-    lines.append('            .day-cell .event-list { font-size: 9px; }')
-    lines.append('            .day-cell .event-item { font-size: 9px; }')
+    lines.append('            .day-cell .event-list { font-size: 11px; }')
+    lines.append('            .day-cell .event-item { font-size: 11px; }')
     lines.append('            .legend-grid { grid-template-columns: 1fr; }')
     lines.append('        }')
     lines.append('    </style>')
@@ -1179,18 +1425,19 @@ def generate_month_html(year, month, today_date=None):
     lines.append('<body>')
     lines.append('<div class="container">')
     lines.append('    <div class="header">')
-    lines.append('        <div class="nav-bar" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">')
-    lines.append(f'            <a href="portal.html" style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:linear-gradient(135deg,#c9b1ff,#d7c4ff);border-radius:20px;color:#fff;font-size:13px;font-weight:600;text-decoration:none;transition:all 0.2s;box-shadow:0 2px 8px rgba(201,177,255,0.4);letter-spacing:0.5px;flex-shrink:0;">📅 返回九宝日历精选</a>')
-    lines.append(f'            <div style="text-align:center;flex:1;">')
-    lines.append('                <h1 style="margin:0;font-size:20px;">重要日历</h1>')
-    lines.append(f'                <div class="nav-current"><span class="highlight">{month_name}</span> · 全市场重要事件一览</div>')
+    lines.append('        <div class="nav-bar">')
+    lines.append('            <a href="portal.html" class="nav-back-btn">📅 返回九宝日历精选</a>')
+    lines.append('            <div class="nav-center">')
+    lines.append('                <h1>重要日历</h1>')
+    lines.append('                <div class="nav-month-nav">')
+    lines.append(f'                    <a href="{prev_file}" class="nav-arrow">←{prev_label}</a>')
+    lines.append(f'                    <span class="nav-month-current">{month_name} · 全市场重要事件一览</span>')
+    lines.append(f'                    <a href="{next_file}" class="nav-arrow">{next_label}→</a>')
+    lines.append('                </div>')
+    lines.append(f'                <div class="nav-subtitle">数据涵盖A股/港股/美股/欧股/日韩台/新加坡 | 每月1日更新 | 本次更新时间: {today_date.strftime("%Y-%m-%d %H:%M")}</div>')
     lines.append('            </div>')
-    lines.append(f'            <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;">')
-    lines.append(f'                <a href="{prev_file}" class="nav-arrow">← {prev_label}</a>')
-    lines.append(f'                <a href="{next_file}" class="nav-arrow">{next_label} →</a>')
-    lines.append('            </div>')
+    lines.append('            <div class="nav-spacer"></div>')
     lines.append('        </div>')
-    lines.append(f'        <div class="update-info">数据涵盖A股/港股/美股/欧股/日韩台/新加坡 | 每月1日更新 | 本次更新时间: {today_date.strftime("%Y-%m-%d %H:%M")}</div>')
     lines.append('    </div>')
     lines.append('')
     lines.append('    <!-- 分类标签导航 -->')
@@ -1236,18 +1483,24 @@ def generate_month_html(year, month, today_date=None):
             is_other_month = not is_current_month
             is_weekend_day = col >= 5  # 周六=5, 周日=6
 
-            td_class = ''
+            td_class_parts = []
             if is_other_month:
-                td_class = 'other-month'
+                td_class_parts.append('other-month')
             elif is_weekend_day:
-                td_class = 'weekend'
-
-            lines.append(f'                <td{" class=\"" + td_class + "\"" if td_class else ""}>')
+                td_class_parts.append('weekend')
 
             if is_current_month:
                 day_num = actual_day
                 is_today = (year == today_date.year and month == today_date.month and day_num == today_date.day)
                 day_events = events_by_day.get(day_num, [])
+                td_class_parts.append('clickable')
+
+                # 构建 data-events JSON
+                events_json_data = [{"cls": ev["cls"], "text": ev["text"]} for ev in sorted(day_events, key=lambda x: x['cls'])]
+                events_json_str = json.dumps(events_json_data, ensure_ascii=False).replace("'", "&#39;")
+
+                td_class_str = ' class="' + ' '.join(td_class_parts) + '"' if td_class_parts else ''
+                lines.append(f'                <td{td_class_str} onclick="showDayDetail({day_num})" data-events=\'{events_json_str}\'>')
 
                 lines.append('                    <div class="day-cell">')
                 lines.append('                        <div class="day-header">')
@@ -1266,6 +1519,9 @@ def generate_month_html(year, month, today_date=None):
                 lines.append('                    </div>')
             else:
                 # 其他月份日期
+                td_class_str = ' class="' + ' '.join(td_class_parts) + '"' if td_class_parts else ''
+                lines.append(f'                <td{td_class_str}>')
+
                 if actual_day < 1:
                     other_day = prev_days_in_month + actual_day
                 else:
@@ -1311,6 +1567,61 @@ def generate_month_html(year, month, today_date=None):
         lines.append(f'    <div style="text-align:left;font-size:12px;color:#8b949e;margin:-15px 0 20px 5px;">{week_label}</div>')
         lines.append('')
 
+    # ========== 日期详情面板 ==========
+    lines.append('    <!-- ========== 日期详情面板 ========== -->')
+    lines.append('    <div id="day-detail-panel">')
+    lines.append('        <div class="detail-header">')
+    lines.append('            <span class="detail-title" id="detail-title-text"></span>')
+    lines.append('            <button class="detail-close-btn" onclick="closeDayDetail()">✕</button>')
+    lines.append('        </div>')
+    lines.append('        <div id="detail-events-list"></div>')
+    lines.append('    </div>')
+
+    # ========== 今日事件区块 ==========
+    today_day_num = None
+    if year == today_date.year and month == today_date.month:
+        today_day_num = today_date.day
+    today_events = events_by_day.get(today_day_num, []) if today_day_num else []
+    today_date_str = today_date.strftime('%Y-%m-%d')
+
+    lines.append('')
+    lines.append('    <!-- ========== 今日事件 ========== -->')
+    lines.append('    <div class="today-events-section">')
+    lines.append(f'        <div class="today-events-title">📅 今日事件({len(today_events)}个) · {today_date_str}</div>')
+    if today_events:
+        for ev in sorted(today_events, key=lambda x: x['cls']):
+            is_important = ev['cls'] in ('fomc', 'earn-end', 'a50', 'policy')
+            star_html = '<span class="today-event-star">★</span>' if is_important else ''
+            color_map = {
+                'policy': '#ff8c42', 'cbank': '#ffd700', 'macro': '#e8b830',
+                'earn-end': '#ff6b55', 'option': '#4da6ff', 'futures': '#6cb4ff',
+                'a50': '#ff5a52', 'hk-holiday': '#78828a', 'tw-stock': '#2ea043',
+                'phone': '#c084fc', 'fomc': '#e63946', 'us-holiday': '#5a6270',
+                'us-stock': '#388bfd', 'eu-earn': '#4ade80', 'jp-earn': '#f0c040',
+                'kr-stock': '#a855f7', 'sg-holiday': '#ff528a',
+            }
+            dot_color = color_map.get(ev['cls'], '#8b949e')
+            cls_label_map = {
+                'policy': '重要政策', 'cbank': '央行/LPR', 'macro': '中国数据',
+                'earn-end': '财报截止', 'option': '期权交割', 'futures': '期货交割',
+                'a50': 'A50交割', 'hk-holiday': '港股休市', 'tw-stock': '台股财报',
+                'phone': '苹果/华为', 'fomc': 'FOMC', 'us-holiday': '美股休市',
+                'us-stock': '美股财报', 'eu-earn': '欧股财报', 'jp-earn': '日股财报',
+                'kr-stock': '韩股财报', 'sg-holiday': 'SG公假',
+            }
+            cls_label = cls_label_map.get(ev['cls'], ev['cls'])
+            lines.append(f'        <div class="today-event-item">')
+            lines.append(f'            <span class="today-event-dot" style="background:{dot_color};"></span>')
+            lines.append(f'            <span class="today-event-text">{star_html}{ev["text"]}</span>')
+            lines.append(f'            <span class="today-event-cls" style="background:{dot_color};color:#fff;">{cls_label}</span>')
+            lines.append(f'        </div>')
+    else:
+        lines.append('        <div class="today-events-empty">今日暂无重要事件</div>')
+    lines.append('    </div>')
+
+    lines.append('')
+
+
     # ========== 色块标注区 ==========
     lines.append('    <!-- ========== 色块标注区 ========== -->')
     lines.append('    <div class="legend-section">')
@@ -1321,10 +1632,10 @@ def generate_month_html(year, month, today_date=None):
     for block in legend_blocks:
         lines.append('')
         lines.append(f'            <!-- {block["title"]} -->')
-        lines.append('            <div class="legend-block">')
+        lines.append(f'            <div class="legend-block" style="background:{block["color"]}55;">')
         lines.append(f'                <div class="legend-header"><span class="color-dot" style="background:{block["color"]};"></span>{block["title"]}</div>')
+        lines.append(f'                <div class="legend-subtitle">{block["subtitle"]}</div>')
         lines.append('                <div class="legend-detail">')
-        lines.append(f'                    {block["detail"]}')
         lines.append('                    <ul>')
         for item in block['items']:
             lines.append(f'                        <li>{item}</li>')
@@ -1335,7 +1646,7 @@ def generate_month_html(year, month, today_date=None):
     lines.append('')
     lines.append('        </div>')
     lines.append('    </div>')
-    lines.append('')
+
     lines.append('    <div class="footer-note">')
     lines.append('        <strong>📋 数据来源与说明</strong><br>')
     lines.append('        1. 🇨🇳 <strong>中国宏观数据</strong>：国家统计局/央行常规发布日历。CPI/PPI每月9日，PMI月末最后一日，工业/零售/固投每月15日前后，LPR每月20日。<br>')
@@ -1354,6 +1665,90 @@ def generate_month_html(year, month, today_date=None):
     lines.append(f'        更新日期：{today_date.strftime("%Y-%m-%d")}')
     lines.append('    </div>')
     lines.append('</div>')
+    lines.append('    <script>')
+    lines.append('    // ========== 分类颜色与标签映射 ==========')
+    lines.append("    var CLS_COLORS = {")
+    lines.append("        'policy': '#ff8c42', 'cbank': '#ffd700', 'macro': '#e8b830',")
+    lines.append("        'earn-end': '#ff6b55', 'option': '#4da6ff', 'futures': '#6cb4ff',")
+    lines.append("        'a50': '#ff5a52', 'hk-holiday': '#78828a', 'tw-stock': '#2ea043',")
+    lines.append("        'phone': '#c084fc', 'fomc': '#e63946', 'us-holiday': '#5a6270',")
+    lines.append("        'us-stock': '#388bfd', 'eu-earn': '#4ade80', 'jp-earn': '#f0c040',")
+    lines.append("        'kr-stock': '#a855f7', 'sg-holiday': '#ff528a'")
+    lines.append("    };")
+    lines.append("    var CLS_LABELS = {")
+    lines.append("        'policy': '重要政策', 'cbank': '央行/LPR', 'macro': '中国数据',")
+    lines.append("        'earn-end': '财报截止', 'option': '期权交割', 'futures': '期货交割',")
+    lines.append("        'a50': 'A50交割', 'hk-holiday': '港股休市', 'tw-stock': '台股财报',")
+    lines.append("        'phone': '苹果/华为', 'fomc': 'FOMC', 'us-holiday': '美股休市',")
+    lines.append("        'us-stock': '美股财报', 'eu-earn': '欧股财报', 'jp-earn': '日股财报',")
+    lines.append("        'kr-stock': '韩股财报', 'sg-holiday': 'SG公假'")
+    lines.append("    };")
+    lines.append("    var IMPORTANT_CLS = ['fomc', 'earn-end', 'a50', 'policy'];")
+    lines.append(f"    var CURRENT_YEAR = {year};")
+    lines.append(f"    var CURRENT_MONTH = {month};")
+    lines.append('')
+    lines.append('    var _activeDay = null;')
+    lines.append('')
+    lines.append('    function showDayDetail(dayNum) {')
+    lines.append('        var panel = document.getElementById("day-detail-panel");')
+    lines.append('        var titleEl = document.getElementById("detail-title-text");')
+    lines.append('        var listEl = document.getElementById("detail-events-list");')
+    lines.append('')
+    lines.append('        // 再次点击同一天则关闭')
+    lines.append('        if (_activeDay === dayNum && panel.classList.contains("active")) {')
+    lines.append('            panel.classList.remove("active");')
+    lines.append('            _activeDay = null;')
+    lines.append('            return;')
+    lines.append('        }')
+    lines.append('')
+    lines.append('        // 查找对应 td 的 data-events')
+    lines.append('        var tds = document.querySelectorAll(".week-table td.clickable");')
+    lines.append('        var eventsData = [];')
+    lines.append('        for (var i = 0; i < tds.length; i++) {')
+    lines.append('            var td = tds[i];')
+    lines.append('            var numEl = td.querySelector(".day-number");')
+    lines.append('            if (numEl && parseInt(numEl.textContent) === dayNum) {')
+    lines.append('                try {')
+    lines.append('                    eventsData = JSON.parse(td.getAttribute("data-events") || "[]");')
+    lines.append('                } catch(e) { eventsData = []; }')
+    lines.append('                break;')
+    lines.append('            }')
+    lines.append('        }')
+    lines.append('')
+    lines.append('        var mm = String(CURRENT_MONTH).padStart(2, "0");')
+    lines.append('        var dd = String(dayNum).padStart(2, "0");')
+    lines.append('        titleEl.textContent = dayNum + "日 事件详情";')
+    lines.append('')
+    lines.append('        // 渲染事件列表')
+    lines.append('        var html = "";')
+    lines.append('        for (var j = 0; j < eventsData.length; j++) {')
+    lines.append('            var ev = eventsData[j];')
+    lines.append('            var color = CLS_COLORS[ev.cls] || "#8b949e";')
+    lines.append('            var label = CLS_LABELS[ev.cls] || ev.cls;')
+    lines.append('            var isImportant = IMPORTANT_CLS.indexOf(ev.cls) >= 0;')
+    lines.append('            var star = isImportant ? \'<span class="detail-event-star">★</span>\' : "";')
+    lines.append('            html += \'<div class="detail-event-item">\';')
+    lines.append('            html += \'<span class="detail-event-dot" style="background:\' + color + \';"></span>\';')
+    lines.append('            html += \'<span class="detail-event-text">\' + star + ev.text + \'</span>\';')
+    lines.append('            html += \'<span class="detail-event-cls" style="background:\' + color + \';color:#fff;">\' + label + \'</span>\';')
+    lines.append('            html += \'</div>\';')
+    lines.append('        }')
+    lines.append('        if (eventsData.length === 0) {')
+    lines.append('            html = \'<div style="color:#8b949e;font-size:16px;text-align:center;padding:20px;">该日暂无事件</div>\';')
+    lines.append('        }')
+    lines.append('        listEl.innerHTML = html;')
+    lines.append('')
+    lines.append('        panel.classList.add("active");')
+    lines.append('        _activeDay = dayNum;')
+    lines.append('        panel.scrollIntoView({behavior: "smooth", block: "nearest"});')
+    lines.append('    }')
+    lines.append('')
+    lines.append('    function closeDayDetail() {')
+    lines.append('        var panel = document.getElementById("day-detail-panel");')
+    lines.append('        panel.classList.remove("active");')
+    lines.append('        _activeDay = null;')
+    lines.append('    }')
+    lines.append('    </script>')
     lines.append('</body>')
     lines.append('</html>')
 
