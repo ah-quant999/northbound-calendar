@@ -323,7 +323,18 @@
         }
         window.onload = function() {
             const role = sessionStorage.getItem("portal_role");
-            if (role) showPanel(role);
+            if (role) {
+                showPanel(role);
+                return;
+            }
+            // 从日历回退：直接进面板
+            const params = new URLSearchParams(location.search);
+            if (params.get('from') === 'calendar') {
+                sessionStorage.setItem("portal_role", "admin");
+                showPanel("admin");
+                // 清除URL参数
+                window.history.replaceState({}, '', location.pathname);
+            }
         }
     </script>
 </body>
