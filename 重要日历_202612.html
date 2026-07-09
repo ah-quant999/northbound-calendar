@@ -261,7 +261,7 @@
             align-items: center;
             gap: 8px;
             margin-bottom: 4px;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 700;
             color: #fff;
         }
@@ -273,14 +273,14 @@
         }
         .legend-block .legend-subtitle {
             font-size: 11px;
-            color: rgba(255,255,255,0.7);
+            color: rgba(255,255,255,0.9);
             margin-bottom: 6px;
-            font-weight: 500;
+            font-weight: 600;
         }
         .legend-block .legend-detail {
-            font-size: 12px;
+            font-size: 13px;
             line-height: 1.7;
-            color: rgba(255,255,255,0.95);
+            color: #fff;
         }
         .legend-block .legend-detail ul {
             list-style: none;
@@ -291,7 +291,9 @@
             gap: 1px 12px;
         }
         .legend-block .legend-detail ul li {
-            padding: 1px 0;
+            padding: 2px 0;
+            color: #fff;
+            font-weight: 500;
         }
         .legend-block .legend-detail ul li::before {
             content: "· ";
@@ -915,7 +917,7 @@
         <div class="legend-grid">
 
             <!-- 重要政策 -->
-            <div class="legend-block" style="background:#ff8c4218;">
+            <div class="legend-block" style="background:#ff8c4255;">
                 <div class="legend-header"><span class="color-dot" style="background:#ff8c42;"></span>重要政策</div>
                 <div class="legend-subtitle">中国政府/监管机构发布的重大政策、法规、规划等</div>
                 <div class="legend-detail">
@@ -926,7 +928,7 @@
             </div>
 
             <!-- 央行/LPR -->
-            <div class="legend-block" style="background:#ffd70018;">
+            <div class="legend-block" style="background:#ffd70055;">
                 <div class="legend-header"><span class="color-dot" style="background:#ffd700;"></span>央行/LPR</div>
                 <div class="legend-subtitle">央行货币政策、利率决议、LPR报价等</div>
                 <div class="legend-detail">
@@ -937,7 +939,7 @@
             </div>
 
             <!-- 中国数据 -->
-            <div class="legend-block" style="background:#e8b83018;">
+            <div class="legend-block" style="background:#e8b83055;">
                 <div class="legend-header"><span class="color-dot" style="background:#e8b830;"></span>中国数据</div>
                 <div class="legend-subtitle">国家统计局/央行发布的宏观经济数据</div>
                 <div class="legend-detail">
@@ -950,7 +952,7 @@
             </div>
 
             <!-- 财报截止 -->
-            <div class="legend-block" style="background:#ff6b5518;">
+            <div class="legend-block" style="background:#ff6b5555;">
                 <div class="legend-header"><span class="color-dot" style="background:#ff6b55;"></span>财报截止</div>
                 <div class="legend-subtitle">A股财报披露法定截止日</div>
                 <div class="legend-detail">
@@ -961,7 +963,7 @@
             </div>
 
             <!-- 期权交割 -->
-            <div class="legend-block" style="background:#4da6ff18;">
+            <div class="legend-block" style="background:#4da6ff55;">
                 <div class="legend-header"><span class="color-dot" style="background:#4da6ff;"></span>期权交割</div>
                 <div class="legend-subtitle">各交易所期权合约到期日，涉及多空博弈</div>
                 <div class="legend-detail">
@@ -974,7 +976,7 @@
             </div>
 
             <!-- 期货交割 -->
-            <div class="legend-block" style="background:#6cb4ff18;">
+            <div class="legend-block" style="background:#6cb4ff55;">
                 <div class="legend-header"><span class="color-dot" style="background:#6cb4ff;"></span>期货交割</div>
                 <div class="legend-subtitle">期货合约最后交易日，交割前后波动加大</div>
                 <div class="legend-detail">
@@ -986,7 +988,7 @@
             </div>
 
             <!-- A50交割 -->
-            <div class="legend-block" style="background:#ff5a5218;">
+            <div class="legend-block" style="background:#ff5a5255;">
                 <div class="legend-header"><span class="color-dot" style="background:#ff5a52;"></span>A50交割</div>
                 <div class="legend-subtitle">新加坡富时A50期货交割日，外资对冲A股关键窗口</div>
                 <div class="legend-detail">
@@ -998,7 +1000,7 @@
             </div>
 
             <!-- 港股休市 -->
-            <div class="legend-block" style="background:#78828a18;">
+            <div class="legend-block" style="background:#78828a55;">
                 <div class="legend-header"><span class="color-dot" style="background:#78828a;"></span>港股休市</div>
                 <div class="legend-subtitle">香港交易所休市日，港股通/沪深股通同步暂停</div>
                 <div class="legend-detail">
@@ -1011,7 +1013,7 @@
             </div>
 
             <!-- 台股财报 -->
-            <div class="legend-block" style="background:#2ea04318;">
+            <div class="legend-block" style="background:#2ea04355;">
                 <div class="legend-header"><span class="color-dot" style="background:#2ea043;"></span>台股财报</div>
                 <div class="legend-subtitle">台股关注股票</div>
                 <div class="legend-detail">
@@ -1023,7 +1025,7 @@
             </div>
 
             <!-- 苹果/华为发布 -->
-            <div class="legend-block" style="background:#c084fc18;">
+            <div class="legend-block" style="background:#c084fc55;">
                 <div class="legend-header"><span class="color-dot" style="background:#c084fc;"></span>苹果/华为发布</div>
                 <div class="legend-subtitle">两大科技巨头新品发布/重要财报</div>
                 <div class="legend-detail">
@@ -1034,7 +1036,7 @@
             </div>
 
             <!-- FOMC -->
-            <div class="legend-block" style="background:#e6394618;">
+            <div class="legend-block" style="background:#e6394655;">
                 <div class="legend-header"><span class="color-dot" style="background:#e63946;"></span>FOMC</div>
                 <div class="legend-subtitle">美联储货币政策会议，全球资本市场核心事件</div>
                 <div class="legend-detail">
@@ -1045,7 +1047,7 @@
             </div>
 
             <!-- 美股休市 -->
-            <div class="legend-block" style="background:#5a627018;">
+            <div class="legend-block" style="background:#5a627055;">
                 <div class="legend-header"><span class="color-dot" style="background:#5a6270;"></span>美股休市</div>
                 <div class="legend-subtitle">NYSE/Nasdaq休市日</div>
                 <div class="legend-detail">
@@ -1057,7 +1059,7 @@
             </div>
 
             <!-- 美股财报 -->
-            <div class="legend-block" style="background:#388bfd18;">
+            <div class="legend-block" style="background:#388bfd55;">
                 <div class="legend-header"><span class="color-dot" style="background:#388bfd;"></span>美股财报</div>
                 <div class="legend-subtitle">美股关注股票</div>
                 <div class="legend-detail">
@@ -1075,7 +1077,7 @@
             </div>
 
             <!-- 欧股财报 -->
-            <div class="legend-block" style="background:#4ade8018;">
+            <div class="legend-block" style="background:#4ade8055;">
                 <div class="legend-header"><span class="color-dot" style="background:#4ade80;"></span>欧股财报</div>
                 <div class="legend-subtitle">欧股关注股票</div>
                 <div class="legend-detail">
@@ -1086,7 +1088,7 @@
             </div>
 
             <!-- 日股财报 -->
-            <div class="legend-block" style="background:#f0c04018;">
+            <div class="legend-block" style="background:#f0c04055;">
                 <div class="legend-header"><span class="color-dot" style="background:#f0c040;"></span>日股财报</div>
                 <div class="legend-subtitle">日股关注股票</div>
                 <div class="legend-detail">
@@ -1099,7 +1101,7 @@
             </div>
 
             <!-- 韩股财报 -->
-            <div class="legend-block" style="background:#a855f718;">
+            <div class="legend-block" style="background:#a855f755;">
                 <div class="legend-header"><span class="color-dot" style="background:#a855f7;"></span>韩股财报</div>
                 <div class="legend-subtitle">韩股关注股票</div>
                 <div class="legend-detail">
@@ -1111,7 +1113,7 @@
             </div>
 
             <!-- SG公假 -->
-            <div class="legend-block" style="background:#ff528a18;">
+            <div class="legend-block" style="background:#ff528a55;">
                 <div class="legend-header"><span class="color-dot" style="background:#ff528a;"></span>SG公假</div>
                 <div class="legend-subtitle">新加坡公共假期</div>
                 <div class="legend-detail">
