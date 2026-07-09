@@ -70,46 +70,31 @@
         .nav-arrow:hover {
             color: #58a6ff;
         }
-        .nav-title {
-            text-align: center;
-        }
-        .nav-title h1 {
+        .nav-center h1 {
             font-size: 24px;
             font-weight: 700;
             color: #c9b1ff;
-            margin-bottom: 4px;
-            text-align: center;
+            margin-bottom: 6px;
         }
-        .nav-current {
-            color: rgba(255,255,255,0.65);
-            font-size: 14px;
-            font-weight: 500;
-        }
-        .nav-current .highlight {
-            color: #c9b1ff;
-            font-weight: 600;
+        .nav-subtitle {
+            color: #6e7681;
+            font-size: 12px;
+            margin-top: 4px;
         }
         .nav-month-nav {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
             justify-content: center;
-            margin-bottom: 4px;
         }
         .nav-month-current {
-            font-size: 18px;
-            font-weight: 700;
+            font-size: 15px;
+            font-weight: 600;
             color: #fff;
             white-space: nowrap;
         }
         .nav-spacer {
             min-width: 140px;
-        }
-        .update-info {
-            text-align: center;
-            margin-top: 8px;
-            font-size: 12px;
-            color: #6e7681;
         }
 
         /* 分类标签导航栏 */
@@ -346,9 +331,8 @@
             background: rgba(22, 27, 34, 0.96);
             border: 1px solid #30363d;
             border-radius: 12px;
-            padding: 20px;
+            padding: 24px 28px;
             margin: 20px 0;
-            position: relative;
         }
         #day-detail-panel.active {
             display: block;
@@ -357,120 +341,116 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #30363d;
         }
         .detail-title {
             font-size: 20px;
             font-weight: 700;
             color: #58a6ff;
-            text-align: left;
         }
         .detail-close-btn {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.15);
-            border: none;
-            color: #fff;
-            font-size: 16px;
+            background: #21262d;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            padding: 6px 16px;
+            border-radius: 6px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 1;
+            font-size: 14px;
             transition: background 0.15s;
         }
         .detail-close-btn:hover {
-            background: rgba(255,255,255,0.3);
+            background: #30363d;
         }
         .detail-event-item {
             display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 14px;
-            margin-bottom: 6px;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
             border-radius: 8px;
-            background: rgba(255,255,255,0.06);
-            border-left: 3px solid #8b949e;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
         }
         .detail-event-dot {
-            display: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 4px;
         }
         .detail-event-text {
-            font-size: 15px;
-            color: #fff;
-            font-weight: 600;
+            font-size: 16px;
+            color: #e6edf3;
             line-height: 1.5;
             flex: 1;
         }
         .detail-event-star {
             color: #e63946;
-            font-size: 14px;
+            font-size: 16px;
             margin-right: 4px;
         }
         .detail-event-cls {
-            font-size: 11px;
-            color: #8b949e;
-            padding: 0;
-            border-radius: 0;
+            font-size: 12px;
+            padding: 2px 10px;
+            border-radius: 4px;
             white-space: nowrap;
             flex-shrink: 0;
-            margin-top: 0;
-            background: none;
+            margin-top: 2px;
         }
 
         /* 今日事件区块 */
         .today-events-section {
-            margin-top: 20px;
-            margin-bottom: 10px;
-            padding: 0;
-            background: transparent;
-            border: none;
-            border-radius: 0;
+            margin-top: 30px;
+            padding: 24px 28px;
+            background: rgba(22, 27, 34, 0.96);
+            border: 1px solid #30363d;
+            border-radius: 12px;
         }
         .today-events-title {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 700;
-            color: #fff;
-            margin-bottom: 12px;
+            color: #d29922;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #30363d;
         }
         .today-event-item {
             display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 14px;
-            margin-bottom: 6px;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
             border-radius: 8px;
-            background: rgba(255,255,255,0.06);
-            border-left: 3px solid #8b949e;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
         }
         .today-event-dot {
-            display: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 4px;
         }
         .today-event-text {
-            font-size: 15px;
-            color: #fff;
-            font-weight: 600;
+            font-size: 16px;
+            color: #e6edf3;
             line-height: 1.5;
             flex: 1;
         }
         .today-event-star {
             color: #e63946;
-            font-size: 14px;
+            font-size: 16px;
             margin-right: 4px;
         }
         .today-event-cls {
-            font-size: 11px;
-            color: #8b949e;
-            padding: 0;
-            border-radius: 0;
+            font-size: 12px;
+            padding: 2px 10px;
+            border-radius: 4px;
             white-space: nowrap;
             flex-shrink: 0;
-            margin-top: 0;
-            background: none;
+            margin-top: 2px;
         }
         .today-events-empty {
             color: #8b949e;
@@ -495,19 +475,16 @@
         <div class="nav-bar">
             <a href="portal.html" class="nav-back-btn">📅 返回九宝日历精选</a>
             <div class="nav-center">
-                <div class="nav-title">
-                    <h1>重要日历</h1>
-                    <div class="nav-month-nav">
-                        <a href="重要日历_202701.html" class="nav-arrow">←2027年1月</a>
-                        <span class="nav-month-current">2027年2月</span>
-                        <a href="重要日历_202703.html" class="nav-arrow">2027年3月→</a>
-                    </div>
-                    <div class="nav-current">全市场重要事件一览 | 更新于2026-07-09</div>
+                <h1>重要日历</h1>
+                <div class="nav-month-nav">
+                    <a href="重要日历_202701.html" class="nav-arrow">←2027年1月</a>
+                    <span class="nav-month-current">2027年2月 · 全市场重要事件一览</span>
+                    <a href="重要日历_202703.html" class="nav-arrow">2027年3月→</a>
                 </div>
+                <div class="nav-subtitle">数据涵盖A股/港股/美股/欧股/日韩台/新加坡 | 每月1日更新 | 本次更新时间: 2026-07-10 00:00</div>
             </div>
             <div class="nav-spacer"></div>
         </div>
-        <div class="update-info">数据涵盖A股/港股/美股/欧股/日韩台/新加坡 | 每月1日更新 | 本次更新时间: 2026-07-09 00:00</div>
     </div>
 
     <!-- 分类标签导航 -->
@@ -862,7 +839,7 @@
 
     <!-- ========== 今日事件 ========== -->
     <div class="today-events-section">
-        <div class="today-events-title">📅 今日事件(0个)</div>
+        <div class="today-events-title">📅 今日事件(0个) · 2026-07-10</div>
         <div class="today-events-empty">今日暂无重要事件</div>
     </div>
 
@@ -1097,7 +1074,7 @@
     <div class="update-time">
         重要日历 · 2027年2月版 · 全18类事件覆盖<br>
         数据来源：国家统计局/央行/美联储/各交易所/公司IR | 仅供参考，不构成投资建议<br>
-        更新日期：2026-07-09
+        更新日期：2026-07-10
     </div>
 </div>
     <script>
@@ -1162,9 +1139,10 @@
             var label = CLS_LABELS[ev.cls] || ev.cls;
             var isImportant = IMPORTANT_CLS.indexOf(ev.cls) >= 0;
             var star = isImportant ? '<span class="detail-event-star">★</span>' : "";
-            html += '<div class="detail-event-item" style="border-left-color:' + color + ';">';
+            html += '<div class="detail-event-item">';
+            html += '<span class="detail-event-dot" style="background:' + color + ';"></span>';
             html += '<span class="detail-event-text">' + star + ev.text + '</span>';
-            html += '<span class="detail-event-cls">' + (isImportant ? '<span class="detail-event-star">★</span>' : '') + label + '</span>';
+            html += '<span class="detail-event-cls" style="background:' + color + ';color:#fff;">' + label + '</span>';
             html += '</div>';
         }
         if (eventsData.length === 0) {
