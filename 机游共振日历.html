@@ -182,11 +182,32 @@
             gap: 2px 8px;
             overflow: visible;
         }
+        .day-cell .stock-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 3px 6px;
+            line-height: 1.6;
+        }
         .day-cell .stock-item {
             display: inline-flex;
             align-items: center;
-            gap: 2px;
+            gap: 1px;
             white-space: nowrap;
+            font-size: 10px;
+        }
+        .day-cell .stock-item .stock-icon {
+            font-size: 7px;
+            flex-shrink: 0;
+        }
+        .day-cell .stock-item .stock-amount {
+            font-weight: 500;
+            font-size: 10px;
+            flex-shrink: 0;
+        }
+        .day-cell .stock-item .resonance-text {
+            color: #d29922;
+            font-size: 10px;
         }
         .day-cell .stock-icon {
             font-size: 7px;
@@ -464,14 +485,11 @@
                             <div class="day-header"><span class="day-number">1</span></div>
                             <div class="stock-list">
                                 <div class="section-title">▲ 机构净买入TOP5</div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">风华高科</span><span class="stock-amount up">+12.41亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">东山精密</span><span class="stock-amount up">+10.34亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">宝鼎科技</span><span class="stock-amount up">+1.82亿</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">风华高科</span><span class="stock-amount up">+12.41亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">东山精密</span><span class="stock-amount up">+10.34亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">宝鼎科技</span><span class="stock-amount up">+1.82亿</span></span></div>
                                 <div class="section-title">★ 机游共振</div>
-                                <div class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">风华高科、东山精密获机构与游资共同关注</span>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">风华高科、东山精密获机构与游资共同关注</span></span></div>
                         <div class="section-title">▼ 游资席位动向</div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">T王、屠文斌、小鳄鱼、温州帮等席位活跃</span></div>
-                                
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">T王、屠文斌、小鳄鱼、温州帮等席位活跃</span></span></div>
                             </div>
                         </div>
                     </td>
@@ -480,9 +498,9 @@
                             <div class="day-header"><span class="day-number">2</span></div>
                             <div class="stock-list">
                                 <div class="section-title">▲ 机构净买入TOP5</div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">宏和科技</span><span class="stock-amount up">+3.95亿</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">宏和科技</span><span class="stock-amount up">+3.95亿</span></span></div>
                                 <div class="section-title">▼ 游资席位动向</div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">T王、中山东路等席位活跃</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">T王、中山东路等席位活跃</span></span></div>
                             </div>
                         </div>
                     </td>
@@ -491,11 +509,9 @@
                             <div class="day-header"><span class="day-number">3</span></div>
                             <div class="stock-list">
                                 <div class="section-title">▲ 机构净买入TOP5</div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">通富微电</span><span class="stock-amount up">+2.60亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">利和兴</span><span class="stock-amount up">+2.02亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">模塑科技</span><span class="stock-amount up">+1.41亿</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">通富微电</span><span class="stock-amount up">+2.60亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">利和兴</span><span class="stock-amount up">+2.02亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">模塑科技</span><span class="stock-amount up">+1.41亿</span></span></div>
                                 <div class="section-title">▼ 游资席位动向</div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">T王、成都系、中山东路、温州帮等席位活跃</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">T王、成都系、中山东路、温州帮等席位活跃</span></span></div>
                             </div>
                         </div>
                     </td>
@@ -504,9 +520,9 @@
                             <div class="day-header"><span class="day-number">4</span></div>
                             <div class="stock-list">
                                 <div class="section-title">▲ 机构净买入TOP5</div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">鼎通科技</span><span class="stock-amount up">+6.67亿</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">鼎通科技</span><span class="stock-amount up">+6.67亿</span></span></div>
                                 <div class="section-title">▼ 游资席位动向</div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">暂无详细数据</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">暂无详细数据</span></span></div>
                             </div>
                         </div>
                     </td>
@@ -515,10 +531,9 @@
                             <div class="day-header"><span class="day-number">5</span></div>
                             <div class="stock-list">
                                 <div class="section-title">▲ 机构净买入TOP5</div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">雷曼光电</span><span class="stock-amount up">+7772万</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">王子新材</span><span class="stock-amount up">+5418万</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">雷曼光电</span><span class="stock-amount up">+7772万</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">王子新材</span><span class="stock-amount up">+5418万</span></span></div>
                                 <div class="section-title">▼ 游资席位动向</div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">紫阳东路、上海超短等席位活跃</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">紫阳东路、上海超短等席位活跃</span></span></div>
                             </div>
                         </div>
                     </td>
@@ -551,13 +566,11 @@
                             <div class="day-header"><span class="day-number">8</span></div>
                             <div class="stock-list">
                                 <div class="section-title">▲ 机构净买入TOP5</div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">宝鼎科技</span><span class="stock-amount up">+1.86亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">国机精工</span><span class="stock-amount up">+1.03亿</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">宝鼎科技</span><span class="stock-amount up">+1.86亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">国机精工</span><span class="stock-amount up">+1.03亿</span></span></div>
                                 <div class="section-title">★ 机游共振</div>
-                                <div class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">国机精工获机构与北向资金共同净买入</span>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">国机精工获机构与北向资金共同净买入</span></span></div>
                         <div class="section-title">▼ 游资席位动向</div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">T王、中山东路、温州帮、章盟主等席位活跃</span></div>
-                                
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">T王、中山东路、温州帮、章盟主等席位活跃</span></span></div>
                             </div>
                         </div>
                     </td>
@@ -566,10 +579,7 @@
                     <div class="day-header"><span class="day-number">9</span></div>
                     <div class="stock-list">
                         <div class="section-title">▼ 游资席位动向</div>
-                        <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">章盟主·网宿科技</span><span class="stock-amount up">+2.40亿</span></div>
-                        <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">章盟主·灿芯股份</span><span class="stock-amount up">+7590万</span></div>
-                        <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">章盟主·视源股份</span><span class="stock-amount up">+3275万</span></div>
-                        <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">章盟主·兴业科技</span><span class="stock-amount up">+1306万</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">章盟主·网宿科技</span><span class="stock-amount up">+2.40亿</span></span> <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">章盟主·灿芯股份</span><span class="stock-amount up">+7590万</span></span> <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">章盟主·视源股份</span><span class="stock-amount up">+3275万</span></span> <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">章盟主·兴业科技</span><span class="stock-amount up">+1306万</span></span></div>
                     </div>
                 </div>
                     </td>
@@ -578,11 +588,9 @@
                             <div class="day-header"><span class="day-number">10</span></div>
                             <div class="stock-list">
                                 <div class="section-title">▲ 机构净买入TOP5</div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">有研粉材</span><span class="stock-amount up">+3.17亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">大普微</span><span class="stock-amount up">+1.19亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">金安国纪</span><span class="stock-amount up">+1.05亿</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">有研粉材</span><span class="stock-amount up">+3.17亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">大普微</span><span class="stock-amount up">+1.19亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">金安国纪</span><span class="stock-amount up">+1.05亿</span></span></div>
                                 <div class="section-title">▼ 游资席位动向</div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">章盟主、作手新一、成都系、紫阳东路等席位活跃</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">章盟主、作手新一、成都系、紫阳东路等席位活跃</span></span></div>
                             </div>
                         </div>
                     </td>
@@ -591,14 +599,11 @@
                             <div class="day-header"><span class="day-number">11</span></div>
                             <div class="stock-list">
                                 <div class="section-title">▲ 机构净买入TOP5</div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">云南锗业</span><span class="stock-amount up">+5.19亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">宗申动力</span><span class="stock-amount up">+2.70亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">双星新材</span><span class="stock-amount up">+1.21亿</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">云南锗业</span><span class="stock-amount up">+5.19亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">宗申动力</span><span class="stock-amount up">+2.70亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">双星新材</span><span class="stock-amount up">+1.21亿</span></span></div>
                                 <div class="section-title">★ 机游共振</div>
-                                <div class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">云南锗业获机构(5.19亿)与北向资金(1.35亿)共振买入；宗申动力获机构(2.70亿)与北向资金(1.24亿)共振买入</span>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">云南锗业获机构(5.19亿)与北向资金(1.35亿)共振买入；宗申动力获机构(2.70亿)与北向资金(1.24亿)共振买入</span></span></div>
                         <div class="section-title">▼ 游资席位动向</div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">紫阳东路、成都系、上海超短、章盟主等席位活跃</span></div>
-                                
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">紫阳东路、成都系、上海超短、章盟主等席位活跃</span></span></div>
                             </div>
                         </div>
                     </td>
@@ -607,13 +612,11 @@
                             <div class="day-header"><span class="day-number">12</span></div>
                             <div class="stock-list">
                                 <div class="section-title">▲ 机构净买入TOP5</div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">康强电子</span><span class="stock-amount up">+暂无数据</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">铜陵有色</span><span class="stock-amount up">+暂无数据</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">康强电子</span><span class="stock-amount up">+暂无数据</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">铜陵有色</span><span class="stock-amount up">+暂无数据</span></span></div>
                                 <div class="section-title">★ 机游共振</div>
-                                <div class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">暂无详细数据</span>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">暂无详细数据</span></span></div>
                         <div class="section-title">▼ 游资席位动向</div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">游资活跃，具体席位待补充</span></div>
-                                
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">游资活跃，具体席位待补充</span></span></div>
                             </div>
                         </div>
                     </td>
@@ -646,15 +649,11 @@
                             <div class="day-header"><span class="day-number">15</span></div>
                             <div class="stock-list">
                                 <div class="section-title">▲ 机构净买入TOP5</div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">光库科技</span><span class="stock-amount up">+12.92亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">长芯博创</span><span class="stock-amount up">+6.30亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">太辰光</span><span class="stock-amount up">+2.87亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">凌玮科技</span><span class="stock-amount up">+1.39亿</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">光库科技</span><span class="stock-amount up">+12.92亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">长芯博创</span><span class="stock-amount up">+6.30亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">太辰光</span><span class="stock-amount up">+2.87亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">凌玮科技</span><span class="stock-amount up">+1.39亿</span></span></div>
                                 <div class="section-title">★ 机游共振</div>
-                                <div class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">光库科技（机构12.92亿+深股通4.87亿）、长芯博创（机构6.30亿+深股通2.97亿）、铜冠铜箔（深股通4.20亿+机构3352万）共振明显</span>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">光库科技（机构12.92亿+深股通4.87亿）、长芯博创（机构6.30亿+深股通2.97亿）、铜冠铜箔（深股通4.20亿+机构3352万）共振明显</span></span></div>
                         <div class="section-title">▼ 游资席位动向</div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">光库科技龙虎榜净买入15.37亿居首，机构+北向资金主导</span></div>
-                                
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">光库科技龙虎榜净买入15.37亿居首，机构+北向资金主导</span></span></div>
                             </div>
                         </div>
                     </td>
@@ -663,14 +662,11 @@
                             <div class="day-header"><span class="day-number">16</span></div>
                             <div class="stock-list">
                                 <div class="section-title">▲ 机构净买入TOP5</div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">光库科技</span><span class="stock-amount up">+12.83亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">富信科技</span><span class="stock-amount up">+9.63亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">兴森科技</span><span class="stock-amount up">+2.84亿</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">光库科技</span><span class="stock-amount up">+12.83亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">富信科技</span><span class="stock-amount up">+9.63亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">兴森科技</span><span class="stock-amount up">+2.84亿</span></span></div>
                                 <div class="section-title">★ 机游共振</div>
-                                <div class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">兴森科技获机构(2.84亿)与深股通(4.73亿)共振买入</span>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">兴森科技获机构(2.84亿)与深股通(4.73亿)共振买入</span></span></div>
                         <div class="section-title">▼ 游资席位动向</div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">暂无详细数据</span></div>
-                                
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">暂无详细数据</span></span></div>
                             </div>
                         </div>
                     </td>
@@ -679,15 +675,11 @@
                             <div class="day-header"><span class="day-number">17</span></div>
                             <div class="stock-list">
                                 <div class="section-title">▲ 机构净买入TOP5</div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">鹏鼎控股</span><span class="stock-amount up">+6.13亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">TCL科技</span><span class="stock-amount up">+5.33亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">中材科技</span><span class="stock-amount up">+4.86亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">盛美上海</span><span class="stock-amount up">+3.15亿</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">鹏鼎控股</span><span class="stock-amount up">+6.13亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">TCL科技</span><span class="stock-amount up">+5.33亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">中材科技</span><span class="stock-amount up">+4.86亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">盛美上海</span><span class="stock-amount up">+3.15亿</span></span></div>
                                 <div class="section-title">★ 机游共振</div>
-                                <div class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">TCL科技获机构(5.33亿)与深股通(4.66亿)共振买入</span>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">TCL科技获机构(5.33亿)与深股通(4.66亿)共振买入</span></span></div>
                         <div class="section-title">▼ 游资席位动向</div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">消闲派、章盟主、葛卫东等席位活跃</span></div>
-                                
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">消闲派、章盟主、葛卫东等席位活跃</span></span></div>
                             </div>
                         </div>
                     </td>
@@ -696,11 +688,9 @@
                             <div class="day-header"><span class="day-number">18</span></div>
                             <div class="stock-list">
                                 <div class="section-title">▲ 机构净买入TOP5</div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">博云新材</span><span class="stock-amount up">+4.32亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">厦门钨业</span><span class="stock-amount up">+4.24亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">兴森科技</span><span class="stock-amount up">+2.39亿</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">博云新材</span><span class="stock-amount up">+4.32亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">厦门钨业</span><span class="stock-amount up">+4.24亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">兴森科技</span><span class="stock-amount up">+2.39亿</span></span></div>
                                 <div class="section-title">▼ 游资席位动向</div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">消闲派11.19亿买入兆易创新、葛卫东5.54亿卖出光迅科技、章盟主等活跃</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">消闲派11.19亿买入兆易创新、葛卫东5.54亿卖出光迅科技、章盟主等活跃</span></span></div>
                             </div>
                         </div>
                     </td>
@@ -739,15 +729,11 @@
                             <div class="day-header"><span class="day-number">22</span></div>
                             <div class="stock-list">
                                 <div class="section-title">▲ 机构净买入TOP5</div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">川润股份</span><span class="stock-amount up">+1.99亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">力量钻石</span><span class="stock-amount up">+1.52亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">大元泵业</span><span class="stock-amount up">+8478万</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">达实智能</span><span class="stock-amount up">+4808万</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">川润股份</span><span class="stock-amount up">+1.99亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">力量钻石</span><span class="stock-amount up">+1.52亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">大元泵业</span><span class="stock-amount up">+8478万</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">达实智能</span><span class="stock-amount up">+4808万</span></span></div>
                                 <div class="section-title">★ 机游共振</div>
-                                <div class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">川润股份机构净买入1.99亿+北向资金净买入1307万</span>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">川润股份机构净买入1.99亿+北向资金净买入1307万</span></span></div>
                         <div class="section-title">▼ 游资席位动向</div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">中山东路净买入3.30亿（广发证券2.04亿、锡业股份1.26亿）；玉兰路净买入2.93亿（大唐发电2.68亿）；成都系净买入2.57亿（雅克科技1.20亿、银之杰9834万）；量化打板净买入1.33亿；屠文斌净买入诺德股份1.37亿</span></div>
-                                
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">中山东路净买入3.30亿（广发证券2.04亿、锡业股份1.26亿）；玉兰路净买入2.93亿（大唐发电2.68亿）；成都系净买入2.57亿（雅克科技1.20亿、银之杰9834万）；量化打板净买入1.33亿；屠文斌净买入诺德股份1.37亿</span></span></div>
                             </div>
                         </div>
                     </td>
@@ -756,10 +742,9 @@
                             <div class="day-header"><span class="day-number">23</span></div>
                             <div class="stock-list">
                                 <div class="section-title">★ 机游共振</div>
-                                <div class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">暂无详细数据</span>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">暂无详细数据</span></span></div>
                         <div class="section-title">▼ 游资席位动向</div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">赵老哥卖出4.2亿、章盟主卖出4.01亿</span></div>
-                                
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">赵老哥卖出4.2亿、章盟主卖出4.01亿</span></span></div>
                             </div>
                         </div>
                     </td>
@@ -768,15 +753,11 @@
                             <div class="day-header"><span class="day-number">24</span></div>
                             <div class="stock-list">
                                 <div class="section-title">▲ 机构净买入TOP5</div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">剑桥科技(3日)</span><span class="stock-amount up">+4.36亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">领益智造</span><span class="stock-amount up">+暂无数据</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">宗申动力</span><span class="stock-amount up">+暂无数据</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">云南锗业</span><span class="stock-amount up">+暂无数据</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">剑桥科技(3日)</span><span class="stock-amount up">+4.36亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">领益智造</span><span class="stock-amount up">+暂无数据</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">宗申动力</span><span class="stock-amount up">+暂无数据</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">云南锗业</span><span class="stock-amount up">+暂无数据</span></span></div>
                                 <div class="section-title">★ 机游共振</div>
-                                <div class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">暂无详细数据</span>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">暂无详细数据</span></span></div>
                         <div class="section-title">▼ 游资席位动向</div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">暂无详细数据</span></div>
-                                
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">暂无详细数据</span></span></div>
                             </div>
                         </div>
                     </td>
@@ -785,16 +766,11 @@
                             <div class="day-header"><span class="day-number">25</span></div>
                             <div class="stock-list">
                                 <div class="section-title">▲ 机构净买入TOP5</div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">聚辰股份</span><span class="stock-amount up">+12.82亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">TCL科技</span><span class="stock-amount up">+8.96亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">风华高科</span><span class="stock-amount up">+4.45亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">德明利(3日)</span><span class="stock-amount up">+3.88亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">亚翔集成(2日)</span><span class="stock-amount up">+1.41亿</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">聚辰股份</span><span class="stock-amount up">+12.82亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">TCL科技</span><span class="stock-amount up">+8.96亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">风华高科</span><span class="stock-amount up">+4.45亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">德明利(3日)</span><span class="stock-amount up">+3.88亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">亚翔集成(2日)</span><span class="stock-amount up">+1.41亿</span></span></div>
                                 <div class="section-title">★ 机游共振</div>
-                                <div class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">风华高科（机构4.45亿+深股通4.53亿）、TCL科技（机构8.96亿+深股通9668万）共振明显</span>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">风华高科（机构4.45亿+深股通4.53亿）、TCL科技（机构8.96亿+深股通9668万）共振明显</span></span></div>
                         <div class="section-title">▼ 游资席位动向</div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">紫阳东路（国泰海通武汉紫阳东路）买入太极实业3.32亿、北京君正2.07亿；消闲派等席位活跃。知名游资整体较为低调</span></div>
-                                
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">紫阳东路（国泰海通武汉紫阳东路）买入太极实业3.32亿、北京君正2.07亿；消闲派等席位活跃。知名游资整体较为低调</span></span></div>
                             </div>
                         </div>
                     </td>
@@ -803,11 +779,9 @@
                             <div class="day-header"><span class="day-number">26</span></div>
                             <div class="stock-list">
                                 <div class="section-title">▲ 机构净买入TOP5</div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">中材科技(3日)</span><span class="stock-amount up">+3.66亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">雷曼光电</span><span class="stock-amount up">+2.89亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">中京电子</span><span class="stock-amount up">+2.47亿</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">中材科技(3日)</span><span class="stock-amount up">+3.66亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">雷曼光电</span><span class="stock-amount up">+2.89亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">中京电子</span><span class="stock-amount up">+2.47亿</span></span></div>
                                 <div class="section-title">▼ 游资席位动向</div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">章盟主、作手新一、小鳄鱼、佛山系等席位活跃</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">章盟主、作手新一、小鳄鱼、佛山系等席位活跃</span></span></div>
                             </div>
                         </div>
                     </td>
@@ -840,11 +814,9 @@
                             <div class="day-header"><span class="day-number">29</span></div>
                             <div class="stock-list">
                                 <div class="section-title">▲ 机构净买入TOP5</div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">天娱数科</span><span class="stock-amount up">+2.81亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">华工科技</span><span class="stock-amount up">+2.02亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">广钢气体</span><span class="stock-amount up">+1.36亿</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">天娱数科</span><span class="stock-amount up">+2.81亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">华工科技</span><span class="stock-amount up">+2.02亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">广钢气体</span><span class="stock-amount up">+1.36亿</span></span></div>
                                 <div class="section-title">▼ 游资席位动向</div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">暂无详细数据</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">暂无详细数据</span></span></div>
                             </div>
                         </div>
                     </td>
@@ -853,13 +825,9 @@
                             <div class="day-header"><span class="day-number">30</span></div>
                             <div class="stock-list">
                                 <div class="section-title">▲ 机构净买入TOP5</div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">多氟多</span><span class="stock-amount up">+7.56亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">风华高科</span><span class="stock-amount up">+4.33亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">长光华芯</span><span class="stock-amount up">+3.58亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">昊志机电</span><span class="stock-amount up">+3.33亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">紫光股份</span><span class="stock-amount up">+2.89亿</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">多氟多</span><span class="stock-amount up">+7.56亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">风华高科</span><span class="stock-amount up">+4.33亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">长光华芯</span><span class="stock-amount up">+3.58亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">昊志机电</span><span class="stock-amount up">+3.33亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">紫光股份</span><span class="stock-amount up">+2.89亿</span></span></div>
                                 <div class="section-title">▼ 游资席位动向</div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">暂无详细数据</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">暂无详细数据</span></span></div>
                             </div>
                         </div>
                     </td>
@@ -927,21 +895,11 @@
                             <div class="day-header"><span class="day-number">1</span></div>
                             <div class="stock-list">
                                 <div class="section-title">▲ 机构净买入TOP5</div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">昊华科技</span><span class="stock-amount up">+5.36亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">锐捷网络</span><span class="stock-amount up">+3.17亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">雅克科技</span><span class="stock-amount up">+2.82亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">多氟多</span><span class="stock-amount up">+2.65亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">阳谷华泰</span><span class="stock-amount up">+1.61亿</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">昊华科技</span><span class="stock-amount up">+5.36亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">锐捷网络</span><span class="stock-amount up">+3.17亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">雅克科技</span><span class="stock-amount up">+2.82亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">多氟多</span><span class="stock-amount up">+2.65亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">阳谷华泰</span><span class="stock-amount up">+1.61亿</span></span></div>
                                 <div class="section-title">★ 机游共振</div>
-                                <div class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">多氟多</span><span class="stock-amount resonance-amount">机构+北向双料共振</span></div>
-                                <div class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">机构+7.56亿+北向+5.99亿</span></div>
-                                <div class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">风华高科</span><span class="stock-amount resonance-amount">机构+4.33亿+游资共振</span></div>
-                                <div class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">长光华芯</span><span class="stock-amount resonance-amount">机构+3.58亿+北向+3亿</span>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">多氟多</span><span class="stock-amount resonance-amount">机构+北向双料共振</span></span> <span class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">机构+7.56亿+北向+5.99亿</span></span> <span class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">风华高科</span><span class="stock-amount resonance-amount">机构+4.33亿+游资共振</span></span> <span class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">长光华芯</span><span class="stock-amount resonance-amount">机构+3.58亿+北向+3亿</span></span></div>
                         <div class="section-title">▼ 游资席位动向</div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">联储上海松林路</span><span class="stock-amount up">+1.27亿</span></div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">中金上海分公司</span><span class="stock-amount up">+8166万</span></div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">开源西安太华路</span><span class="stock-amount up">+6783万</span></div>
-                                
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">联储上海松林路</span><span class="stock-amount up">+1.27亿</span></span> <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">中金上海分公司</span><span class="stock-amount up">+8166万</span></span> <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">开源西安太华路</span><span class="stock-amount up">+6783万</span></span></div>
                             </div>
                         </div>
                     </td>
@@ -951,20 +909,11 @@
                             <div class="day-header"><span class="day-number">2</span></div>
                             <div class="stock-list">
                                 <div class="section-title">▲ 机构净买入TOP5</div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">京东方A</span><span class="stock-amount up">+14.58亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">东山精密</span><span class="stock-amount up">+4.24亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">彤程新材</span><span class="stock-amount up">+1.16亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">永太科技</span><span class="stock-amount up">+8536万</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">肯特催化</span><span class="stock-amount up">+4874万</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">京东方A</span><span class="stock-amount up">+14.58亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">东山精密</span><span class="stock-amount up">+4.24亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">彤程新材</span><span class="stock-amount up">+1.16亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">永太科技</span><span class="stock-amount up">+8536万</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">肯特催化</span><span class="stock-amount up">+4874万</span></span></div>
                                 <div class="section-title">★ 机游共振</div>
-                                <div class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">京东方A</span><span class="stock-amount resonance-amount">机构+14.58亿+北向共振</span></div>
-                                <div class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">东山精密</span><span class="stock-amount resonance-amount">机构+4.24亿+游资关注</span>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">京东方A</span><span class="stock-amount resonance-amount">机构+14.58亿+北向共振</span></span> <span class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">东山精密</span><span class="stock-amount resonance-amount">机构+4.24亿+游资关注</span></span></div>
                         <div class="section-title">▼ 游资席位动向</div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">成都系·翔鹭钨业</span><span class="stock-amount up">+1.02亿</span></div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">章盟主·和远气体</span><span class="stock-amount up">+9046万</span></div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">赵老哥·和远气体</span><span class="stock-amount up">+3809万</span></div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">中山东路·北方铜业</span><span class="stock-amount up">+5083万</span></div>
-                                
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">成都系·翔鹭钨业</span><span class="stock-amount up">+1.02亿</span></span> <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">章盟主·和远气体</span><span class="stock-amount up">+9046万</span></span> <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">赵老哥·和远气体</span><span class="stock-amount up">+3809万</span></span> <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">中山东路·北方铜业</span><span class="stock-amount up">+5083万</span></span></div>
                             </div>
                         </div>
                     </td>
@@ -974,21 +923,11 @@
                             <div class="day-header"><span class="day-number">3</span></div>
                             <div class="stock-list">
                                 <div class="section-title">▲ 机构净买入TOP5</div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">东山精密</span><span class="stock-amount up">+20.16亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">双环传动</span><span class="stock-amount up">+6.54亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">横店东磁</span><span class="stock-amount up">+5.95亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">长盛轴承</span><span class="stock-amount up">+5.69亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">天娱数科</span><span class="stock-amount up">+5.56亿</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">东山精密</span><span class="stock-amount up">+20.16亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">双环传动</span><span class="stock-amount up">+6.54亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">横店东磁</span><span class="stock-amount up">+5.95亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">长盛轴承</span><span class="stock-amount up">+5.69亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">天娱数科</span><span class="stock-amount up">+5.56亿</span></span></div>
                                 <div class="section-title">★ 机游共振</div>
-                                <div class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">横店东磁</span><span class="stock-amount resonance-amount">机构+1.13亿+中山东路+1.27亿</span></div>
-                                <div class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">长盛轴承</span><span class="stock-amount resonance-amount">机构+6820万+宁波桑田路+6724万</span></div>
-                                <div class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">多氟多</span><span class="stock-amount resonance-amount">作手新一翘板+6.07亿(机构卖出)</span>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">横店东磁</span><span class="stock-amount resonance-amount">机构+1.13亿+中山东路+1.27亿</span></span> <span class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">长盛轴承</span><span class="stock-amount resonance-amount">机构+6820万+宁波桑田路+6724万</span></span> <span class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">多氟多</span><span class="stock-amount resonance-amount">作手新一翘板+6.07亿(机构卖出)</span></span></div>
                         <div class="section-title">▼ 游资席位动向</div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">作手新一·多氟多</span><span class="stock-amount down">+6.07亿</span></div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">宁波桑田路·长盛轴承</span><span class="stock-amount down">+6724万</span></div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">中山东路·横店东磁</span><span class="stock-amount down">+1.27亿</span></div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">北京中关村·多氟多</span><span class="stock-amount down">+1.66亿</span></div>
-                                
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">作手新一·多氟多</span><span class="stock-amount down">+6.07亿</span></span> <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">宁波桑田路·长盛轴承</span><span class="stock-amount down">+6724万</span></span> <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">中山东路·横店东磁</span><span class="stock-amount down">+1.27亿</span></span> <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">北京中关村·多氟多</span><span class="stock-amount down">+1.66亿</span></span></div>
                             </div>
                         </div>
                     </td>
@@ -1026,20 +965,11 @@
                             <div class="day-header"><span class="day-number">6</span></div>
                             <div class="stock-list">
                                 <div class="section-title">▲ 机构净买入TOP5</div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">金安国纪</span><span class="stock-amount up">+3.22亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">惠科股份</span><span class="stock-amount up">+2.99亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">雷赛智能</span><span class="stock-amount up">+1.89亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">江化微</span><span class="stock-amount up">+1.89亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">蔚蓝锂芯</span><span class="stock-amount up">+1.71亿</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">金安国纪</span><span class="stock-amount up">+3.22亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">惠科股份</span><span class="stock-amount up">+2.99亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">雷赛智能</span><span class="stock-amount up">+1.89亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">江化微</span><span class="stock-amount up">+1.89亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">蔚蓝锂芯</span><span class="stock-amount up">+1.71亿</span></span></div>
                                 <div class="section-title">★ 机游共振</div>
-                                <div class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">金安国纪</span><span class="stock-amount resonance-amount">机构+3.22亿+北向+1.83亿</span></div>
-                                <div class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">惠科股份</span><span class="stock-amount resonance-amount">机构+2.99亿+游资关注</span>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">金安国纪</span><span class="stock-amount resonance-amount">机构+3.22亿+北向+1.83亿</span></span> <span class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">惠科股份</span><span class="stock-amount resonance-amount">机构+2.99亿+游资关注</span></span></div>
                         <div class="section-title">▼ 游资席位动向</div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">T王·杭电股份</span><span class="stock-amount down">+4328万</span></div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">中山东路·紫光股份</span><span class="stock-amount down">+1.19亿</span></div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">章盟主·卖江化微</span><span class="stock-amount down" style="color:#3fb950;">-9347万</span></div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">佛山系·卖天娱数科</span><span class="stock-amount down" style="color:#3fb950;">-9372万</span></div>
-                                
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">T王·杭电股份</span><span class="stock-amount down">+4328万</span></span> <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">中山东路·紫光股份</span><span class="stock-amount down">+1.19亿</span></span> <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">章盟主·卖江化微</span><span class="stock-amount down" style="color:#3fb950;">-9347万</span></span> <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">佛山系·卖天娱数科</span><span class="stock-amount down" style="color:#3fb950;">-9372万</span></span></div>
                             </div>
                         </div>
                     </td>
@@ -1049,19 +979,11 @@
                             <div class="day-header"><span class="day-number">7</span></div>
                             <div class="stock-list">
                                 <div class="section-title">▲ 机构净买入TOP5</div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">华天科技</span><span class="stock-amount up">+1.91亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">白云电器</span><span class="stock-amount up">+8602万</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">惠科股份</span><span class="stock-amount up">+6162万</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">东方钽业</span><span class="stock-amount up">+5555万</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">爱普股份</span><span class="stock-amount up">+1322万</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">华天科技</span><span class="stock-amount up">+1.91亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">白云电器</span><span class="stock-amount up">+8602万</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">惠科股份</span><span class="stock-amount up">+6162万</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">东方钽业</span><span class="stock-amount up">+5555万</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">爱普股份</span><span class="stock-amount up">+1322万</span></span></div>
                                 <div class="section-title">★ 机游共振</div>
-                                <div class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">华天科技</span><span class="stock-amount resonance-amount">机构+游资+北向共振</span></div>
-                                <div class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">机构+1.91亿+游资+7.96亿+北向+6.45亿</span>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">华天科技</span><span class="stock-amount resonance-amount">机构+游资+北向共振</span></span> <span class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">机构+1.91亿+游资+7.96亿+北向+6.45亿</span></span></div>
                         <div class="section-title">▼ 游资席位动向</div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">国泰海通三亚迎宾路·华天科技</span><span class="stock-amount up">+3.08亿</span></div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">国泰海通武汉紫阳东路·华天科技</span><span class="stock-amount up">+2.71亿</span></div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">国泰海通北京知春路·华天科技</span><span class="stock-amount up">+2.17亿</span></div>
-                                
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">国泰海通三亚迎宾路·华天科技</span><span class="stock-amount up">+3.08亿</span></span> <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">国泰海通武汉紫阳东路·华天科技</span><span class="stock-amount up">+2.71亿</span></span> <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">国泰海通北京知春路·华天科技</span><span class="stock-amount up">+2.17亿</span></span></div>
                             </div>
                         </div>
                     </td>
@@ -1071,21 +993,11 @@
                             <div class="day-header"><span class="day-number">8</span></div>
                             <div class="stock-list">
                                 <div class="section-title">▲ 机构净买入TOP5</div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">东岳硅材</span><span class="stock-amount up">+1.71亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">惠科股份</span><span class="stock-amount up">+1.34亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">深信服</span><span class="stock-amount up">+1.30亿</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">网宿科技</span><span class="stock-amount up">+7771万</span></div>
-                                <div class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">翰博高新</span><span class="stock-amount up">+3375万</span></div>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">东岳硅材</span><span class="stock-amount up">+1.71亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">惠科股份</span><span class="stock-amount up">+1.34亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">深信服</span><span class="stock-amount up">+1.30亿</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">网宿科技</span><span class="stock-amount up">+7771万</span></span> <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">翰博高新</span><span class="stock-amount up">+3375万</span></span></div>
                                 <div class="section-title">★ 机游共振</div>
-                                <div class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">网宿科技</span><span class="stock-amount resonance-amount">机构+7771万+游资+5.87亿</span></div>
-                                <div class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">深信服</span><span class="stock-amount resonance-amount">机构+1.30亿+上海超短+1.07亿+北向</span></div>
-                                <div class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">东岳硅材</span><span class="stock-amount resonance-amount">机构+1.71亿+深股通共振</span>
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">网宿科技</span><span class="stock-amount resonance-amount">机构+7771万+游资+5.87亿</span></span> <span class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">深信服</span><span class="stock-amount resonance-amount">机构+1.30亿+上海超短+1.07亿+北向</span></span> <span class="stock-item"><span class="stock-icon" style="color:#d29922;">★</span><span class="stock-name" style="color:#d29922;">东岳硅材</span><span class="stock-amount resonance-amount">机构+1.71亿+深股通共振</span></span></div>
                         <div class="section-title">▼ 游资席位动向</div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">东吴扬富路·浪潮信息</span><span class="stock-amount down">+5.76亿</span></div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">华源深圳·浪潮信息</span><span class="stock-amount down">+5.27亿</span></div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">国泰海通自贸区·云南锗业</span><span class="stock-amount down">+4.27亿</span></div>
-                                <div class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">开源西安太华路·分散</span><span class="stock-amount down">+3.51亿</span></div>
-                                
+                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">东吴扬富路·浪潮信息</span><span class="stock-amount down">+5.76亿</span></span> <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">华源深圳·浪潮信息</span><span class="stock-amount down">+5.27亿</span></span> <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">国泰海通自贸区·云南锗业</span><span class="stock-amount down">+4.27亿</span></span> <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">开源西安太华路·分散</span><span class="stock-amount down">+3.51亿</span></span></div>
                             </div>
                         </div>
                     </td>
