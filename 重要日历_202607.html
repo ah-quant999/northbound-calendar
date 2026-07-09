@@ -183,23 +183,23 @@
             line-height: 1.3;
         }
 
-        .event-item.policy { background: #ff8c42; border-left: 3px solid #ff8c42; color: #ffffff; }
-        .event-item.cbank { background: #ffd700; border-left: 3px solid #ffd700; color: #ffffff; }
-        .event-item.macro { background: #e8b830; border-left: 3px solid #e8b830; color: #ffffff; }
-        .event-item.earn-end { background: #ff6b55; border-left: 3px solid #ff6b55; color: #ffffff; }
-        .event-item.option { background: #4da6ff; border-left: 3px solid #4da6ff; color: #ffffff; }
-        .event-item.futures { background: #6cb4ff; border-left: 3px solid #6cb4ff; color: #ffffff; }
-        .event-item.a50 { background: #ff5a52; border-left: 3px solid #ff5a52; color: #ffffff; }
-        .event-item.hk-holiday { background: #78828a; border-left: 3px solid #78828a; color: #ffffff; }
-        .event-item.tw-stock { background: #2ea043; border-left: 3px solid #2ea043; color: #ffffff; }
-        .event-item.phone { background: #c084fc; border-left: 3px solid #c084fc; color: #ffffff; }
-        .event-item.fomc { background: #e63946; border-left: 3px solid #e63946; color: #ffffff; }
-        .event-item.us-holiday { background: #5a6270; border-left: 3px solid #5a6270; color: #ffffff; }
-        .event-item.us-stock { background: #388bfd; border-left: 3px solid #388bfd; color: #ffffff; }
-        .event-item.eu-earn { background: #4ade80; border-left: 3px solid #4ade80; color: #ffffff; }
-        .event-item.jp-earn { background: #f0c040; border-left: 3px solid #f0c040; color: #ffffff; }
-        .event-item.kr-stock { background: #bc8cff; border-left: 3px solid #bc8cff; color: #fff; }
-        .event-item.sg-holiday { background: #ff528a; border-left: 3px solid #ff528a; color: #ffffff; }
+        .event-item.policy { background: #c46a28; border-left: 3px solid #f0883e; color: #ffb088; }
+        .event-item.cbank { background: #c8a030; border-left: 3px solid #f7c948; color: #ffe066; }
+        .event-item.macro { background: #a87818; border-left: 3px solid #d29922; color: #ffc84d; }
+        .event-item.earn-end { background: #c86850; border-left: 3px solid #f78166; color: #ffaa88; }
+        .event-item.option { background: #5898d0; border-left: 3px solid #79c0ff; color: #99ddff; }
+        .event-item.futures { background: #78a8d0; border-left: 3px solid #a5d6ff; color: #bbeeff; }
+        .event-item.a50 { background: #d06050; border-left: 3px solid #ff7b72; color: #ff9999; }
+        .event-item.hk-holiday { background: #6a7480; border-left: 3px solid #8b949e; color: #ccccdd; }
+        .event-item.tw-stock { background: #289040; border-left: 3px solid #3fb950; color: #66dd77; }
+        .event-item.phone { background: #a880d0; border-left: 3px solid #d2a8ff; color: #ecccff; }
+        .event-item.fomc { background: #c83830; border-left: 3px solid #f85149; color: #ff8888; }
+        .event-item.us-holiday { background: #505860; border-left: 3px solid #6e7681; color: #aaaacc; }
+        .event-item.us-stock { background: #4080c0; border-left: 3px solid #58a6ff; color: #88ccff; }
+        .event-item.eu-earn { background: #50a860; border-left: 3px solid #7ee787; color: #aaffaa; }
+        .event-item.jp-earn { background: #b88828; border-left: 3px solid #e3b341; color: #ffdd66; }
+        .event-item.kr-stock { background: #9068c0; border-left: 3px solid #bc8cff; color: #ddbbff; }
+        .event-item.sg-holiday { background: #c85080; border-left: 3px solid #ff6b9d; color: #ff99bb; }
 
         .day-cell .empty-content {
             flex: 1;
@@ -290,113 +290,21 @@
             .day-cell .event-item { font-size: 9px; }
             .legend-grid { grid-template-columns: 1fr; }
         }
-    
-        /* 密码保护遮罩 - 九宝日历精选 */
-        .auth-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(13,17,23,0.93);
-            z-index: 99999;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .auth-box {
-            background: #161b22;
-            border-radius: 14px;
-            border: 1px solid #30363d;
-            padding: 36px 32px;
-            text-align: center;
-            max-width: 360px;
-            width: 90%;
-        }
-        .auth-box h2 { color: #c9d1d9; font-size: 18px; margin-bottom: 6px; }
-        .auth-box p { color: #8b949e; font-size: 13px; margin-bottom: 20px; }
-        .auth-box input {
-            width: 100%; padding: 10px 14px; background: #0d1117;
-            border: 1px solid #30363d; border-radius: 8px; color: #c9d1d9;
-            font-size: 14px; outline: none; margin-bottom: 12px; transition: border 0.2s;
-        }
-        .auth-box input:focus { border-color: #58a6ff; }
-        .auth-box .btn {
-            width: 100%; padding: 10px; background: #238636; border: none;
-            border-radius: 8px; color: #fff; font-size: 14px; font-weight: 600;
-            cursor: pointer; transition: background 0.2s;
-        }
-        .auth-box .btn:hover { background: #2ea043; }
-        .auth-box .err { color: #f85149; font-size: 12px; margin-top: 8px; display: none; }
-        .auth-box .back-link { margin-top: 14px; }
-        .auth-box .back-link a { color: #484f58; font-size: 12px; text-decoration: none; }
-        .auth-box .back-link a:hover { color: #8b949e; }
-.back-to-portal {
-            text-align: center;
-            margin: 12px 0 6px;
-        }
-        .back-to-portal a {
-            color: #484f58;
-            font-size: 13px;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-        .back-to-portal a:hover {
-            color: #8b949e;
-        }
-
-        </style>
-
-    <style>
-        .back-to-portal-btn {
-            position: absolute;
-            top: 18px;
-            left: 18px;
-            display: inline-block;
-            padding: 10px 20px;
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-            color: #fff !important;
-            font-size: 15px;
-            font-weight: 700;
-            text-decoration: none;
-            border-radius: 25px;
-            box-shadow: 0 4px 15px rgba(238, 90, 36, 0.5);
-            z-index: 1000;
-            transition: all 0.3s ease;
-            letter-spacing: 0.5px;
-        }
-        .back-to-portal-btn:hover {
-            transform: scale(1.08);
-            box-shadow: 0 6px 20px rgba(238, 90, 36, 0.7);
-            background: linear-gradient(135deg, #ff7b7b, #ff6a3d);
-        }
-        .container {
-            position: relative;
-        }
     </style>
-
 </head>
 <body>
-
-<div class="auth-overlay" id="authOverlay">
-    <div class="auth-box">
-        <h2>🔒 九宝日历精选</h2>
-        <p>请输入密码以查看日历</p>
-        <input type="password" id="authPwd" placeholder="输入密码" autocomplete="off"
-               onkeydown="if(event.key==='Enter')authLogin()">
-        <button class="btn" onclick="authLogin()">验证</button>
-        <div class="err" id="authErr">密码错误</div>
-    </div>
-</div>
-
 <div class="container">
-    <!-- 返回九宝日历精选 -->
-    <a href="portal.html" class="back-to-portal-btn">← 九宝日历精选</a>
-
     <div class="header">
+        <a href="portal.html" style="display:inline-flex;align-items:center;gap:4px;padding:8px 16px;background:linear-gradient(135deg,#ffb5c7,#ffd1b5);border-radius:20px;color:#7a5a4a;font-size:13px;font-weight:600;text-decoration:none;transition:all 0.2s;box-shadow:0 2px 8px rgba(255,181,199,0.3);margin-bottom:10px;">← 返回portal</a>
         <div class="nav-bar">
-            <a href="重要日历_202606.html" class="nav-arrow">← 2026年6月</a>
+            <span class="nav-arrow" style="visibility:hidden">←</span>
             <div class="nav-title">
                 <h1>重要日历</h1>
                 <div class="nav-current"><span class="highlight">2026年7月</span> · 全市场重要事件一览</div>
             </div>
-            <a href="重要日历_202608.html" class="nav-arrow">2026年8月 →</a>
+            <span class="nav-arrow" style="visibility:hidden">→</span>
         </div>
-        <div class="update-info">数据涵盖A股/港股/美股/欧股/日韩台/新加坡 | 每月1日更新 | 本次更新时间: 2026-07-09 12:48</div>
+        <div class="update-info">数据涵盖A股/港股/美股/欧股/日韩台/新加坡 | 更新于 2026-07-09</div>
     </div>
 
     <!-- 分类标签导航 -->
@@ -543,6 +451,8 @@
                         </div>
                         <div class="event-list">
                             <div class="event-item fomc">🇺🇸 美联储6月会议纪要 ✅ 已发布</div>
+                            <div class="event-item jp-stock">🇯🇵 迅销(Uniqlo) Q3 ✅ 已发布</div>
+                            <div class="event-item jp-stock">🇯🇵 7&I控股(7-Eleven) Q1</div>
                             <div class="event-item macro">🇨🇳 CPI/PPI数据</div>
                             <div class="event-item macro">🇨🇳 6月CPI/PPI ✅ 已发布</div>
                             <div class="event-item us-stock">PEP 百事 盘前</div>
@@ -555,6 +465,8 @@
                             <span class="day-number">10</span>
                         </div>
                         <div class="event-list">
+                            <div class="event-item jp-stock">🇯🇵 安川电机 Q1</div>
+                            <div class="event-item jp-stock">🇯🇵 良品计划(Muji) Q2</div>
                             <div class="event-item us-stock">DAL 达美航空 盘前</div>
                         </div>
                     </div>
@@ -605,6 +517,7 @@
                             <span class="day-number">14</span>
                         </div>
                         <div class="event-list">
+                            <div class="event-item eu-earn">🇸🇪 Ericsson(爱立信) Q2</div>
                             <div class="event-item futures">📊 大商所/郑商所/广期所2607最后交易日</div>
                             <div class="event-item macro">🇺🇸 6月CPI 20:30</div>
                             <div class="event-item phone">📱 华为Pura 90S系列吉隆坡发布</div>
@@ -634,6 +547,7 @@
                         </div>
                         <div class="event-list">
                             <div class="event-item option">📊 大商所2608期权到期</div>
+                            <div class="event-item tw-stock">🇹🇼 台积电TSMC Q2财报</div>
                             <div class="event-item us-stock">NFLX 奈飞 盘后</div>
                         </div>
                     </div>
@@ -695,7 +609,9 @@
                         <div class="day-header">
                             <span class="day-number">21</span>
                         </div>
-                        <div class="empty-content">--</div>
+                        <div class="event-list">
+                            <div class="event-item eu-earn">🇨🇭 诺华(Novartis) Q2</div>
+                        </div>
                     </div>
                 </td>
                 <td>
@@ -715,6 +631,9 @@
                         </div>
                         <div class="event-list">
                             <div class="event-item eu-earn">🇬🇧 EasyJet Q3交易更新</div>
+                            <div class="event-item eu-earn">🇮🇹 STMicro(意法半导体) Q2</div>
+                            <div class="event-item eu-earn">🇮🇹 Unicredit(裕信) Q2</div>
+                            <div class="event-item kr-stock">🇰🇷 三星生物制剂 Q2完整财报</div>
                             <div class="event-item us-stock">GOOGL 谷歌 盘后</div>
                         </div>
                     </div>
@@ -788,6 +707,7 @@
                         <div class="event-list">
                             <div class="event-item eu-earn">🇬🇧 Rio Tinto（力拓）半年报</div>
                             <div class="event-item fomc">🇺🇸 FOMC议息会议第1天（29日）</div>
+                            <div class="event-item kr-stock">🇰🇷 SK海力士Q2财报</div>
                             <div class="event-item option">📊 郑商所CJ/PX2609期权到期</div>
                             <div class="event-item us-stock">MSFT 微软 盘后</div>
                             <div class="event-item us-stock">META 盘后</div>
@@ -803,6 +723,9 @@
                         <div class="event-list">
                             <div class="event-item a50">🇸🇬 富时A50交割日（每月倒数第二个工作日）</div>
                             <div class="event-item eu-earn">🇪🇺 Shell/Rolls-Royce等半年报</div>
+                            <div class="event-item eu-earn">🇮🇹 Stellantis H1</div>
+                            <div class="event-item eu-earn">🇮🇹 法拉利 Q2</div>
+                            <div class="event-item eu-earn">🇮🇹 Enel H1</div>
                             <div class="event-item fomc">🇺🇸 FOMC利率决议 北京时间7/30凌晨</div>
                             <div class="event-item kr-stock">🇰🇷 三星电子Q2完整财报</div>
                             <div class="event-item phone">📱 苹果Q3财报</div>
@@ -948,7 +871,7 @@
                 <div class="legend-detail">
                     台股财报季
                     <ul>
-                        <li>暂无数据，待各公司公布具体日期后补充</li>
+                        <li>台积电TSMC</li>
                     </ul>
                 </div>
             </div>
@@ -992,8 +915,20 @@
                 <div class="legend-detail">
                     2026年7月 美股财报季
                     <ul>
-                        <li>暂无数据，待各公司公布具体日期后补充</li>
-                        <li>⚠️ 财报日期可能调整，以公司官方公告为准</li>
+                        <li>百事(PEP)</li>
+                        <li>达美航空(DAL)</li>
+                        <li>摩根大通(JPM)</li>
+                        <li>摩根士丹利(MS)</li>
+                        <li>贝莱德(BLK)</li>
+                        <li>奈飞(NFLX)</li>
+                        <li>特斯拉(TSLA)</li>
+                        <li>谷歌(GOOGL)</li>
+                        <li>标普全球(SPGI)</li>
+                        <li>微软(MSFT)</li>
+                        <li>Meta</li>
+                        <li>ADP</li>
+                        <li>苹果(AAPL)</li>
+                        <li>亚马逊(AMZN)</li>
                     </ul>
                 </div>
             </div>
@@ -1004,7 +939,17 @@
                 <div class="legend-detail">
                     欧洲主要公司财报发布
                     <ul>
-                        <li>暂无数据，待各公司公布具体日期后补充</li>
+                        <li>Ericsson(爱立信)</li>
+                        <li>诺华(Novartis)</li>
+                        <li>EasyJet</li>
+                        <li>STMicro(意法半导体)</li>
+                        <li>Unicredit(裕信)</li>
+                        <li>Rio Tinto(力拓)</li>
+                        <li>Shell(壳牌)</li>
+                        <li>Rolls-Royce</li>
+                        <li>Stellantis</li>
+                        <li>法拉利</li>
+                        <li>Enel</li>
                     </ul>
                 </div>
             </div>
@@ -1015,7 +960,10 @@
                 <div class="legend-detail">
                     日股财报季
                     <ul>
-                        <li>暂无数据，待各公司公布具体日期后补充</li>
+                        <li>迅销(Uniqlo)</li>
+                        <li>7&I控股(7-Eleven)</li>
+                        <li>安川电机</li>
+                        <li>良品计划(Muji)</li>
                     </ul>
                 </div>
             </div>
@@ -1026,7 +974,9 @@
                 <div class="legend-detail">
                     韩国主要公司财报发布
                     <ul>
-                        <li>暂无数据，待各公司公布具体日期后补充</li>
+                        <li>三星电子</li>
+                        <li>三星生物制剂</li>
+                        <li>SK海力士</li>
                     </ul>
                 </div>
             </div>
@@ -1051,7 +1001,7 @@
         2. 🇺🇸 <strong>美股财报</strong>：来源各公司IR页面。财报日期可能调整，以公司官方公告为准。<br>
         3. 🇺🇸 <strong>FOMC</strong>：美联储官方法定会议日程。<br>
         4. 📊 <strong>期权/期货交割</strong>：来源各交易所及期货公司公告，日期以交易所实际执行为准。<br>
-        5. 🟡 <strong>部分数据</strong>：台股/日股/欧股财报暂无数据，待各公司公布具体日期后补充。<br>
+        5. 🟡 <strong>部分数据</strong>：财报日期可能调整，以公司官方公告为准。<br>
         6. ⚠️ 本日历仅收录固定排期事件，突发事件（如临时政策会议、数据推迟发布等）无法提前预告。<br>
         7. ⚠️ 2027年A股休市日期为推算值，暂定待官方公布确认。<br>
         8. 数据来源：国家统计局、中国人民银行、美联储、各交易所及公司IR页面。仅供参考，不构成投资建议。<br>
@@ -1063,35 +1013,36 @@
         更新日期：2026-07-09
     </div>
 </div>
-
+<div id="dayModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;justify-content:center;align-items:center;" onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:#161b22;border:1px solid #30363d;border-radius:14px;max-width:480px;width:90%;max-height:80vh;overflow-y:auto;padding:24px;position:relative;box-shadow:0 8px 32px rgba(0,0,0,0.5);">
+    <button onclick="document.getElementById('dayModal').style.display='none'" style="position:absolute;top:12px;right:14px;background:none;border:none;color:#8b949e;font-size:20px;cursor:pointer;">✕</button>
+    <div id="modalTitle" style="font-size:18px;font-weight:700;color:#58a6ff;margin-bottom:16px;"></div>
+    <div id="modalContent"></div>
+  </div>
+</div>
 <script>
-(function(){
-    // 检查URL参数：从portal跳转过来的
-    (function(){
-        var p = new URLSearchParams(location.search);
-        if (p.get('from') === 'portal') {
-            sessionStorage.setItem("cal_auth_" + location.pathname, "1");
-            var u = location.pathname + location.hash;
-            history.replaceState(null, '', u);
-        }
-    })();
-    var path = location.pathname;
-    if (sessionStorage.getItem("portal_role") || sessionStorage.getItem("cal_auth_" + path)) {
-        var el = document.getElementById("authOverlay");
-        if (el) el.style.display = "none";
-        return;
+document.querySelectorAll(".day-cell").forEach(function(cell){
+  cell.style.cursor="pointer";
+  cell.addEventListener("click",function(e){
+    var hdr=this.querySelector(".day-number");
+    if(!hdr)return;
+    var dayNum=hdr.textContent.trim();
+    var items=this.querySelectorAll(".event-item");
+    var title=document.getElementById("modalTitle");
+    var content=document.getElementById("modalContent");
+    title.textContent=dayNum+"日 事件详情";
+    if(items.length===0){
+      content.innerHTML="<div style=\"color:#8b949e;padding:8px 0;\">暂无事件</div>";
+    }else{
+      var html="";
+      items.forEach(function(item){
+        html+="<div style=\"margin-bottom:8px;padding:8px 12px;border-radius:8px;"+item.style.cssText+"\">"+item.textContent+"</div>";
+      });
+      content.innerHTML=html;
     }
-    window.authLogin = function() {
-        var pwd = document.getElementById("authPwd").value;
-        if (pwd === "ggcat999" || pwd === "hjd666") {
-            sessionStorage.setItem("cal_auth_" + path, "1");
-            document.getElementById("authOverlay").style.display = "none";
-        } else {
-            document.getElementById("authErr").style.display = "block";
-        }
-    };
-})();
+    document.getElementById("dayModal").style.display="flex";
+  });
+});
 </script>
-
 </body>
 </html>
