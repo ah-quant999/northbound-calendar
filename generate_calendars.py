@@ -909,6 +909,9 @@ def generate_month_html(year, month, today_date=None, start_year=None, start_mon
     lines.append('<html lang="zh-CN">')
     lines.append('<head>')
     lines.append('    <meta charset="UTF-8">')
+    lines.append('    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">')
+    lines.append('    <meta http-equiv="Pragma" content="no-cache">')
+    lines.append('    <meta http-equiv="Expires" content="0">')
     lines.append('    <meta name="viewport" content="width=device-width, initial-scale=1.0">')
     lines.append(f'    <title>重要日历 - {month_name}</title>')
     lines.append('    <style>')
@@ -1420,13 +1423,3 @@ def main():
         month += 1
         if month > 12:
             month = 1
-            year += 1
-
-    print(f'\n🎉 完成！共生成 {len(generated)} 个日历文件')
-    print(f'📁 输出目录: {args.output_dir}')
-    for g in generated:
-        print(f'   - {g}')
-
-
-if __name__ == '__main__':
-    main()
