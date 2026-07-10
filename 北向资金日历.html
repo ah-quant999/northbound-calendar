@@ -182,12 +182,18 @@
         .day-cell .stock-icon.up { color: #f85149; }
         .day-cell .stock-icon.down { color: #3fb950; }
         .day-cell .stock-name {
-            flex: 1;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
             color: #c9d1d9;
             font-size: 14px;
+            max-width: 70%;
+        }
+        .day-cell .stock-amount {
+            font-weight: 500;
+            font-size: 14px;
+            flex-shrink: 0;
+            white-space: nowrap;
         }
         .day-cell .stock-amount {
             font-weight: 500;
@@ -446,58 +452,11 @@
         flex-shrink: 0;
     }
     #day-detail-panel .detail-item .detail-name {
-        flex: 1;
         color: #c9d1d9;
     }
     #day-detail-panel .detail-item .detail-amount {
         font-weight: 600;
         flex-shrink: 0;
-    }
-
-    /* 今日事件区 */
-    #today-events {
-        background: #161b22cc;
-        border-radius: 12px;
-        padding: 20px;
-        margin: 20px 0;
-        border: 1px solid #30363d;
-    }
-    #today-events .today-title {
-        font-size: 18px;
-        color: #fff;
-        font-weight: 600;
-        margin-bottom: 12px;
-    }
-    #today-events .today-section {
-        margin-bottom: 10px;
-    }
-    #today-events .today-section-title {
-        font-size: 14px;
-        color: #6e7681;
-        margin-bottom: 6px;
-        font-weight: 600;
-    }
-    #today-events .today-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 3px 0;
-        font-size: 16px;
-    }
-    #today-events .today-item .today-icon {
-        flex-shrink: 0;
-    }
-    #today-events .today-item .today-name {
-        flex: 1;
-        color: #c9d1d9;
-    }
-    #today-events .today-item .today-amount {
-        font-weight: 600;
-        flex-shrink: 0;
-    }
-    #today-events .today-empty {
-        color: #6e7681;
-        font-size: 14px;
     }
 
     </style>
@@ -1163,10 +1122,6 @@
 
         
         <div id="day-detail-panel"></div>
-        <div id="today-events">
-            <div class="today-title">📅 今日事件</div>
-            <div id="today-events-content"></div>
-        </div>
 
         <!-- 📊 周度汇总 -->
         <div class="weekly-summary">
@@ -1638,114 +1593,7 @@
         _detailCurrentTd = null;
     }
 
-    // ===== 今日事件 =====
-    function initTodayEvents() {
-        var container = document.getElementById('today-events-content');
-        if (!container) return;
-
-        var today = new Date();
-        var todayNum = today.getDate();
-        var todayMonth = today.getMonth() + 1;
-        var todayYear = today.getFullYear();
-
-        // 在当前页面中找今天的格子
-        // 查找所有 month-section 中对应当月的
-        var monthSection = document.getElementById('month-' + todayMonth);
-        if (!monthSection) {
-            container.innerHTML = '<div class="today-empty">今日暂无数据（当前日历未包含本月）</div>';
-            return;
-        }
-
-        // 找到今天编号的 day-cell
-        var tds = monthSection.querySelectorAll('td');
-        var todayTd = null;
-        for (var i = 0; i < tds.length; i++) {
-            var dn = tds[i].querySelector('.day-number:not(.other)');
-            if (dn && parseInt(dn.textContent.trim()) === todayNum) {
-                todayTd = tds[i];
-                break;
-            }
-        }
-
-        if (!todayTd) {
-            container.innerHTML = '<div class="today-empty">今日暂无数据</div>';
-            return;
-        }
-
-        var dayCell = todayTd.querySelector('.day-cell');
-        if (!dayCell) {
-            container.innerHTML = '<div class="today-empty">今日暂无数据</div>';
-            return;
-        }
-
-        var stockList = dayCell.querySelector('.stock-list');
-        if (!stockList) {
-            container.innerHTML = '<div class="today-empty">今日暂无数据</div>';
-            return;
-        }
-
-        // 提取数据（复用详情逻辑）
-        var html = '';
-        var children = stockList.children;
-        var currentSection = null;
-        for (var i = 0; i < children.length; i++) {
-            var child = children[i];
-            if (child.classList.contains('section-title')) {
-                if (currentSection) html += '</div>';
-                currentSection = child.textContent.trim();
-                html += '<div class="today-section">';
-                html += '<div class="today-section-title">' + currentSection + '</div>';
-            } else if (child.classList.contains('stock-item')) {
-                var icon = child.querySelector('.stock-icon');
-                var name = child.querySelector('.stock-name');
-                var amount = child.querySelector('.stock-amount');
-                var iconText = icon ? icon.textContent.trim() : '';
-                var nameText = name ? name.textContent.trim() : '';
-                var amountText = amount ? amount.textContent.trim() : '';
-                var amountClass = amount ? amount.className : '';
-                var colorStyle = '';
-                if (amountClass.indexOf('up') >= 0) colorStyle = 'color:#f85149;';
-                else if (amountClass.indexOf('down') >= 0) colorStyle = 'color:#3fb950;';
-                html += '<div class="today-item">';
-                html += '<span class="today-icon">' + iconText + '</span>';
-                html += '<span class="today-name">' + nameText + '</span>';
-                html += '<span class="today-amount" style="' + colorStyle + '">' + amountText + '</span>';
-                html += '</div>';
-            } else if (child.classList.contains('stock-row')) {
-                var items = child.querySelectorAll('.stock-item');
-                for (var j = 0; j < items.length; j++) {
-                    var item = items[j];
-                    var iicon = item.querySelector('.stock-icon');
-                    var iname = item.querySelector('.stock-name');
-                    var iamount = item.querySelector('.stock-amount');
-                    var iiconText = iicon ? iicon.textContent.trim() : '';
-                    var inameText = iname ? iname.textContent.trim() : '';
-                    var iamountText = iamount ? iamount.textContent.trim() : '';
-                    var icolorStyle = '';
-                    if (iname && iname.style.color) {
-                        icolorStyle = 'color:' + iname.style.color + ';';
-                    } else if (iamount) {
-                        if (iamount.classList.contains('up')) icolorStyle = 'color:#f85149;';
-                        else if (iamount.classList.contains('down')) icolorStyle = 'color:#3fb950;';
-                    }
-                    html += '<div class="today-item">';
-                    html += '<span class="today-icon">' + iiconText + '</span>';
-                    html += '<span class="today-name" style="' + icolorStyle + '">' + inameText + '</span>';
-                    html += '<span class="today-amount" style="' + icolorStyle + '">' + iamountText + '</span>';
-                    html += '</div>';
-                }
-            }
-        }
-        if (currentSection) html += '</div>';
-
-        if (!html) {
-            container.innerHTML = '<div class="today-empty">今日暂无数据</div>';
-        } else {
-            container.innerHTML = html;
-        }
-    }
-
-    initTodayEvents();
+    
 
     </script>
 </body>
