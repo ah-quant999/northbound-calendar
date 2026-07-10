@@ -191,11 +191,12 @@
         }
         .day-cell .stock-item {
             display: inline-flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 3px;
             font-size: 10px;
             line-height: 1.5;
-            white-space: nowrap;
+            overflow-wrap: break-word;
+            flex-wrap: wrap;
         }
         .day-cell .stock-item .stock-icon {
             font-size: 7px;
@@ -207,6 +208,8 @@
         .day-cell .stock-item .stock-amount {
             font-weight: 500;
             font-size: 10px;
+            max-width: 100%;
+            overflow-wrap: break-word;
         }
         .day-cell .stock-item .resonance-text {
             color: #d29922;
@@ -222,7 +225,7 @@
         .day-cell .stock-name {
             color: #c9d1d9;
             font-size: 10px;
-            white-space: nowrap;
+            overflow-wrap: break-word;
         }
         .day-cell .stock-name.resonance-name {
             color: #d29922;
@@ -231,6 +234,8 @@
         .day-cell .stock-amount {
             font-weight: 500;
             font-size: 10px;
+            max-width: 100%;
+            overflow-wrap: break-word;
         }
         .day-cell .stock-amount.up { color: #f85149; }
         .day-cell .stock-amount.down { color: #3fb950; }
@@ -276,7 +281,7 @@
             align-items: center;
             gap: 2px;
             font-size: 10px;
-            white-space: nowrap;
+            overflow-wrap: break-word;
             color: #c9d1d9;
         }
         .day-cell .stock-chip.buy-chip {
@@ -529,11 +534,11 @@
     }
     #day-detail-panel .detail-item .detail-name {
         color: #c9d1d9;
-        white-space: nowrap;
+        overflow-wrap: break-word;
     }
     #day-detail-panel .detail-item .detail-amount {
         font-weight: 600;
-        white-space: nowrap;
+        overflow-wrap: break-word;
     }
 
 
