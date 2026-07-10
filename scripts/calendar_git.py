@@ -25,6 +25,22 @@ FORCED_BRANCH = "calendar-pages"  # 唯一允许的推送分支
 GIT_EMAIL = "afoxli@coze.email"
 GIT_NAME = "afoxli"
 TOKEN = os.environ.get("GITHUB_TOKEN", "")
+if not TOKEN:
+    # 尝试从SECRET.md读取
+    _secret_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "SECRET.md")
+    if not os.path.isfile(_secret_path):
+        _secret_path = "/app/data/所有对话/主对话/SECRET.md"
+    try:
+        with open(_secret_path, "r", encoding="utf-8") as _f:
+            for _line in _f:
+                if "GITHUB_TOKEN_ah_quant999" in _line:
+                    import re as _re
+                    _m = _re.search(r'ghp_[A-Za-z0-9]+', _line)
+                    if _m:
+                        TOKEN = _m.group(0)
+                        break
+    except Exception:
+        pass
 REPO = "ah-quant999/northbound-calendar"
 
 
