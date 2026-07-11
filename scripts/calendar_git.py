@@ -85,14 +85,43 @@ def _ensure_branch(repo_path: str) -> bool:
     return True
 
 
+def calendar_git_clone(repo_path: str) -> bool:
+    """
+    如果仓库不存在则自动 clone。
+    只从 calendar-pages 分支 clone，避免拉取无关历史。
+    """
+    if os.path.isdir(os.path.join(repo_path, ".git")):
+        return True  # 仓库已存在
+
+    print(f"📦 仓库不存在，自动 clone → {repo_path}")
+    parent = os.path.dirname(repo_path.rstrip("/"))
+    os.makedirs(parent, exist_ok=True)
+
+    remote_url = f"https://{TOKEN}@github.com/{REPO}.git"
+    result = subprocess.run(
+        ["git", "clone", "--single-branch", "-b", FORCED_BRANCH, remote_url, repo_path],
+        capture_output=True, text=True, timeout=120,
+    )
+    if result.returncode != 0:
+        print(f"❌ Clone 失败: {result.stderr.strip()}")
+        return False
+
+    print(f"✅ Clone 成功: {REPO} → {FORCED_BRANCH}")
+    # 配置身份
+    _run_git(["config", "user.email", GIT_EMAIL], repo_path, timeout=10)
+    _run_git(["config", "user.name", GIT_NAME], repo_path, timeout=10)
+    return True
+
+
 def calendar_git_setup(repo_path: str) -> bool:
     """
     初始化 git 配置并强制切换到 calendar-pages 分支。
     所有日历脚本在执行 git 操作前必须调用此函数。
+    自动处理仓库不存在的情况（clone）。
     """
-    if not os.path.isdir(repo_path):
-        print(f"❌ 仓库路径不存在: {repo_path}")
-        return False
+    if not os.path.isdir(repo_path) or not os.path.isdir(os.path.join(repo_path, ".git")):
+        if not calendar_git_clone(repo_path):
+            return False
 
     # 配置 git 身份
     _run_git(["config", "user.email", GIT_EMAIL], repo_path, timeout=10)

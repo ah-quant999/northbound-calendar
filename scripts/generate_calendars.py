@@ -288,6 +288,11 @@ def get_earnings_deadlines(year, month):
     events = []
     if year == 2026 and month == 7:
         events.append({
+            'day': 10,
+            'cls': 'tw-stock',
+            'text': '🇹🇼 台股休市（台风巴威全天停牌）'
+        })
+        events.append({
             'day': 15,
             'cls': 'earn-end',
             'text': '🇨🇳 A股半年报预告强制截止日（净利润大幅变动/亏损企业须发布预告）'

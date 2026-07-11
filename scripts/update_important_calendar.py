@@ -13,14 +13,14 @@
 import asyncio
 import os
 import shutil
-import subprocess
 import sys
 from codeact_sdk import CodeActSDK
+from calendar_git import calendar_git_setup, calendar_git_push, calendar_git_pull
 
 # ==================== 常量配置 ====================
 
 # 日历生成脚本路径
-GENERATE_SCRIPT = "/app/data/所有对话/主对话/generate_calendars.py"
+GENERATE_SCRIPT = "/app/data/所有对话/主对话/codeact/scripts/generate_calendars.py"
 # 日历输出目录
 CALENDAR_OUTPUT_DIR = "/app/data/所有对话/主对话/重要日历"
 # Git仓库本地目录
