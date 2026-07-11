@@ -11,6 +11,7 @@ import argparse
 import calendar
 import json
 import os
+import sys
 from datetime import datetime, date, timedelta
 
 # ==================== 工具函数 ====================
@@ -1761,6 +1762,12 @@ def generate_month_html(year, month, today_date=None):
 
 
 def main():
+    # 拦截 CodeAct 传入的 result_mode 位置参数
+    # CodeAct 调用时会把 result_mode（如 display_only）作为第一个位置参数传入
+    _valid_modes = {"display_only", "notify", "auto", "no_reply"}
+    if len(sys.argv) > 1 and sys.argv[1] in _valid_modes:
+        sys.argv.pop(1)
+
     parser = argparse.ArgumentParser(description='生成重要日历HTML文件')
     parser.add_argument('--start-year', type=int, default=2026, help='起始年份')
     parser.add_argument('--start-month', type=int, default=6, help='起始月份')

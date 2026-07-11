@@ -17,6 +17,7 @@
 """
 
 import os
+import shutil
 import subprocess
 from datetime import datetime
 
@@ -92,6 +93,11 @@ def calendar_git_clone(repo_path: str) -> bool:
     """
     if os.path.isdir(os.path.join(repo_path, ".git")):
         return True  # 仓库已存在
+
+    # 如果目录存在但.git缺失（上次clone残留），先清理
+    if os.path.isdir(repo_path):
+        print(f"⚠️ 目录存在但.git缺失，清理残留: {repo_path}")
+        shutil.rmtree(repo_path)
 
     print(f"📦 仓库不存在，自动 clone → {repo_path}")
     parent = os.path.dirname(repo_path.rstrip("/"))

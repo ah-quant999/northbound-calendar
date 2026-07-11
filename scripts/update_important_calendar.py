@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 每月1号自动运行：重新生成重要日历HTML文件（19个月），
-复制到GitHub仓库 northbound-calendar 并git commit + push。
+复制到GitHub仓库 northbound-calendar 并通过 calendar_git 安全模块推送到 calendar-pages 分支。
 
 用法:
     python update_important_calendar.py [result_mode]
@@ -13,6 +13,7 @@
 import asyncio
 import os
 import shutil
+import subprocess
 import sys
 from codeact_sdk import CodeActSDK
 from calendar_git import calendar_git_setup, calendar_git_push, calendar_git_pull
@@ -35,7 +36,7 @@ CALENDAR_FILES = [
 
 
 def run_cmd(cmd: list[str], cwd: str | None = None, timeout: int = 120) -> str:
-    """执行系统命令，返回stdout，失败时抛异常"""
+    """执行系统命令（仅用于 python3 等非 git 命令），返回stdout，失败时抛异常"""
     result = subprocess.run(
         cmd,
         capture_output=True,
@@ -60,6 +61,12 @@ async def main():
     sdk = CodeActSDK()
 
     try:
+        # ========== Step 0: Git 初始化（自动clone + 分支校验） ==========
+        print("\n[Step 0] calendar_git 初始化（自动clone + 分支强制校验）...")
+        if not calendar_git_setup(GIT_REPO_DIR):
+            raise RuntimeError("calendar_git_setup 失败：无法初始化仓库或切换到 calendar-pages 分支")
+        print("✅ Git 初始化完成，已确认在 calendar-pages 分支")
+
         # ========== Step 1: 生成最新日历HTML ==========
         print("\n[Step 1] 运行 generate_calendars.py 生成最新日历文件...")
         stdout = run_cmd(
@@ -82,9 +89,9 @@ async def main():
         print(f"✅ 所有 {len(CALENDAR_FILES)} 个日历文件已生成")
 
         # ========== Step 2: Git Pull ==========
-        print("\n[Step 2] git pull 确保仓库最新...")
-        pull_out = run_cmd(["git", "pull", "--ff-only"], cwd=GIT_REPO_DIR, timeout=60)
-        print(pull_out)
+        print("\n[Step 2] 通过 calendar_git_pull 拉取最新...")
+        if not calendar_git_pull(GIT_REPO_DIR):
+            print("⚠️ Git pull 失败，继续尝试推送")
 
         # ========== Step 3: 复制文件到仓库 ==========
         print("\n[Step 3] 复制日历文件到Git仓库...")
@@ -96,46 +103,23 @@ async def main():
             copied += 1
         print(f"✅ 已复制 {copied} 个文件到 {GIT_REPO_DIR}")
 
-        # ========== Step 4: Git Add + Commit + Push ==========
-        print("\n[Step 4] git add + commit + push...")
-
-        # git add
-        add_out = run_cmd(["git", "add", *CALENDAR_FILES], cwd=GIT_REPO_DIR, timeout=30)
-        print(f"git add: {add_out}")
-
-        # 检查是否有变更
-        status_out = run_cmd(["git", "status", "--porcelain"], cwd=GIT_REPO_DIR, timeout=30)
-        if not status_out:
-            print("⚠️ 没有文件变更，跳过commit和push")
-            await sdk.submit_result(
-                result_mode=actual_mode,
-                status="success",
-                message="重要日历更新完成：无文件变更，无需提交",
-                data={"action": "no_changes", "file_count": copied},
-            )
-            return
-
-        # git commit
+        # ========== Step 4: Git Add + Commit + Push (通过 calendar_git 安全模块) ==========
         from datetime import datetime
         today = datetime.now()
         commit_msg = f"chore: 更新重要日历 ({today.strftime('%Y年%m月')})"
-        commit_out = run_cmd(
-            ["git", "commit", "-m", commit_msg],
-            cwd=GIT_REPO_DIR,
-            timeout=30,
-        )
-        print(commit_out)
+        print(f"\n[Step 4] 通过 calendar_git_push 推送（分支强制校验）...")
+        print(f"  commit_msg: {commit_msg}")
+        print(f"  files: {len(CALENDAR_FILES)} 个")
 
-        # git push
-        print("\n[Step 5] git push...")
-        push_out = run_cmd(["git", "push"], cwd=GIT_REPO_DIR, timeout=120)
-        print(push_out)
+        if not calendar_git_push(GIT_REPO_DIR, CALENDAR_FILES, commit_msg):
+            raise RuntimeError("calendar_git_push 失败：推送被拒绝")
 
         # ========== 提交结果 ==========
         summary = (
             f"重要日历更新完成\n"
             f"- 生成并推送 {copied} 个日历文件（2026年6月~2027年12月）\n"
             f"- 提交信息: {commit_msg}\n"
+            f"- 通过calendar_git安全模块推送到calendar-pages分支\n"
             f"- GitHub仓库: https://github.com/ah-quant999/northbound-calendar"
         )
         print(f"\n{summary}")
@@ -161,6 +145,5 @@ async def main():
             message=error_msg,
             data={"error_type": type(e).__name__},
         )
-
 
 asyncio.run(main())
