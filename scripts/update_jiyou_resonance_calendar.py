@@ -35,6 +35,36 @@ TOOL_SCHEMA_VERSIONS = {
     "file_to_url": "v1_fe3416acf3d7b53b",
 }
 
+# A股法定假日集合（落在工作日的休市日，周末已被rrule排除）
+# 来源：上海证券交易所2026年休市安排
+# https://www.sse.com.cn/disclosure/dealinstruc/closed
+A_STOCK_HOLIDAYS_2026 = {
+    # 元旦：1月1日-3日（1日周四、2日周五、3日周六工作日部分）
+    "2026-01-01", "2026-01-02", "2026-01-03",
+    # 春节：2月15日-23日（16日周一~20日周五、23日周一）
+    "2026-02-16", "2026-02-17", "2026-02-18", "2026-02-19", "2026-02-20",
+    "2026-02-23",
+    # 清明节：4月4日-6日（6日周一）
+    "2026-04-06",
+    # 劳动节：5月1日-5日（1日周五、4日周一、5日周二）
+    "2026-05-01", "2026-05-04", "2026-05-05",
+    # 端午节：6月19日-21日（19日周五）
+    "2026-06-19",
+    # 中秋节：9月25日-27日（25日周五）
+    "2026-09-25",
+    # 国庆节：10月1日-7日（1日周四~7日周三）
+    "2026-10-01", "2026-10-02", "2026-10-05", "2026-10-06", "2026-10-07",
+}
+
+# 补充：港股独立休市日（北向通道关闭，但A股正常交易）
+HK_HOLIDAYS_2026 = {
+    "2026-07-01",  # 香港回归纪念日
+}
+
+def is_a_stock_holiday(date_str: str) -> bool:
+    """判断是否为A股休市日（法定假日落在工作日）"""
+    return date_str in A_STOCK_HOLIDAYS_2026 or date_str in HK_HOLIDAYS_2026
+
 # 数据库路径
 STATE_DB = "./codeact/output/jiyou_resonance_state.db"
 
@@ -615,6 +645,16 @@ async def main():
             print(f"📅 {target_date} 是周末，休市")
             await sdk.submit_result(
                 message=f"[{target_date}] 周末休市，无龙虎榜数据",
+                result_mode="no_reply",
+                status="success",
+            )
+            return
+
+        # 检查是否为A股法定假日（落在工作日的假期）
+        if is_a_stock_holiday(target_date):
+            print(f"🏛️ {target_date} 是A股法定假日，休市")
+            await sdk.submit_result(
+                message=f"[{target_date}] A股法定假日休市，无龙虎榜数据",
                 result_mode="no_reply",
                 status="success",
             )
