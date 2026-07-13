@@ -498,6 +498,9 @@ def git_push(repo_path: str, file_name: str, date: str) -> bool:
         src = html_path
         dst = os.path.join(repo_path, file_name)
         shutil.copy2(src, dst)
+        # 同时复制为 index.html 供 GitHub Pages 首页使用
+        shutil.copy2(src, os.path.join(repo_path, "index.html"))
+        print(f"📄 已复制到仓库: {os.path.join(repo_path, "index.html")}")
         print(f"📄 已复制到仓库: {dst}")
 
         # 委托共享模块推送
