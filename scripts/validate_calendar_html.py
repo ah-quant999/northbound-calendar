@@ -54,7 +54,7 @@ JUNE_LABELS = [
     ("第2周 6/8-6/14",   [13, 14]),
     ("第3周 6/15-6/21",  list(range(15, 22))),
     ("第4周 6/22-6/28",  list(range(22, 29))),
-    ("第5周 6/29-6/30",  [29, 30, 1, 2, 3, 4, 5]),
+    ("第5周 6/29-7/5",   [29, 30, 1, 2, 3, 4, 5]),
 ]
 
 TOP_LABEL_PATTERN = r'<div style="text-align:left;font-size:12px;color:#8b949e;margin:-15px 0 25px 5px;">%s</div>'
@@ -77,6 +77,38 @@ def check_file(filepath):
 
     file_errors = []
     file_warnings = []
+
+    # 0. 检查6月区标签 + 日期对应
+    for label_text, expected_dates in JUNE_LABELS:
+        label_pattern = TOP_LABEL_PATTERN % re.escape(label_text)
+        match = re.search(label_pattern, content)
+        if not match:
+            file_errors.append(f"缺少6月区顶部标签: 「{label_text}」")
+            continue
+
+        # 找到标签后的第一个week-table
+        table = re.search(
+            r'<table[^>]*class="week-table"[^>]*>.*?</table>',
+            content[match.end():], re.DOTALL
+        )
+        if not table:
+            file_errors.append(f"标签「{label_text}」后未找到表格")
+            continue
+
+        day_numbers = re.findall(
+            r'<span class="day-number(?: other)?">(\d+)</span>',
+            table.group(0)
+        )
+        actual_dates = [int(d) for d in day_numbers]
+
+        if actual_dates != expected_dates:
+            file_errors.append(
+                f"标签「{label_text}」日期不匹配\n"
+                f"        预期: {expected_dates}\n"
+                f"        实际: {actual_dates}"
+            )
+        else:
+            print(f"  ✅ {label_text} → 日期 {actual_dates}")
 
     # 1. 检查7月区标签 + 日期对应
     for label_text, expected_dates in spec["july_labels"]:
