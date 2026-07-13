@@ -737,7 +737,7 @@ async def main():
                 return None
 
         sem = asyncio.Semaphore(3)
-        tasks = [fetch_and_extract(r, sem) for r in search_results[:5]]
+        tasks = [fetch_and_extract(r, sem) for r in search_results[:15]]
         task_results = await asyncio.gather(*tasks, return_exceptions=True)
 
         for r in task_results:
@@ -756,8 +756,8 @@ async def main():
             )
             return
 
-        best_data = all_data[0]
-        print(f"✅ 获取到数据: 机构TOP5 {len(best_data.institution_top5)} 只, 游资 {len(best_data.youzi_items)} 条, 共振 {len(best_data.resonance)} 个")
+        best_data = max(all_data, key=lambda d: len(d.institution_top5) * 3 + len(d.youzi_items) + len(d.resonance) * 2)
+        print(f"✅ 获取到数据: 机构TOP5 {len(best_data.institution_top5)} 只, 游资 {len(best_data.youzi_items)} 条, 共振 {len(best_data.resonance)} 个（从{len(all_data)}个来源中选择最佳）")
 
         # 更新HTML
         print("📝 正在更新HTML文件...")
