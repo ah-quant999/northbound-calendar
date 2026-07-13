@@ -404,25 +404,25 @@ def build_day_cell_html(data: DailyData) -> str:
     # 1. 机构净买入TOP5 - 横向流式，共振股票标★
     if data.institution_top5:
         lines.append(f'                        <div class="section-title">▲ 机构净买入</div>')
-        lines.append(f'                        <div class="stock-flow">')
+        lines.append(f'                        <div class="stock-row">')
         for stock in data.institution_top5[:5]:
             amount_str = f"+{format_amount(stock.amount)}"
             if stock.name in resonance_names:
-                lines.append(f'                            <span class="stock-chip resonance-chip">★{stock.name} {amount_str}</span>')
+                lines.append(f'                            <span class="stock-item"><span class="stock-icon resonance">★</span><span class="stock-name">{stock.name}</span><span class="stock-amount resonance-amount">{amount_str}</span></span>')
             else:
-                lines.append(f'                            <span class="stock-chip buy-chip">▲{stock.name} {amount_str}</span>')
+                lines.append(f'                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">{stock.name}</span><span class="stock-amount up">{amount_str}</span></span>')
         lines.append(f'                        </div>')
 
     # 2. 机游共振详情（仅显示共振金额细节，不重复股票名）
     if data.resonance:
         lines.append(f'                        <div class="section-title resonance-title">★ 机游共振</div>')
-        lines.append(f'                        <div class="stock-flow">')
+        lines.append(f'                        <div class="stock-row">')
         for res in data.resonance:
             detail_str = " ".join(res.youzi_items) if res.youzi_items else ""
             if detail_str:
-                lines.append(f'                            <span class="stock-chip resonance-detail-chip">★{res.stock_name} {detail_str}</span>')
+                lines.append(f'                            <span class="stock-item"><span class="stock-icon resonance">★</span><span class="stock-name">{res.stock_name} {detail_str}</span></span>')
             else:
-                lines.append(f'                            <span class="stock-chip resonance-detail-chip">★{res.stock_name}</span>')
+                lines.append(f'                            <span class="stock-item"><span class="stock-icon resonance">★</span><span class="stock-name">{res.stock_name}</span></span>')
         lines.append(f'                        </div>')
 
     # 3. 游资席位（红买绿卖，横向流式）
@@ -432,28 +432,28 @@ def build_day_cell_html(data: DailyData) -> str:
         
         if buys:
             lines.append(f'                        <div class="section-title youzi-title">▲ 游资买入</div>')
-            lines.append(f'                        <div class="stock-flow">')
+            lines.append(f'                        <div class="stock-row">')
             for yz in buys[:4]:
                 display_name = yz.name
                 if yz.stock and yz.stock not in yz.name:
                     display_name = f"{yz.stock} {yz.name}"
                 amount_str = f"+{format_amount(yz.amount)}"
-                lines.append(f'                            <span class="stock-chip buy-chip">▲{display_name} {amount_str}</span>')
+                lines.append(f'                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">{display_name}</span><span class="stock-amount up">{amount_str}</span></span>')
             lines.append(f'                        </div>')
         
         if sells:
             lines.append(f'                        <div class="section-title youzi-sell-title">▼ 游资卖出</div>')
-            lines.append(f'                        <div class="stock-flow">')
+            lines.append(f'                        <div class="stock-row">')
             for yz in sells[:4]:
                 display_name = yz.name
                 if yz.stock and yz.stock not in yz.name:
                     display_name = f"{yz.stock} {yz.name}"
                 amount_str = f"-{format_amount(abs(yz.amount))}"
-                lines.append(f'                            <span class="stock-chip sell-chip">▼{display_name} {amount_str}</span>')
+                lines.append(f'                            <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">{display_name}</span><span class="stock-amount down">{amount_str}</span></span>')
             lines.append(f'                        </div>')
     else:
         lines.append(f'                        <div class="section-title">▼ 游资席位动向</div>')
-        lines.append(f'                        <div class="stock-flow"><span class="stock-chip" style="color:#6e7681;">暂无数据</span></div>')
+        lines.append(f'                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">暂无数据</span></span></div>')
 
     lines.append(f'                    </div>')
     lines.append(f'                </div>')
