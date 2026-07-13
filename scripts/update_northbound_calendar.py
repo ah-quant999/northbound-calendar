@@ -406,46 +406,7 @@ def update_html(html_path: str, data: DailyData) -> bool:
         html,
     )
 
-    # 查找所有包含目标 day-number 的 td 标签
-    # 遍历所有匹配，找到月份注释匹配的那个
-    all_matches = list(re.finditer(
-        rf'(<td[^>]*>)\s*<div class="day-cell">.*?<span class="day-number">\s*{day}\s*</span>.*?</div>\s*</td>',
-        html,
-        re.DOTALL,
-    ))
 
-    if not all_matches:
-        # 尝试更宽松的匹配
-        all_matches = list(re.finditer(
-            rf'(<td[^>]*>)\s*<div class="day-cell">.*?<span class="day-number">\s*{day}\s*</span>.*?</div>\s*</div>\s*</td>',
-            html,
-            re.DOTALL,
-        ))
-
-    if all_matches:
-        # 找到月份匹配的单元格
-        target_match = None
-        for m in all_matches:
-            # 检查该单元格前的注释，匹配月份
-            before = html[max(0, m.start() - 200):m.start()]
-            # 找注释中的月份，如 <!-- 7/9 周四 --> 或 <!-- 6/9 周二 -->
-            date_comment = re.search(r'<!--\s*(\d+)/(\d+)\s', before)
-            if date_comment:
-                cell_month = int(date_comment.group(1))
-                cell_day = int(date_comment.group(2))
-                if cell_month == month and cell_day == day:
-                    target_match = m
-                    print(f"✅ 按注释匹配: {cell_month}/{cell_day} → 目标 {month}/{day}")
-                    break
-            else:
-                # 没有注释，可能是第一个月（跨月起始），也匹配
-                if not target_match:
-                    target_match = m
-
-        # 如果没找到按月份的匹配，就退回到第一个匹配（兼容旧版无注释HTML）
-        if not target_match and all_matches:
-            target_match = all_matches[0]
-            print("⚠️ 未找到月份注释，使用第一个匹配")
 
         if target_match:
             td_open = target_match.group(1)

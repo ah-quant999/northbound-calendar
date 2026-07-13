@@ -485,40 +485,7 @@ def update_html(html_path: str, data: DailyData) -> bool:
         html,
     )
 
-    # 查找所有包含目标 day-number 的 td 标签，按月份+日期精确匹配
-    all_matches = list(re.finditer(
-        rf'(<td[^>]*>)\s*<div class="day-cell">.*?<span class="day-number">\s*{day}\s*</span>.*?</div>\s*</td>',
-        html,
-        re.DOTALL,
-    ))
 
-    if not all_matches:
-        all_matches = list(re.finditer(
-            rf'(<td[^>]*>)\s*<div class="day-cell">.*?<span class="day-number">\s*{day}\s*</span>.*?</div>\s*</div>\s*</td>',
-            html,
-            re.DOTALL,
-        ))
-
-    if all_matches:
-        # 找到月份匹配的单元格
-        target_match = None
-        for m in all_matches:
-            before = html[max(0, m.start() - 200):m.start()]
-            date_comment = re.search(r'<!--\s*(\d+)/(\d+)\s', before)
-            if date_comment:
-                cell_month = int(date_comment.group(1))
-                cell_day = int(date_comment.group(2))
-                if cell_month == month and cell_day == day:
-                    target_match = m
-                    print(f"✅ 按注释匹配: {cell_month}/{cell_day} → 目标 {month}/{day}")
-                    break
-            else:
-                if not target_match:
-                    target_match = m
-
-        if not target_match and all_matches:
-            target_match = all_matches[0]
-            print("⚠️ 未找到月份注释，使用第一个匹配")
 
         if target_match:
             td_open = target_match.group(1)
