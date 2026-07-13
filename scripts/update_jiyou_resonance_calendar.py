@@ -575,6 +575,22 @@ def git_push(repo_path: str, file_name: str, date: str) -> bool:
         print(f"📄 已复制到仓库: {os.path.join(repo_path, "index.html")}")
         print(f"📄 已复制到仓库: {dst}")
 
+        # 部署前验证
+        validate_script = os.path.join(repo_path, "scripts", "validate_calendar_html.py")
+        if os.path.exists(validate_script):
+            import subprocess
+            result = subprocess.run(
+                [sys.executable, validate_script, dst],
+                capture_output=True, text=True, timeout=30
+            )
+            print(result.stdout)
+            if result.returncode != 0:
+                print(f"❌ 验证未通过，取消部署: {result.stderr}")
+                return False
+            print("✅ 验证通过，继续部署")
+        else:
+            print("⚠️ 未找到验证脚本，跳过验证")
+
         # 委托共享模块推送
         return calendar_git_push(
             repo_path,
