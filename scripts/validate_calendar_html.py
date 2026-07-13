@@ -51,13 +51,7 @@ CALENDAR_SPECS = {
     },
 }
 
-# 6月区通用预期（所有日历基本一致）
-JUNE_LABELS = [
-    ("第2周 6/8-6/14",   [13, 14]),
-    ("第3周 6/15-6/21",  list(range(15, 22))),
-    ("第4周 6/22-6/28",  list(range(22, 29))),
-    ("第5周 6/29-7/5",   [29, 30, 1, 2, 3, 4, 5]),
-]
+# 6月区已清空，JUNE_LABELS已移除
 
 TOP_LABEL_PATTERN = r'<div style="text-align:left;font-size:12px;color:#8b949e;margin:-15px 0 25px 5px;">%s</div>'
 

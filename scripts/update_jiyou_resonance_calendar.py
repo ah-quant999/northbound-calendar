@@ -62,8 +62,10 @@ HK_HOLIDAYS_2026 = {
 }
 
 def is_a_stock_holiday(date_str: str) -> bool:
-    """判断是否为A股休市日（法定假日落在工作日）"""
-    return date_str in A_STOCK_HOLIDAYS_2026 or date_str in HK_HOLIDAYS_2026
+    """判断是否为A股休市日（法定假日落在工作日）
+    注意：港股独立休市日（如7/1香港回归）A股照常交易，不影响机游共振日历
+    """
+    return date_str in A_STOCK_HOLIDAYS_2026
 
 # 数据库路径
 STATE_DB = "./codeact/output/jiyou_resonance_state.db"
@@ -505,16 +507,17 @@ def update_html(html_path: str, data: DailyData) -> bool:
     section_html = html[section_start:section_end]
 
     # 在月份区域内查找目标日期的单元格
+    # 支持多种格式：day-header包裹、empty-content等
     all_matches = list(re.finditer(
-        rf'(<td[^>]*>)\s*<div class="day-cell">.*?<span class="day-number">\s*{day}\s*</span>.*?</div>\s*</td>',
+        rf'(<td[^>]*>)\s*<div class="day-cell">.*?<span class="day-number">\s*{day}\s*</span>.*?</div>\s*</div>\s*</td>',
         section_html,
         re.DOTALL,
     ))
 
     if not all_matches:
-        # 尝试更宽松的匹配
+        # 更宽松匹配：只匹配到第一个</div>（兼容旧格式）
         all_matches = list(re.finditer(
-            rf'(<td[^>]*>)\s*<div class="day-cell">.*?<span class="day-number">\s*{day}\s*</span>.*?</div>\s*</div>\s*</td>',
+            rf'(<td[^>]*>)\s*<div class="day-cell">.*?<span class="day-number">\s*{day}\s*</span>.*?</div>\s*</td>',
             section_html,
             re.DOTALL,
         ))
