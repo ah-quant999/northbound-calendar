@@ -406,19 +406,50 @@ def update_html(html_path: str, data: DailyData) -> bool:
         html,
     )
 
+    # 先找到正确的月份区域，再在该区域内查找目标日期单元格
+    # 防止跨月匹配（正则的 .*? 会跨td匹配）
+    month_section_pattern = rf'<div class="month-section[^"]*" id="month-{month}"'
+    month_section_match = re.search(month_section_pattern, html)
+    if not month_section_match:
+        print(f"⚠️ 未找到月份 {month} 的区域")
+        return False
 
-
-        if target_match:
-            td_open = target_match.group(1)
-            new_html = f'{td_open}\n{new_cell_html}\n                    </td>'
-            # 只替换这一个匹配
-            html = html[:target_match.start()] + new_html + html[target_match.end():]
-            print(f"✅ 更新了 {month}月{day}日 的单元格")
-        else:
-            print(f"⚠️ 未找到 {month}月{day}日 的匹配单元格")
-            return False
+    # 从月份区域开始搜索
+    section_start = month_section_match.start()
+    # 找到该月份区域的结束
+    next_section = re.search(r'<div class="month-section', html[section_start + 1:])
+    if next_section:
+        section_end = section_start + 1 + next_section.start()
     else:
-        print(f"⚠️ 未找到日期 {day} 日的单元格")
+        section_end = len(html)
+
+    section_html = html[section_start:section_end]
+
+    # 在月份区域内查找目标日期的单元格
+    all_matches = list(re.finditer(
+        rf'(<td[^>]*>)\s*<div class="day-cell">.*?<span class="day-number">\s*{day}\s*</span>.*?</div>\s*</td>',
+        section_html,
+        re.DOTALL,
+    ))
+
+    if not all_matches:
+        # 尝试更宽松的匹配
+        all_matches = list(re.finditer(
+            rf'(<td[^>]*>)\s*<div class="day-cell">.*?<span class="day-number">\s*{day}\s*</span>.*?</div>\s*</div>\s*</td>',
+            section_html,
+            re.DOTALL,
+        ))
+
+    if all_matches:
+        target_match = all_matches[0]
+        td_open = target_match.group(1)
+        abs_start = section_start + target_match.start()
+        abs_end = section_start + target_match.end()
+        new_html = f'{td_open}\n{new_cell_html}\n                    </td>'
+        html = html[:abs_start] + new_html + html[abs_end:]
+        print(f"✅ 更新了 {month}月{day}日 的单元格")
+    else:
+        print(f"⚠️ 未找到 {month}月{day}日 的匹配单元格")
         return False
 
     # 更新生成日期
@@ -436,9 +467,6 @@ def update_html(html_path: str, data: DailyData) -> bool:
     except Exception as e:
         print(f"写入HTML文件失败: {e}")
         return False
-
-
-# ========== Git操作（委托给 calendar_git 模块，强制 calendar-pages 分支） ==========
 
 def git_pull(repo_path: str) -> bool:
     """拉取GitHub最新代码"""
