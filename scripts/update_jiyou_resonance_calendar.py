@@ -522,6 +522,35 @@ def update_html(html_path: str, data: DailyData) -> bool:
             re.DOTALL,
         ))
 
+    # 回退：月末日期可能出现在下月第一周表（如6/29在7月第1周）
+    if not all_matches:
+        print(f"⚠️ 在 month-{month} 中未找到 {day}日，尝试回退到 month-{month+1}...")
+        fallback_pattern = rf'<div class="month-section[^"]*" id="month-{month+1}"'
+        fallback_match = re.search(fallback_pattern, html)
+        if fallback_match:
+            fb_start = fallback_match.start()
+            fb_next = re.search(r'<div class="month-section', html[fb_start + 1:])
+            if fb_next:
+                fb_end = fb_start + 1 + fb_next.start()
+            else:
+                fb_end = len(html)
+            fb_section_html = html[fb_start:fb_end]
+            all_matches = list(re.finditer(
+                rf'(<td[^>]*>)\s*<div class="day-cell">((?!</td>).)*?<span class="day-number">\s*{day}\s*</span>((?!</td>).)*?</div>\s*</div>\s*</td>',
+                fb_section_html,
+                re.DOTALL,
+            ))
+            if not all_matches:
+                all_matches = list(re.finditer(
+                    rf'(<td[^>]*>)\s*<div class="day-cell">((?!</td>).)*?<span class="day-number">\s*{day}\s*</span>((?!</td>).)*?</div>\s*</td>',
+                    fb_section_html,
+                    re.DOTALL,
+                ))
+            if all_matches:
+                section_start = fb_start
+                section_html = fb_section_html
+                print(f"✅ 在 month-{month+1} 中找到 {day}日")
+
     if all_matches:
         target_match = all_matches[0]
         td_open = target_match.group(1)
