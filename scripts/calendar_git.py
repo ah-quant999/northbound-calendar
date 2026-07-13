@@ -174,8 +174,12 @@ def calendar_git_push(repo_path: str, files: list, commit_msg: str) -> bool:
         print(f"❌ 安全检查失败! 当前分支={current}, 只允许推送到 {FORCED_BRANCH}")
         return False
 
-    # git add
+    # git add（先检查文件是否存在，防止漏复制）
     for f in files:
+        fpath = os.path.join(repo_path, f)
+        if not os.path.exists(fpath):
+            print(f"❌ 文件不存在，拒绝推送: {fpath}")
+            return False
         _run_git(["add", f], repo_path, timeout=10)
 
     # git commit
