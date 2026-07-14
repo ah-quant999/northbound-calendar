@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
 """
-机游共振日历自动更新脚本
-功能：每天17:35自动搜索当日龙虎榜机构+游资数据，更新HTML文件并推送到GitHub
+机游共振日历自动更新脚本（东方财富官方API版）
+
+数据来源：
+- 机构买卖：https://datacenter-web.eastmoney.com/api/data/v1/get
+  reportName=RPT_ORGANIZATION_TRADE_DETAILSNEW
+- 营业部明细：https://datacenter-web.eastmoney.com/api/data/v1/get
+  reportName=RPT_OPERATEDEPT_TRADE_DETAILSNEW
 
 参数：
-  --html_path: HTML文件路径 (默认: /app/data/所有对话/主对话/机游共振日历.html)
-  --repo_path: Git仓库路径 (默认: /tmp/nb-calendar/)
+  --html_path: HTML文件路径
+  --repo_path: Git仓库路径
   --force: 强制更新，忽略状态检查
   --date: 指定日期 (格式: YYYY-MM-DD, 默认: 今天)
   --result_mode: 结果模式 (默认: auto)
-
-result_mode: auto
 """
 
 import asyncio
@@ -22,7 +25,9 @@ import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
 from typing import Optional, List, Dict, Any
+from collections import defaultdict
 
+import requests
 from codeact_sdk import CodeActSDK
 from pydantic import BaseModel, Field
 
@@ -35,44 +40,75 @@ TOOL_SCHEMA_VERSIONS = {
     "file_to_url": "v1_fe3416acf3d7b53b",
 }
 
-# A股法定假日集合（落在工作日的休市日，周末已被rrule排除）
-# 来源：上海证券交易所2026年休市安排
-# https://www.sse.com.cn/disclosure/dealinstruc/closed
+# ========== 配置区 ==========
+
+# 东方财富API基础配置
+EASTMONEY_API_BASE = "https://datacenter-web.eastmoney.com/api/data/v1/get"
+EASTMONEY_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Referer": "https://data.eastmoney.com/",
+    "Accept": "application/json, text/plain, */*",
+}
+
+# 机构买卖报表
+REPORT_INSTITUTION = "RPT_ORGANIZATION_TRADE_DETAILSNEW"
+# 营业部交易报表
+REPORT_BRANCH = "RPT_OPERATEDEPT_TRADE_DETAILSNEW"
+
+# 知名游资席位关键词映射（别名 -> 匹配关键词列表）
+# 按游资绰号/流派聚合，同流派多个席位归为同一游资
+YOUZI_GROUPS = {
+    "章盟主": ["章盟主", "国泰君安证券股份有限公司上海江苏路", "国泰君安上海江苏路"],
+    "作手新一": ["作手新一", "国泰君安证券股份有限公司南京太平南路", "南京太平南路"],
+    "T王": ["T王", "华泰证券股份有限公司总部", "华泰总部"],
+    "宁波桑田路": ["宁波桑田路", "国盛证券股份有限公司宁波桑田路", "国盛宁波桑田路"],
+    "杭州帮": ["杭州帮", "杭州上塘路", "财通证券杭州", "中信建投杭州", "浙商证券杭州"],
+    "欢乐海岸": ["欢乐海岸", "中天证券深圳民田路", "中泰证券深圳欢乐海岸"],
+    "中山东路": ["中山东路", "国泰海通证券股份有限公司上海松江区中山东路", "国泰君安上海松江区中山东路"],
+    "方新侠": ["方新侠", "兴业证券股份有限公司陕西分公司", "兴业证券陕西分公司"],
+    "赵老哥": ["赵老哥", "中国银河证券股份有限公司绍兴证券营业部", "银河绍兴", "浙商证券绍兴分公司"],
+    "炒股养家": ["炒股养家", "华鑫证券有限责任公司上海分公司", "华鑫上海分公司", "华鑫证券上海茅台路"],
+    "东北猛男": ["东北猛男", "中天证券股份有限公司深圳民田路", "中信建投证券股份有限公司上海营口路"],
+    "低位挖掘": ["低位挖掘", "东方财富证券股份有限公司拉萨团结路", "东方财富证券拉萨团结路"],
+    "溧阳路": ["溧阳路", "中信证券股份有限公司上海溧阳路", "中信上海溧阳路"],
+    "上塘路": ["上塘路", "财通证券股份有限公司杭州上塘路", "财通杭州上塘路"],
+    "西湖国贸": ["西湖国贸", "华泰证券股份有限公司杭州解放东路", "杭州西湖国贸"],
+    "湖州劳动路": ["湖州劳动路", "浙北金融中心", "华鑫证券股份有限公司湖州劳动路"],
+    "北京中关村": ["北京中关村", "海通证券股份有限公司北京中关村南大街"],
+    "小鳄鱼": ["小鳄鱼", "南京证券股份有限公司南京大钟亭", "中国中投证券有限责任公司南京太平南路"],
+    "著名刺客": ["著名刺客", "刺客", "东莞证券股份有限公司北京分公司", "华泰证券股份有限公司深圳益田路荣超商务中心"],
+    "佛山系": ["佛山系", "光大证券股份有限公司佛山绿景路", "海通证券股份有限公司广州珠江西路"],
+    "益田路": ["益田路荣超", "华泰证券股份有限公司深圳益田路荣超商务中心", "招商证券股份有限公司深圳益田路免税商务大厦"],
+    "拉萨天团": [
+        "东方财富证券股份有限公司拉萨团结路第一",
+        "东方财富证券股份有限公司拉萨团结路第二",
+        "东方财富证券股份有限公司拉萨东环路第一",
+        "东方财富证券股份有限公司拉萨东环路第二",
+        "东方财富证券股份有限公司拉萨金融城南环路",
+        "东方财富证券股份有限公司山南香曲东路",
+    ],
+}
+
+# A股法定假日集合
 A_STOCK_HOLIDAYS_2026 = {
-    # 元旦：1月1日-3日（1日周四、2日周五、3日周六工作日部分）
     "2026-01-01", "2026-01-02", "2026-01-03",
-    # 春节：2月15日-23日（16日周一~20日周五、23日周一）
     "2026-02-16", "2026-02-17", "2026-02-18", "2026-02-19", "2026-02-20",
     "2026-02-23",
-    # 清明节：4月4日-6日（6日周一）
     "2026-04-06",
-    # 劳动节：5月1日-5日（1日周五、4日周一、5日周二）
     "2026-05-01", "2026-05-04", "2026-05-05",
-    # 端午节：6月19日-21日（19日周五）
     "2026-06-19",
-    # 中秋节：9月25日-27日（25日周五）
     "2026-09-25",
-    # 国庆节：10月1日-7日（1日周四~7日周三）
     "2026-10-01", "2026-10-02", "2026-10-05", "2026-10-06", "2026-10-07",
 }
 
-# 补充：港股独立休市日（北向通道关闭，但A股正常交易）
-HK_HOLIDAYS_2026 = {
-    "2026-07-01",  # 香港回归纪念日
-}
-
-def is_a_stock_holiday(date_str: str) -> bool:
-    """判断是否为A股休市日（法定假日落在工作日）
-    注意：港股独立休市日（如7/1香港回归）A股照常交易，不影响机游共振日历
-    """
-    return date_str in A_STOCK_HOLIDAYS_2026
-
-# 数据库路径
+# 状态数据库路径
 STATE_DB = "./codeact/output/jiyou_resonance_state.db"
 
-# GitHub配置 - 统一由 calendar_git 模块管理
-from calendar_git import calendar_git_setup, calendar_git_push, calendar_git_pull, GIT_EMAIL, GIT_NAME, TOKEN, REPO
+# Git 模块
+from calendar_git import calendar_git_setup, calendar_git_push, GIT_EMAIL, GIT_NAME, TOKEN, REPO
 
+
+# ========== 数据模型 ==========
 
 class InstitutionStock(BaseModel):
     """机构席位净买入数据"""
@@ -83,24 +119,28 @@ class InstitutionStock(BaseModel):
 
 class YouziItem(BaseModel):
     """游资席位数据"""
-    name: str = Field(description="席位名称（如：佛山系·华天科技）")
+    name: str = Field(description="游资名称（如：章盟主）")
     amount: float = Field(description="净买入金额(万元)，正数为买入，负数为卖出")
     stock: str = Field(description="关联股票名称", default="")
+    branch_name: str = Field(description="具体营业部名称", default="")
 
 
 class ResonanceItem(BaseModel):
     """共振信号"""
     stock_name: str = Field(description="共振股票名称")
-    youzi_items: List[str] = Field(description="游资席位描述", default_factory=list)
+    youzi_items: List[str] = Field(description="游资名称列表", default_factory=list)
 
 
 class DailyData(BaseModel):
     """单日机游共振数据"""
     date: str = Field(description="日期")
     institution_top5: List[InstitutionStock] = Field(description="机构净买入TOP5", default_factory=list)
-    youzi_items: List[YouziItem] = Field(description="游资席位动向", default_factory=list)
+    institution_sell_top3: List[InstitutionStock] = Field(description="机构净卖出TOP3", default_factory=list)
+    youzi_buy_top5: List[YouziItem] = Field(description="游资净买入TOP5", default_factory=list)
+    youzi_sell_top3: List[YouziItem] = Field(description="游资净卖出TOP3", default_factory=list)
+    youzi_items: List[YouziItem] = Field(description="游资席位动向（兼容旧字段）", default_factory=list)
     resonance: List[ResonanceItem] = Field(description="机游共振信号", default_factory=list)
-    data_source: str = Field(description="数据来源", default="")
+    data_source: str = Field(description="数据来源", default="东方财富龙虎榜官方API")
 
 
 # ========== 状态管理 ==========
@@ -115,11 +155,27 @@ def init_state_db():
             updated_at TEXT NOT NULL,
             data_source TEXT,
             institution_top5 TEXT,
+            institution_sell_top3 TEXT,
             youzi_items TEXT,
+            youzi_buy_top5 TEXT,
+            youzi_sell_top3 TEXT,
             resonance TEXT,
             pushed_at TEXT
         )
     """)
+    # 迁移：旧表可能缺字段
+    try:
+        conn.execute("ALTER TABLE update_history ADD COLUMN institution_sell_top3 TEXT")
+    except Exception:
+        pass
+    try:
+        conn.execute("ALTER TABLE update_history ADD COLUMN youzi_buy_top5 TEXT")
+    except Exception:
+        pass
+    try:
+        conn.execute("ALTER TABLE update_history ADD COLUMN youzi_sell_top3 TEXT")
+    except Exception:
+        pass
     conn.commit()
     conn.close()
 
@@ -132,15 +188,14 @@ def get_last_update(date: str) -> Optional[Dict]:
     row = cursor.fetchone()
     conn.close()
     if row:
-        return {
-            "date": row[0],
-            "updated_at": row[1],
-            "data_source": row[2],
-            "institution_top5": json.loads(row[3]) if row[3] else [],
-            "youzi_items": json.loads(row[4]) if row[4] else [],
-            "resonance": json.loads(row[5]) if row[5] else [],
-            "pushed_at": row[6],
-        }
+        # 兼容旧表结构
+        cols = [desc[0] for desc in cursor.description]
+        data = dict(zip(cols, row))
+        for k in ["institution_top5", "institution_sell_top3", "youzi_items",
+                   "youzi_buy_top5", "youzi_sell_top3", "resonance"]:
+            val = data.get(k)
+            data[k] = json.loads(val) if val else []
+        return data
     return None
 
 
@@ -150,14 +205,18 @@ def save_update(data: DailyData, pushed_at: Optional[str] = None):
     now = datetime.now().isoformat()
     conn.execute("""
         INSERT OR REPLACE INTO update_history
-        (date, updated_at, data_source, institution_top5, youzi_items, resonance, pushed_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        (date, updated_at, data_source, institution_top5, institution_sell_top3,
+         youzi_items, youzi_buy_top5, youzi_sell_top3, resonance, pushed_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         data.date,
         now,
         data.data_source,
         json.dumps([s.model_dump() for s in data.institution_top5], ensure_ascii=False),
+        json.dumps([s.model_dump() for s in data.institution_sell_top3], ensure_ascii=False),
         json.dumps([s.model_dump() for s in data.youzi_items], ensure_ascii=False),
+        json.dumps([s.model_dump() for s in data.youzi_buy_top5], ensure_ascii=False),
+        json.dumps([s.model_dump() for s in data.youzi_sell_top3], ensure_ascii=False),
         json.dumps([s.model_dump() for s in data.resonance], ensure_ascii=False),
         pushed_at or now,
     ))
@@ -165,198 +224,360 @@ def save_update(data: DailyData, pushed_at: Optional[str] = None):
     conn.close()
 
 
-# ========== 数据获取 ==========
+# ========== 东财API数据获取 ==========
 
-def build_publish_time_window(lookback_days: int) -> dict:
-    """构造搜索时间窗口"""
-    tz = timezone(timedelta(hours=8))
-    end = datetime.now(tz)
-    start = end - timedelta(days=lookback_days)
-    return {
-        "start": start.isoformat(timespec="seconds"),
-        "end": end.isoformat(timespec="seconds"),
-    }
+def _safe_num(v) -> float:
+    """安全转数字"""
+    if v is None:
+        return 0.0
+    try:
+        return float(v)
+    except (ValueError, TypeError):
+        return 0.0
 
 
-async def search_data(date: str) -> List[Dict]:
-    """搜索机构+游资龙虎榜数据"""
-    date_obj = datetime.strptime(date, "%Y-%m-%d")
-    month_day = f"{date_obj.month}月{date_obj.day}日"
+def fetch_eastmoney_api(report_name: str, date_str: str,
+                        sort_column: str, sort_type: int = -1,
+                        page_size: int = 200, max_pages: int = 5,
+                        retries: int = 3) -> List[Dict]:
+    """
+    调用东方财富数据中心API获取全量数据（自动翻页）
 
-    # 龙虎榜数据发布较晚（通常在18:00-19:00后），使用更宽的时间窗口
-    # 覆盖多个数据源：东方财富网、证券时报·数据宝、金融界等
-    queries = [
-        f"{month_day} 龙虎榜 机构净买入 排名 数据宝 证券时报",
-        f"{month_day} 龙虎榜 机构专用席位 净买入 top5",
-        f"{month_day} 龙虎榜 游资 机构 席位 买入 详情",
-        f"{month_day} 龙虎榜揭秘 机构净买入 游资动向",
-        f"{month_day} 龙虎榜 机构席位 净买入 top5 东方财富",
-        f"{month_day} 龙虎榜 机构 游资 净买入 金融界",
-    ]
+    Args:
+        report_name: 报表名称
+        date_str: 日期 YYYY-MM-DD
+        sort_column: 排序列名
+        sort_type: -1 降序 / 1 升序
+        page_size: 每页条数
+        max_pages: 最大翻页数
+        retries: 重试次数
 
-    all_results = []
-    for query in queries:
+    Returns:
+        数据列表
+    """
+    all_data = []
+    for attempt in range(retries):
         try:
-            result = await sdk.call_tool(
-                "codeact_search_web",
-                {
-                    "query": query,
-                    "publish_time": build_publish_time_window(lookback_days=7),
-                    "response_length": "medium",
-                },
-                schema_version=TOOL_SCHEMA_VERSIONS["codeact_search_web"],
-            )
-            if result.get("is_success") and result.get("results"):
-                all_results.extend(result["results"])
+            for page in range(1, max_pages + 1):
+                params = {
+                    "sortColumns": sort_column,
+                    "sortTypes": str(sort_type),
+                    "pageSize": str(page_size),
+                    "pageNumber": str(page),
+                    "reportName": report_name,
+                    "columns": "ALL",
+                    "source": "WEB",
+                    "filter": f"(TRADE_DATE='{date_str}')",
+                }
+                resp = requests.get(
+                    EASTMONEY_API_BASE,
+                    params=params,
+                    headers=EASTMONEY_HEADERS,
+                    timeout=15,
+                )
+                resp.raise_for_status()
+                result = resp.json()
+                if not result.get("success") or not result.get("result"):
+                    break
+                data = result["result"].get("data", [])
+                if not data:
+                    break
+                all_data.extend(data)
+                # 判断是否还有下一页
+                count = result["result"].get("count", 0)
+                if page * page_size >= count:
+                    break
+            return all_data
         except Exception as e:
-            print(f"搜索失败: {query}, 错误: {e}")
-
-    # 去重并按来源排序
-    seen_urls = set()
-    unique_results = []
-    for r in all_results:
-        url = r.get("url", "").split("?")[0].split("#")[0].rstrip("/")
-        if url and url not in seen_urls:
-            seen_urls.add(url)
-            unique_results.append(r)
-
-    def source_score(r):
-        url = r.get("url", "")
-        if "eastmoney" in url or "finance.eastmoney" in url:
-            return 0
-        if "stcn.com" in url or "data.stcn" in url:
-            return 1
-        if "sina" in url or "sina.cn" in url:
-            return 2
-        if "toutiao" in url:
-            return 3
-        return 4
-
-    unique_results.sort(key=source_score)
-    return unique_results
+            print(f"  ⚠️  API请求失败 (第{attempt+1}次): {e}")
+            if attempt < retries - 1:
+                import time
+                time.sleep(2 * (attempt + 1))
+            else:
+                raise
+    return all_data
 
 
-async def fetch_page(url: str) -> Optional[str]:
-    """获取网页内容"""
-    try:
-        result = await sdk.call_tool(
-            "codeact_fetch_web",
-            {"url": url},
-            schema_version=TOOL_SCHEMA_VERSIONS["codeact_fetch_web"],
+def get_institution_data(date_str: str) -> Dict[str, List[Dict]]:
+    """
+    获取机构买卖数据并按股票聚合（同一只股票多次上榜合并）
+
+    Returns:
+        {"buy_sorted": [...], "sell_sorted": [...]}
+        每项: {code, name, net_buy_wan, buy_wan, sell_wan, buy_count, sell_count}
+    """
+    print("  📡 获取机构买卖数据...")
+    raw_data = fetch_eastmoney_api(
+        REPORT_INSTITUTION, date_str,
+        sort_column="NET_BUY_AMT", sort_type=-1,
+        page_size=200, max_pages=5,
+    )
+    print(f"    原始记录数: {len(raw_data)}")
+
+    # 按股票代码聚合
+    stock_map = {}
+    for item in raw_data:
+        code = item.get("SECURITY_CODE", "")
+        name = item.get("SECURITY_NAME_ABBR", "")
+        net_buy = _safe_num(item.get("NET_BUY_AMT"))  # 元
+        buy_amt = _safe_num(item.get("BUY_AMT"))
+        sell_amt = _safe_num(item.get("SELL_AMT"))
+        buy_count = int(_safe_num(item.get("BUY_COUNT")))
+        sell_count = int(_safe_num(item.get("SELL_COUNT")))
+
+        if code not in stock_map:
+            stock_map[code] = {
+                "code": code,
+                "name": name,
+                "net_buy": 0.0,
+                "buy_amt": 0.0,
+                "sell_amt": 0.0,
+                "buy_count": 0,
+                "sell_count": 0,
+            }
+        stock_map[code]["net_buy"] += net_buy
+        stock_map[code]["buy_amt"] += buy_amt
+        stock_map[code]["sell_amt"] += sell_amt
+        stock_map[code]["buy_count"] = max(stock_map[code]["buy_count"], buy_count)
+        stock_map[code]["sell_count"] = max(stock_map[code]["sell_count"], sell_count)
+
+    stocks = list(stock_map.values())
+    # 转换为万元
+    for s in stocks:
+        s["net_buy_wan"] = s["net_buy"] / 10000.0
+        s["buy_wan"] = s["buy_amt"] / 10000.0
+        s["sell_wan"] = s["sell_amt"] / 10000.0
+
+    buy_sorted = sorted(stocks, key=lambda x: x["net_buy"], reverse=True)
+    sell_sorted = sorted(stocks, key=lambda x: x["net_buy"])
+
+    print(f"    去重后股票数: {len(stocks)}")
+    print(f"    机构净买入TOP3: {[(s['name'], round(s['net_buy_wan'],2)) for s in buy_sorted[:3]]}")
+    print(f"    机构净卖出TOP3: {[(s['name'], round(s['net_buy_wan'],2)) for s in sell_sorted[:3]]}")
+
+    return {"buy_sorted": buy_sorted, "sell_sorted": sell_sorted}
+
+
+def get_youzi_data(date_str: str) -> Dict[str, List[Dict]]:
+    """
+    获取营业部明细，识别知名游资并聚合
+
+    Returns:
+        {"buy_sorted": [...], "sell_sorted": [...]}
+        每项: {youzi_name, stock, net_wan, buy_wan, sell_wan, branch_name}
+    """
+    print("  📡 获取营业部明细数据...")
+    raw_data = fetch_eastmoney_api(
+        REPORT_BRANCH, date_str,
+        sort_column="NET_AMT", sort_type=-1,
+        page_size=500, max_pages=5,
+    )
+    print(f"    原始记录数: {len(raw_data)}")
+
+    # 构建游资反向映射：关键词 -> 游资名
+    keyword_map = {}
+    for youzi_name, keywords in YOUZI_GROUPS.items():
+        for kw in keywords:
+            keyword_map[kw] = youzi_name
+
+    # 按（游资名, 股票）聚合
+    youzi_stock_map = defaultdict(lambda: {
+        "net": 0.0, "buy": 0.0, "sell": 0.0, "branches": set()
+    })
+
+    matched_count = 0
+    for item in raw_data:
+        branch_name = item.get("OPERATEDEPT_NAME", "")
+        stock_name = item.get("SECURITY_NAME_ABBR", "")
+        net_amt = _safe_num(item.get("NET_AMT"))
+        act_buy = _safe_num(item.get("ACT_BUY"))
+        act_sell = _safe_num(item.get("ACT_SELL"))
+
+        # 匹配游资
+        matched_youzi = None
+        for kw, youzi_name in keyword_map.items():
+            if kw in branch_name:
+                matched_youzi = youzi_name
+                break
+
+        if matched_youzi:
+            matched_count += 1
+            key = (matched_youzi, stock_name)
+            youzi_stock_map[key]["net"] += net_amt
+            youzi_stock_map[key]["buy"] += act_buy
+            youzi_stock_map[key]["sell"] += act_sell
+            youzi_stock_map[key]["branches"].add(branch_name)
+
+    print(f"    匹配游资记录: {matched_count}条")
+
+    # 转换为列表
+    result = []
+    for (youzi_name, stock_name), data in youzi_stock_map.items():
+        result.append({
+            "youzi_name": youzi_name,
+            "stock": stock_name,
+            "net_wan": data["net"] / 10000.0,
+            "buy_wan": data["buy"] / 10000.0,
+            "sell_wan": data["sell"] / 10000.0,
+            "branch_name": "/".join(sorted(data["branches"])),
+        })
+
+    buy_sorted = sorted(result, key=lambda x: x["net_wan"], reverse=True)
+    sell_sorted = sorted(result, key=lambda x: x["net_wan"])
+
+    print(f"    游资买入TOP3: {[(y['youzi_name'], y['stock'], round(y['net_wan'],2)) for y in buy_sorted[:3]]}")
+    print(f"    游资卖出TOP3: {[(y['youzi_name'], y['stock'], round(y['net_wan'],2)) for y in sell_sorted[:3]]}")
+
+    return {"buy_sorted": buy_sorted, "sell_sorted": sell_sorted}
+
+
+def validate_data(inst_data: Dict, youzi_data: Dict, date_str: str) -> List[str]:
+    """
+    数据校验：检查数据完整性、金额方向等
+
+    Returns:
+        错误列表（空列表表示校验通过）
+    """
+    errors = []
+
+    # 机构数据校验
+    buy_stocks = [s for s in inst_data["buy_sorted"] if s["net_buy"] > 0]
+    sell_stocks = [s for s in inst_data["sell_sorted"] if s["net_buy"] < 0]
+
+    if len(buy_stocks) < 5:
+        errors.append(f"机构净买入股票数不足5只（实际{len(buy_stocks)}只）")
+    else:
+        # TOP5必须全部为正
+        top5 = inst_data["buy_sorted"][:5]
+        for s in top5:
+            if s["net_buy"] <= 0:
+                errors.append(f"机构净买入榜中{s['name']}金额非正: {s['net_buy_wan']:.2f}万")
+
+    # 净卖出榜方向校验
+    if sell_stocks:
+        top_sell = inst_data["sell_sorted"][:3]
+        for s in top_sell:
+            if s["net_buy"] >= 0:
+                errors.append(f"机构净卖出榜中{s['name']}金额非负: {s['net_buy_wan']:.2f}万")
+
+    # 金额合理性校验（单日单只股票机构净买入一般不超过100亿）
+    for s in buy_stocks[:5]:
+        if abs(s["net_buy_wan"]) > 1000000:  # 100亿
+            errors.append(f"机构净买入金额异常: {s['name']} {s['net_buy_wan']:.2f}万")
+
+    # 游资数据校验
+    buy_youzi = [y for y in youzi_data["buy_sorted"] if y["net_wan"] > 0]
+    sell_youzi = [y for y in youzi_data["sell_sorted"] if y["net_wan"] < 0]
+
+    if not buy_youzi and not sell_youzi:
+        errors.append("游资数据为空")
+
+    return errors
+
+
+def compute_resonance(inst_top5: List[Dict], youzi_buy: List[Dict]) -> List[ResonanceItem]:
+    """
+    计算机游共振：机构净买入TOP5 ∩ 游资买入的股票
+    """
+    inst_stocks = {s["name"]: s for s in inst_top5[:5]}
+    # 收集每只股票的游资买入
+    stock_youzis = defaultdict(list)
+    for y in youzi_buy:
+        if y["net_wan"] > 0 and y["stock"] in inst_stocks:
+            stock_youzis[y["stock"]].append(y["youzi_name"])
+
+    resonance = []
+    for stock_name in inst_stocks:
+        if stock_name in stock_youzis:
+            resonance.append(ResonanceItem(
+                stock_name=stock_name,
+                youzi_items=sorted(set(stock_youzis[stock_name])),
+            ))
+    return resonance
+
+
+def build_daily_data(date_str: str) -> DailyData:
+    """构建单日完整数据"""
+    print(f"📊 正在获取 {date_str} 的龙虎榜数据...")
+
+    # 获取机构数据
+    inst_data = get_institution_data(date_str)
+    # 获取游资数据
+    youzi_data = get_youzi_data(date_str)
+
+    # 数据校验
+    errors = validate_data(inst_data, youzi_data, date_str)
+    if errors:
+        print("⚠️  数据校验警告:")
+        for e in errors:
+            print(f"   - {e}")
+        # 如果是严重错误（机构数据为空），抛出异常
+        if len(inst_data["buy_sorted"]) == 0:
+            raise ValueError(f"机构数据为空，无法继续。校验错误: {errors}")
+
+    # 机构TOP5 和 净卖出TOP3
+    inst_top5 = [
+        InstitutionStock(
+            name=s["name"],
+            code=s["code"],
+            amount=round(s["net_buy_wan"], 2),
         )
-        if result.get("is_success"):
-            return result.get("content", "")
-    except Exception as e:
-        print(f"获取网页失败: {url}, 错误: {e}")
-    return None
-
-
-async def extract_data(content: str, date: str) -> Optional[DailyData]:
-    """使用LLM从网页内容提取机构+游资龙虎榜数据"""
-    prompt = f"""你是一个金融数据提取助手。请从以下网页内容中提取 {date} 的龙虎榜数据。
-
-需要提取的信息：
-1. **机构专用席位净买入TOP5**：当日机构专用席位净买入金额最大的前5只股票（名称+金额万元）
-2. **游资席位动向**：知名游资席位的买卖情况（席位名称·股票，如"章盟主·多氟多"，金额万元）
-3. **机游共振信号**：同一只股票同时出现机构净买入和知名游资净买入，标注为共振
-
-识别游资席位的规则：
-- 知名游资：章盟主、作手新一、佛山系、宁波桑田路、中山东路、北京中关村、溧阳路、赵老哥、炒股养家、欢乐海岸、小鳄鱼、刺客、著名刺客、方新侠、上塘路、西湖国贸、湖州劳动路、桑田路等
-- 营业部游资：华泰证券某营业部、中信证券某营业部、国泰海通某营业部等知名游资聚集地
-- 机构专用席位：标注为"机构专用"或"机构席位"的
-
-金额单位统一为"万元"（原文是"亿元"则乘以10000，是"万"则不变）。
-
-网页内容：
-{content[:12000]}
-
-请以JSON格式返回，不要有其他说明文字：
-{{
-    "institution_top5": [
-        {{"name": "股票名称", "code": "股票代码", "amount": 机构净买入金额（万元）}},
-        ...
-    ],
-    "youzi_items": [
-        {{"name": "席位名称·股票（如：佛山系·华天科技）", "amount": 净买入金额（万元，正数净买，负数净卖）, "stock": "关联股票名称"}},
-        ...
-    ],
-    "resonance": [
-        {{"stock_name": "共振股票名称", "youzi_items": ["游资A·股票", "游资B·股票"]}},
-        ...
+        for s in inst_data["buy_sorted"][:5]
+        if s["net_buy"] > 0
     ]
-}}
-如果找不到相关数据，请返回：{{"institution_top5": [], "youzi_items": [], "resonance": []}}
-"""
-    try:
-        response = await sdk.call_llm(
-            messages=[
-                {"role": "system", "content": "你是一个专业的金融数据提取助手，只返回JSON格式数据。"},
-                {"role": "user", "content": prompt},
-            ]
+
+    inst_sell_top3 = [
+        InstitutionStock(
+            name=s["name"],
+            code=s["code"],
+            amount=round(s["net_buy_wan"], 2),  # 负数
         )
+        for s in inst_data["sell_sorted"][:3]
+        if s["net_buy"] < 0
+    ]
 
-        content_str = ""
-        if isinstance(response, str):
-            content_str = response
-        elif isinstance(response, dict):
-            content_str = response.get("content", response.get("text", str(response)))
-        else:
-            content_str = str(response)
-
-        # 提取JSON
-        if "```json" in content_str:
-            match = re.search(r'```json\s*(.*?)\s*```', content_str, re.DOTALL)
-            if match:
-                content_str = match.group(1)
-        elif "```" in content_str:
-            match = re.search(r'```\s*(.*?)\s*```', content_str, re.DOTALL)
-            if match:
-                content_str = match.group(1)
-
-        content_str = content_str.strip()
-        if not content_str or content_str == "null":
-            return None
-
-        data = json.loads(content_str)
-        if not isinstance(data, dict):
-            return None
-
-        institution_top5 = []
-        for item in data.get("institution_top5", []):
-            if isinstance(item, dict) and "name" in item and "amount" in item:
-                institution_top5.append(InstitutionStock(
-                    name=item["name"],
-                    code=item.get("code", ""),
-                    amount=float(item["amount"]),
-                ))
-
-        youzi_items = []
-        for item in data.get("youzi_items", []):
-            if isinstance(item, dict) and "name" in item:
-                youzi_items.append(YouziItem(
-                    name=item["name"],
-                    amount=float(item.get("amount", 0)),
-                    stock=item.get("stock", ""),
-                ))
-
-        resonance = []
-        for item in data.get("resonance", []):
-            if isinstance(item, dict) and "stock_name" in item:
-                resonance.append(ResonanceItem(
-                    stock_name=item["stock_name"],
-                    youzi_items=item.get("youzi_items", []),
-                ))
-
-        return DailyData(
-            date=date,
-            institution_top5=institution_top5[:5],
-            youzi_items=youzi_items,
-            resonance=resonance,
-            data_source="data_bao",
+    # 游资买入TOP5 和 卖出TOP3（按股票维度）
+    youzi_buy_top5 = [
+        YouziItem(
+            name=y["youzi_name"],
+            stock=y["stock"],
+            amount=round(y["net_wan"], 2),
+            branch_name=y["branch_name"],
         )
-    except Exception as e:
-        print(f"提取数据失败: {e}")
-        return None
+        for y in youzi_data["buy_sorted"][:5]
+        if y["net_wan"] > 0
+    ]
+
+    youzi_sell_top3 = [
+        YouziItem(
+            name=y["youzi_name"],
+            stock=y["stock"],
+            amount=round(y["net_wan"], 2),  # 负数
+            branch_name=y["branch_name"],
+        )
+        for y in youzi_data["sell_sorted"][:3]
+        if y["net_wan"] < 0
+    ]
+
+    # 兼容旧字段：youzi_items（所有游资动向，用于旧逻辑）
+    youzi_items = youzi_buy_top5 + youzi_sell_top3
+
+    # 共振判断（用全量游资买入数据判断，不只用TOP5）
+    resonance = compute_resonance(
+        inst_data["buy_sorted"][:5],
+        [y for y in youzi_data["buy_sorted"] if y["net_wan"] > 0],
+    )
+
+    return DailyData(
+        date=date_str,
+        institution_top5=inst_top5,
+        institution_sell_top3=inst_sell_top3,
+        youzi_buy_top5=youzi_buy_top5,
+        youzi_sell_top3=youzi_sell_top3,
+        youzi_items=youzi_items,
+        resonance=resonance,
+        data_source="东方财富龙虎榜官方API",
+    )
 
 
 # ========== HTML更新 ==========
@@ -370,7 +591,7 @@ def format_amount(amount_wan: float) -> str:
 
 
 def build_day_cell_html(data: DailyData) -> str:
-    """构建机游共振日历日期单元格的HTML - 横向流式排版，共振不重复"""
+    """构建机游共振日历日期单元格的HTML"""
     day = datetime.strptime(data.date, "%Y-%m-%d").day
     has_resonance = len(data.resonance) > 0
     has_data = data.institution_top5 or data.youzi_items
@@ -381,16 +602,11 @@ def build_day_cell_html(data: DailyData) -> str:
                     <div class="empty-content">--</div>
                 </div>"""
 
-    # Build resonance stock name set for marking
-    resonance_names = set()
+    # 共振股票集合
+    resonance_names = {r.stock_name for r in data.resonance}
     resonance_details = {}
-    if data.resonance:
-        for res in data.resonance:
-            resonance_names.add(res.stock_name)
-            details_parts = []
-            if res.youzi_items:
-                details_parts = res.youzi_items
-            resonance_details[res.stock_name] = details_parts
+    for res in data.resonance:
+        resonance_details[res.stock_name] = res.youzi_items
 
     lines = []
     lines.append(f'                <div class="day-cell">')
@@ -403,7 +619,7 @@ def build_day_cell_html(data: DailyData) -> str:
 
     lines.append(f'                    <div class="stock-list">')
 
-    # 1. 机构净买入TOP5 - 横向流式，共振股票标★
+    # 1. 机构净买入TOP5
     if data.institution_top5:
         lines.append(f'                        <div class="section-title">▲ 机构净买入</div>')
         lines.append(f'                        <div class="stock-row">')
@@ -415,47 +631,44 @@ def build_day_cell_html(data: DailyData) -> str:
                 lines.append(f'                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">{stock.name}</span><span class="stock-amount up">{amount_str}</span></span>')
         lines.append(f'                        </div>')
 
-    # 2. 机游共振详情（仅显示共振金额细节，不重复股票名）
+    # 2. 机构净卖出TOP3
+    if data.institution_sell_top3:
+        lines.append(f'                        <div class="section-title sell-title">▼ 机构净卖出</div>')
+        lines.append(f'                        <div class="stock-row">')
+        for stock in data.institution_sell_top3[:3]:
+            amount_str = f"{format_amount(stock.amount)}"
+            lines.append(f'                            <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">{stock.name}</span><span class="stock-amount down">{amount_str}</span></span>')
+        lines.append(f'                        </div>')
+
+    # 3. 机游共振详情
     if data.resonance:
         lines.append(f'                        <div class="section-title resonance-title">★ 机游共振</div>')
         lines.append(f'                        <div class="stock-row">')
         for res in data.resonance:
-            detail_str = " ".join(res.youzi_items) if res.youzi_items else ""
-            if detail_str:
-                lines.append(f'                            <span class="stock-item"><span class="stock-icon resonance">★</span><span class="stock-name">{res.stock_name} {detail_str}</span></span>')
-            else:
-                lines.append(f'                            <span class="stock-item"><span class="stock-icon resonance">★</span><span class="stock-name">{res.stock_name}</span></span>')
+            detail_str = "、".join(res.youzi_items) if res.youzi_items else ""
+            display = f"{res.stock_name} ({detail_str})" if detail_str else res.stock_name
+            lines.append(f'                            <span class="stock-item"><span class="stock-icon resonance">★</span><span class="stock-name">{display}</span></span>')
         lines.append(f'                        </div>')
 
-    # 3. 游资席位（红买绿卖，横向流式）
-    if data.youzi_items:
-        buys = [yz for yz in data.youzi_items if yz.amount >= 0]
-        sells = [yz for yz in data.youzi_items if yz.amount < 0]
-        
-        if buys:
-            lines.append(f'                        <div class="section-title youzi-title">▲ 游资买入</div>')
-            lines.append(f'                        <div class="stock-row">')
-            for yz in buys[:4]:
-                display_name = yz.name
-                if yz.stock and yz.stock not in yz.name:
-                    display_name = f"{yz.stock} {yz.name}"
-                amount_str = f"+{format_amount(yz.amount)}"
-                lines.append(f'                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">{display_name}</span><span class="stock-amount up">{amount_str}</span></span>')
-            lines.append(f'                        </div>')
-        
-        if sells:
-            lines.append(f'                        <div class="section-title youzi-sell-title">▼ 游资卖出</div>')
-            lines.append(f'                        <div class="stock-row">')
-            for yz in sells[:4]:
-                display_name = yz.name
-                if yz.stock and yz.stock not in yz.name:
-                    display_name = f"{yz.stock} {yz.name}"
-                amount_str = f"-{format_amount(abs(yz.amount))}"
-                lines.append(f'                            <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">{display_name}</span><span class="stock-amount down">{amount_str}</span></span>')
-            lines.append(f'                        </div>')
-    else:
-        lines.append(f'                        <div class="section-title">▼ 游资席位动向</div>')
-        lines.append(f'                        <div class="stock-row"><span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">暂无数据</span></span></div>')
+    # 4. 游资买入TOP5
+    if data.youzi_buy_top5:
+        lines.append(f'                        <div class="section-title youzi-title">▲ 游资买入</div>')
+        lines.append(f'                        <div class="stock-row">')
+        for yz in data.youzi_buy_top5[:5]:
+            display_name = f"{yz.name}·{yz.stock}" if yz.stock else yz.name
+            amount_str = f"+{format_amount(yz.amount)}"
+            lines.append(f'                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">{display_name}</span><span class="stock-amount up">{amount_str}</span></span>')
+        lines.append(f'                        </div>')
+
+    # 5. 游资卖出TOP3
+    if data.youzi_sell_top3:
+        lines.append(f'                        <div class="section-title youzi-sell-title">▼ 游资卖出</div>')
+        lines.append(f'                        <div class="stock-row">')
+        for yz in data.youzi_sell_top3[:3]:
+            display_name = f"{yz.name}·{yz.stock}" if yz.stock else yz.name
+            amount_str = f"{format_amount(yz.amount)}"
+            lines.append(f'                            <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">{display_name}</span><span class="stock-amount down">{amount_str}</span></span>')
+        lines.append(f'                        </div>')
 
     lines.append(f'                    </div>')
     lines.append(f'                </div>')
@@ -463,7 +676,7 @@ def build_day_cell_html(data: DailyData) -> str:
 
 
 def update_html(html_path: str, data: DailyData) -> bool:
-    """更新HTML文件中的指定日期数据（按月份+日期精确匹配，防止跨月误写）"""
+    """更新HTML文件中的指定日期数据"""
     try:
         with open(html_path, "r", encoding="utf-8") as f:
             html = f.read()
@@ -487,17 +700,14 @@ def update_html(html_path: str, data: DailyData) -> bool:
         html,
     )
 
-    # 先找到正确的月份区域，再在该区域内查找目标日期单元格
-    # 防止跨月匹配（正则的 .*? 会跨td匹配）
+    # 找到正确的月份区域
     month_section_pattern = rf'<div class="month-section[^"]*" id="month-{month}"'
     month_section_match = re.search(month_section_pattern, html)
     if not month_section_match:
         print(f"⚠️ 未找到月份 {month} 的区域")
         return False
 
-    # 从月份区域开始搜索
     section_start = month_section_match.start()
-    # 找到该月份区域的结束
     next_section = re.search(r'<div class="month-section', html[section_start + 1:])
     if next_section:
         section_end = section_start + 1 + next_section.start()
@@ -507,7 +717,6 @@ def update_html(html_path: str, data: DailyData) -> bool:
     section_html = html[section_start:section_end]
 
     # 在月份区域内查找目标日期的单元格
-    # 支持多种格式：day-header包裹、empty-content等
     all_matches = list(re.finditer(
         rf'(<td[^>]*>)\s*<div class="day-cell">((?!</td>).)*?<span class="day-number">\s*{day}\s*</span>((?!</td>).)*?</div>\s*</div>\s*</td>',
         section_html,
@@ -515,14 +724,13 @@ def update_html(html_path: str, data: DailyData) -> bool:
     ))
 
     if not all_matches:
-        # 更宽松匹配：只匹配到第一个</div>（兼容旧格式）
         all_matches = list(re.finditer(
             rf'(<td[^>]*>)\s*<div class="day-cell">((?!</td>).)*?<span class="day-number">\s*{day}\s*</span>((?!</td>).)*?</div>\s*</td>',
             section_html,
             re.DOTALL,
         ))
 
-    # 回退：月末日期可能出现在下月第一周表（如6/29在7月第1周）
+    # 回退：月末日期可能出现在下月第一周
     if not all_matches:
         print(f"⚠️ 在 month-{month} 中未找到 {day}日，尝试回退到 month-{month+1}...")
         fallback_pattern = rf'<div class="month-section[^"]*" id="month-{month+1}"'
@@ -530,10 +738,7 @@ def update_html(html_path: str, data: DailyData) -> bool:
         if fallback_match:
             fb_start = fallback_match.start()
             fb_next = re.search(r'<div class="month-section', html[fb_start + 1:])
-            if fb_next:
-                fb_end = fb_start + 1 + fb_next.start()
-            else:
-                fb_end = len(html)
+            fb_end = fb_start + 1 + fb_next.start() if fb_next else len(html)
             fb_section_html = html[fb_start:fb_end]
             all_matches = list(re.finditer(
                 rf'(<td[^>]*>)\s*<div class="day-cell">((?!</td>).)*?<span class="day-number">\s*{day}\s*</span>((?!</td>).)*?</div>\s*</div>\s*</td>',
@@ -554,7 +759,6 @@ def update_html(html_path: str, data: DailyData) -> bool:
     if all_matches:
         target_match = all_matches[0]
         td_open = target_match.group(1)
-        # 如果有机游共振，给td加上has-resonance类
         if has_resonance and has_data:
             if 'class="' in td_open:
                 if 'has-resonance' not in td_open:
@@ -588,29 +792,29 @@ def update_html(html_path: str, data: DailyData) -> bool:
         return False
 
 
-# ========== GitHub推送（委托 calendar_git 模块，强制 calendar-pages 分支） ==========
+# ========== GitHub推送 ==========
 
 def git_push(repo_path: str, file_name: str, date: str) -> bool:
-    """推送到GitHub（强制走 calendar-pages 分支）"""
+    """推送到GitHub（走 calendar-pages 分支）"""
     try:
-        # 初始化并确保在正确分支
         if not calendar_git_setup(repo_path):
             print("❌ Git 初始化/分支切换失败")
             return False
 
         import shutil
-        src = html_path
+        src = html_path  # type: ignore
         dst = os.path.join(repo_path, file_name)
         shutil.copy2(src, dst)
-        # 同时复制为 index.html 供 GitHub Pages 首页使用
-        shutil.copy2(src, os.path.join(repo_path, "index.html"))
-        print(f"📄 已复制到仓库: {os.path.join(repo_path, "index.html")}")
+        shutil.copy2(src, os.path.join(repo_path, "jiyou-resonance.html"))
+        index_dst = os.path.join(repo_path, "index.html")
+        if not os.path.exists(index_dst):
+            shutil.copy2(src, index_dst)
         print(f"📄 已复制到仓库: {dst}")
+        print(f"📄 已复制到仓库: jiyou-resonance.html")
 
         # 部署前验证
         validate_script = os.path.join(repo_path, "scripts", "validate_calendar_html.py")
         if os.path.exists(validate_script):
-            import subprocess
             result = subprocess.run(
                 [sys.executable, validate_script, dst],
                 capture_output=True, text=True, timeout=30
@@ -620,18 +824,37 @@ def git_push(repo_path: str, file_name: str, date: str) -> bool:
                 print(f"❌ 验证未通过，取消部署: {result.stderr}")
                 return False
             print("✅ 验证通过，继续部署")
-        else:
-            print("⚠️ 未找到验证脚本，跳过验证")
 
-        # 委托共享模块推送
+        # 同步脚本到仓库
+        src_script = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                   "update_jiyou_resonance_calendar.py")
+        dst_script_dir = os.path.join(repo_path, "scripts")
+        os.makedirs(dst_script_dir, exist_ok=True)
+        shutil.copy2(src_script, os.path.join(dst_script_dir, "update_jiyou_resonance_calendar.py"))
+
+        # 同步 validate_data_consistency.py
+        val_script_src = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                       "validate_data_consistency.py")
+        if os.path.exists(val_script_src):
+            shutil.copy2(val_script_src, os.path.join(dst_script_dir, "validate_data_consistency.py"))
+
         return calendar_git_push(
             repo_path,
-            [file_name, "index.html"],
-            f"auto: 机游共振日历更新 {date}",
+            [file_name, "jiyou-resonance.html",
+             "scripts/update_jiyou_resonance_calendar.py",
+             "scripts/validate_data_consistency.py"],
+            f"auto: 机游共振日历更新 {date} (东财官方API)",
         )
     except Exception as e:
         print(f"Git推送失败: {e}")
+        import traceback
+        traceback.print_exc()
         return False
+
+
+def is_a_stock_holiday(date_str: str) -> bool:
+    """判断是否为A股休市日"""
+    return date_str in A_STOCK_HOLIDAYS_2026
 
 
 # ========== 主函数 ==========
@@ -672,6 +895,7 @@ async def main():
     print(f"📄 HTML路径: {html_path}")
     print(f"📁 仓库路径: {repo_path}")
     print(f"🔧 强制模式: {force_update}")
+    print(f"📊 数据源: 东方财富龙虎榜官方API")
 
     try:
         init_state_db()
@@ -699,7 +923,6 @@ async def main():
             )
             return
 
-        # 检查是否为A股法定假日（落在工作日的假期）
         if is_a_stock_holiday(target_date):
             print(f"🏛️ {target_date} 是A股法定假日，休市")
             await sdk.submit_result(
@@ -709,88 +932,19 @@ async def main():
             )
             return
 
-        # 搜索数据
-        print("🔍 正在搜索机构+游资龙虎榜数据...")
-        search_results = await search_data(target_date)
+        # 获取数据（同步调用，requests库）
+        daily_data = build_daily_data(target_date)
 
-        # 第一轮没找到，用更宽泛的词再搜一轮
-        if not search_results:
-            print("⚠️ 第一轮未找到，用更宽泛的词再搜一轮...")
-            month_day = f"{date_obj.month}月{date_obj.day}日"
-            backup_queries = [
-                f"{month_day} 龙虎榜 机构 买入 席位",
-                f"{month_day} 龙虎榜 游资 营业部 买入",
-                f"{month_day} 龙虎榜 揭秘 龙虎榜数据",
-            ]
-            for query in backup_queries:
-                try:
-                    result = await sdk.call_tool(
-                        "codeact_search_web",
-                        {
-                            "query": query,
-                            "publish_time": build_publish_time_window(lookback_days=7),
-                            "response_length": "medium",
-                        },
-                        schema_version=TOOL_SCHEMA_VERSIONS["codeact_search_web"],
-                    )
-                    if result.get("is_success") and result.get("results"):
-                        search_results.extend(result["results"])
-                except Exception as e:
-                    print(f"二次搜索失败: {query}, 错误: {e}")
-
-        if not search_results:
-            print("⚠️ 未找到搜索结果")
-            empty_data = DailyData(date=target_date)
-            update_html(html_path, empty_data)
-            await sdk.submit_result(
-                message=f"[{target_date}] 未找到龙虎榜机构/游资数据，已标记为暂无数据",
-                result_mode="display_only",
-                status="success",
-            )
-            return
-
-        # 并行获取前5个结果的内容
-        print(f"📄 找到 {len(search_results)} 个结果，正在并行获取详情...")
-        all_data = []
-
-        async def fetch_and_extract(result: dict, sem: asyncio.Semaphore):
-            url = result.get("url", "")
-            title = result.get("title", "")
-            async with sem:
-                content = await fetch_page(url)
-                if content and len(content) > 200:
-                    data = await extract_data(content, target_date)
-                    if data and (data.institution_top5 or data.youzi_items):
-                        data.data_source = url
-                        return data
-                return None
-
-        sem = asyncio.Semaphore(3)
-        tasks = [fetch_and_extract(r, sem) for r in search_results[:15]]
-        task_results = await asyncio.gather(*tasks, return_exceptions=True)
-
-        for r in task_results:
-            if r and not isinstance(r, Exception):
-                all_data.append(r)
-                print(f"    ✅ 机构TOP5: {len(r.institution_top5)}, 游资: {len(r.youzi_items)}, 共振: {len(r.resonance)}")
-
-        if not all_data:
-            print("⚠️ 未能提取有效数据")
-            empty_data = DailyData(date=target_date)
-            update_html(html_path, empty_data)
-            await sdk.submit_result(
-                message=f"[{target_date}] 未能提取有效的机构/游资数据",
-                result_mode="display_only",
-                status="success",
-            )
-            return
-
-        best_data = max(all_data, key=lambda d: len(d.institution_top5) * 3 + len(d.youzi_items) + len(d.resonance) * 2)
-        print(f"✅ 获取到数据: 机构TOP5 {len(best_data.institution_top5)} 只, 游资 {len(best_data.youzi_items)} 条, 共振 {len(best_data.resonance)} 个（从{len(all_data)}个来源中选择最佳）")
+        print(f"✅ 获取到数据:")
+        print(f"   机构净买入TOP5: {len(daily_data.institution_top5)} 只")
+        print(f"   机构净卖出TOP3: {len(daily_data.institution_sell_top3)} 只")
+        print(f"   游资净买入TOP5: {len(daily_data.youzi_buy_top5)} 条")
+        print(f"   游资净卖出TOP3: {len(daily_data.youzi_sell_top3)} 条")
+        print(f"   机游共振: {len(daily_data.resonance)} 个")
 
         # 更新HTML
         print("📝 正在更新HTML文件...")
-        if not update_html(html_path, best_data):
+        if not update_html(html_path, daily_data):
             await sdk.submit_result(
                 message=f"[{target_date}] 更新HTML文件失败",
                 result_mode="notify",
@@ -803,7 +957,7 @@ async def main():
         push_ok = git_push(repo_path, file_name, target_date)
         pushed_at = datetime.now().isoformat() if push_ok else None
 
-        save_update(best_data, pushed_at)
+        save_update(daily_data, pushed_at)
 
         # 生成文件URL
         try:
@@ -818,25 +972,28 @@ async def main():
             file_url = ""
 
         # 构建消息
-        message_parts = [f"📊 [{target_date}] 机游共振日历已更新\n"]
+        message_parts = [f"📊 [{target_date}] 机游共振日历已更新（东财官方API）\n"]
 
-        if best_data.institution_top5:
+        if daily_data.institution_top5:
             message_parts.append(f"\n🏦 机构净买入TOP5:\n")
-            for i, stock in enumerate(best_data.institution_top5[:5], 1):
+            for i, stock in enumerate(daily_data.institution_top5[:5], 1):
                 message_parts.append(f"  {i}. {stock.name}  +{format_amount(stock.amount)}\n")
 
-        if best_data.resonance:
+        if daily_data.institution_sell_top3:
+            message_parts.append(f"\n🏦 机构净卖出TOP3:\n")
+            for i, stock in enumerate(daily_data.institution_sell_top3[:3], 1):
+                message_parts.append(f"  {i}. {stock.name}  {format_amount(stock.amount)}\n")
+
+        if daily_data.resonance:
             message_parts.append(f"\n⭐ 机游共振信号:\n")
-            for res in best_data.resonance:
+            for res in daily_data.resonance:
                 message_parts.append(f"  ★ {res.stock_name}: {', '.join(res.youzi_items)}\n")
 
-        if best_data.youzi_items:
-            message_parts.append(f"\n🔥 游资席位动向:\n")
-            for yz in best_data.youzi_items[:4]:
-                if yz.amount >= 0:
-                    message_parts.append(f"  {yz.name}: +{format_amount(yz.amount)}\n")
-                else:
-                    message_parts.append(f"  {yz.name}: {format_amount(yz.amount)}\n")
+        if daily_data.youzi_buy_top5:
+            message_parts.append(f"\n🔥 游资买入TOP5:\n")
+            for yz in daily_data.youzi_buy_top5[:5]:
+                display = f"{yz.name}·{yz.stock}" if yz.stock else yz.name
+                message_parts.append(f"  {display}: +{format_amount(yz.amount)}\n")
 
         if file_url:
             message_parts.append(f"\n🔗 [查看完整日历]({file_url})")
@@ -851,16 +1008,21 @@ async def main():
             status="success",
             data={
                 "date": target_date,
-                "institution_count": len(best_data.institution_top5),
-                "youzi_count": len(best_data.youzi_items),
-                "resonance_count": len(best_data.resonance),
+                "institution_count": len(daily_data.institution_top5),
+                "institution_sell_count": len(daily_data.institution_sell_top3),
+                "youzi_buy_count": len(daily_data.youzi_buy_top5),
+                "youzi_sell_count": len(daily_data.youzi_sell_top3),
+                "resonance_count": len(daily_data.resonance),
                 "pushed": push_ok,
+                "data_source": "eastmoney_official_api",
             },
         )
         print("✅ 更新完成")
 
     except Exception as e:
         print(f"❌ 执行失败: {e}")
+        import traceback
+        traceback.print_exc()
         await sdk.submit_result(
             result_mode="notify",
             status="error",
