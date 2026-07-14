@@ -1673,13 +1673,10 @@
                     var colorStyle = '';
                     if (amountClass.indexOf('up') >= 0) colorStyle = 'color:#f85149;';
                     else if (amountClass.indexOf('down') >= 0) colorStyle = 'color:#3fb950;';
-                    var nameColorStyle = '';
-                    if (currentSection && currentSection.indexOf('机构净买入') >= 0 && amountClass.indexOf('up') >= 0) {
-                        nameColorStyle = 'color:#f85149;';
-                    }
+                    // 所有非共振区块股票名统一用默认白色，不加 nameColorStyle
                     html += '<div class="detail-item">';
                     html += '<span class="detail-icon">' + iconText + '</span>';
-                    html += '<span class="detail-name" style="' + nameColorStyle + '">' + nameText + '</span>';
+                    html += '<span class="detail-name">' + nameText + '</span>';
                     html += '<span class="detail-amount" style="' + colorStyle + '">' + amountText + '</span>';
                     html += '</div>';
                 } else if (child.classList.contains('stock-row')) {
@@ -1694,19 +1691,22 @@
                         var iiconText = iicon ? iicon.textContent.trim() : '';
                         var inameText = iname ? iname.textContent.trim() : '';
                         var iamountText = iamount ? iamount.textContent.trim() : '';
-                        var icolorStyle = '';
+                        var inameStyle = '';
+                        var iamountStyle = '';
                         if (isResonance) {
-                            icolorStyle = 'color:#ffd700;font-weight:600;';
-                        } else if (iname && iname.style.color) {
-                            icolorStyle = 'color:' + iname.style.color + ';';
-                        } else if (iamount) {
-                            if (iamount.classList.contains('up')) icolorStyle = 'color:#f85149;';
-                            else if (iamount.classList.contains('down')) icolorStyle = 'color:#3fb950;';
+                            // 共振区：股票名黄色加粗，金额也是黄色
+                            inameStyle = 'color:#ffd700;font-weight:600;';
+                            iamountStyle = 'color:#ffd700;';
+                        } else {
+                            // 非共振区：股票名白色（默认），金额按方向
+                            inameStyle = '';
+                            if (iamount && iamount.classList.contains('up')) iamountStyle = 'color:#f85149;';
+                            else if (iamount && iamount.classList.contains('down')) iamountStyle = 'color:#3fb950;';
                         }
                         html += '<div class="detail-item">';
                         html += '<span class="detail-icon">' + iiconText + '</span>';
-                        html += '<span class="detail-name" style="' + icolorStyle + '">' + inameText + '</span>';
-                        html += '<span class="detail-amount" style="' + icolorStyle + '">' + iamountText + '</span>';
+                        html += '<span class="detail-name" style="' + inameStyle + '">' + inameText + '</span>';
+                        html += '<span class="detail-amount" style="' + iamountStyle + '">' + iamountText + '</span>';
                         html += '</div>';
                     }
                 }
