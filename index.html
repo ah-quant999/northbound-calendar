@@ -92,7 +92,7 @@
         }
         .legend-dot.buy { background: #da3633; }
         .legend-dot.sell { background: #238636; }
-        .legend-dot.resonance { background: #d29922; }
+        .legend-dot.resonance { background: #ffd700; }
         .legend-dot.holiday { background: #484f58; }
 
         .week-table {
@@ -172,9 +172,9 @@
         .day-cell .amount.outflow { color: #3fb950; }
         .day-cell .amount.holiday { color: #6e7681; }
         .day-cell .amount.resonance-tag { 
-            color: #d29922; 
+            color: #ffd700; 
             font-size: 10px;
-            background: rgba(210,153,34,0.15);
+            background: rgba(255,215,0,0.15);
             padding: 1px 5px;
             border-radius: 3px;
         }
@@ -217,7 +217,7 @@
             overflow-wrap: break-word;
         }
         .day-cell .stock-item .resonance-text {
-            color: #d29922;
+            color: #ffd700;
             font-size: 10px;
         }
         .day-cell .stock-icon {
@@ -226,14 +226,14 @@
         }
         .day-cell .stock-icon.up { color: #f85149; }
         .day-cell .stock-icon.down { color: #3fb950; }
-        .day-cell .stock-icon.resonance { color: #d29922; }
+        .day-cell .stock-icon.resonance { color: #ffd700; }
         .day-cell .stock-name {
             color: #c9d1d9;
             font-size: 10px;
             overflow-wrap: break-word;
         }
         .day-cell .stock-name.resonance-name {
-            color: #d29922;
+            color: #ffd700;
             font-weight: 600;
         }
         .day-cell .stock-amount {
@@ -244,7 +244,7 @@
         }
         .day-cell .stock-amount.up { color: #f85149; }
         .day-cell .stock-amount.down { color: #3fb950; }
-        .day-cell .stock-amount.resonance-amount { color: #d29922; }
+        .day-cell .stock-amount.resonance-amount { color: #ffd700; }
 
         .day-cell .section-title {
             font-size: 14px;
@@ -260,8 +260,8 @@
             padding-top: 0;
         }
         .day-cell .section-title.resonance-title {
-            color: #d29922;
-            border-top-color: rgba(210,153,34,0.3);
+            color: #ffd700;
+            border-top-color: rgba(255,215,0,0.3);
         }
         .day-cell .section-title.youzi-title {
             color: #f85149;
@@ -296,11 +296,11 @@
             color: #3fb950;
         }
         .day-cell .stock-chip.resonance-chip {
-            color: #d29922;
+            color: #ffd700;
             font-weight: 600;
         }
         .day-cell .stock-chip.resonance-detail-chip {
-            color: #d29922;
+            color: #ffd700;
         }
 
         .day-cell .empty-content {
@@ -424,11 +424,11 @@
         .rank-num.top { background: #e8a0b0; color: #fff; }
         .rank-num.other { background: #30363d; color: #8b949e; }
         .rank-name { flex: 1; color: #c9d1d9; }
-        .rank-name.resonance { color: #d29922; font-weight: 600; }
+        .rank-name.resonance { color: #ffd700; font-weight: 600; }
         .rank-amount { font-weight: 600; }
         .rank-amount.buy { color: #f85149; }
         .rank-amount.sell { color: #3fb950; }
-        .rank-amount.resonance { color: #d29922; }
+        .rank-amount.resonance { color: #ffd700; }
 
         .data-source {
             margin-top: 30px;
@@ -452,7 +452,7 @@
         }
         .source-table th { background: #21262d; font-weight: 600; color: #c9d1d9; }
         .source-table td { color: #8b949e; }
-        .stars { color: #d29922; }
+        .stars { color: #ffd700; }
 
         .footer-note {
             margin-top: 20px;
@@ -569,7 +569,7 @@
             <div class="legend-item"><span class="stock-icon up" style="color:#f85149;">▲</span><span>机构买入</span></div>
             <div class="legend-item"><span class="stock-icon up" style="color:#f85149;">▲</span><span>游资买入</span></div>
             <div class="legend-item"><span class="stock-icon down" style="color:#3fb950;">▼</span><span>游资卖出</span></div>
-            <div class="legend-item"><span style="color:#d29922;font-weight:600;">★ 机游共振</span></div>
+            <div class="legend-item"><span style="color:#ffd700;font-weight:600;">★ 机游共振</span></div>
             <div class="legend-item"><span style="color:#6e7681;">休市</span></div>
         </div>
 
@@ -1031,14 +1031,14 @@
                     <!-- 6/29 周一 -->
                     <td class="has-resonance" onclick="showDayDetail(this)" style="cursor:pointer">
                 <div class="day-cell">
-                    <div class="day-header"><span class="day-number">13</span><span class="amount resonance-tag">★共振</span></div>
+                    <div class="day-header"><span class="day-number">13</span></div>
                     <div class="stock-list">
                         <div class="section-title">▲ 机构净买入</div>
                         <div class="stock-row">
                             <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">拓荆科技</span><span class="stock-amount up">+23.24亿</span></span>
                             <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">华天科技</span><span class="stock-amount up">+4.17亿</span></span>
-                            <span class="stock-item"><span class="stock-icon resonance">★</span><span class="stock-name">欧林生物</span><span class="stock-amount resonance-amount">+2.76亿</span></span>
-                            <span class="stock-item"><span class="stock-icon resonance">★</span><span class="stock-name">万邦医药</span><span class="stock-amount resonance-amount">+1.50亿</span></span>
+                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">欧林生物</span><span class="stock-amount up">+2.76亿</span></span>
+                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">万邦医药</span><span class="stock-amount up">+1.50亿</span></span>
                             <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">欢瑞世纪</span><span class="stock-amount up">+5420万</span></span>
                         </div>
                         <div class="section-title sell-title">▼ 机构净卖出</div>
@@ -1047,29 +1047,48 @@
                             <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">中船特气</span><span class="stock-amount down">-4.35亿</span></span>
                             <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">合肥城建</span><span class="stock-amount down">-2.59亿</span></span>
                         </div>
-                        <div class="section-title resonance-title">★ 机游共振</div>
-                        <div class="stock-row">
-                            <span class="stock-item"><span class="stock-icon resonance">★</span><span class="stock-name">欧林生物 (章盟主)</span></span>
-                            <span class="stock-item"><span class="stock-icon resonance">★</span><span class="stock-name">万邦医药 (T王量化)</span></span>
-                        </div>
                         <div class="section-title youzi-title">▲ 游资买入</div>
                         <div class="stock-row">
-                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">T王量化·*ST卓然、*ST香雪、ST海王、ST龙元、ST龙大</span><span class="stock-amount up">+4.38亿</span></span>
-                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">欢乐海岸·恒尚节能、长盈通</span><span class="stock-amount up">+5686万</span></span>
-                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">宁波桑田路·国恩股份</span><span class="stock-amount up">+4999万</span></span>
-                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">炒股养家·宏桥控股、爱科转债、陇神戎发、雪龙集团</span><span class="stock-amount up">+4240万</span></span>
-                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">作手新一·九丰能源、哈药股份、水发燃气、沃顿科技</span><span class="stock-amount up">+3896万</span></span>
+                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">T王量化·三峡新材、三达膜、华建集团、哈药股份、浪潮软件</span><span class="stock-amount up">+3635万</span></span>
+                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">欢乐海岸·恒尚节能</span><span class="stock-amount up">+2785万</span></span>
+                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">炒股养家·爱科转债、雪龙集团</span><span class="stock-amount up">+585万</span></span>
                         </div>
                         <div class="section-title youzi-sell-title">▼ 游资卖出</div>
                         <div class="stock-row">
                             <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">东北猛男·三峡新材、上海合晶、光格科技、华建集团、华微电子</span><span class="stock-amount down">-1.18亿</span></span>
-                            <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">赵老哥·上海凯宝、华微电子、友车科技、美新科技、联明股份</span><span class="stock-amount down">-7792万</span></span>
-                            <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">方新侠·*ST卓然、吉和昌、新赣江、梦百合、科力股份</span><span class="stock-amount down">-293万</span></span>
                         </div>
                     </div>
                 </div>
                     </td>
-                    <td onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number">14</span></div><div class="empty-content">--</div></div></td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
+                <div class="day-cell">
+                    <div class="day-header"><span class="day-number">14</span></div>
+                    <div class="stock-list">
+                        <div class="section-title">▲ 机构净买入</div>
+                        <div class="stock-row">
+                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">沪电股份</span><span class="stock-amount up">+5.97亿</span></span>
+                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">东山精密</span><span class="stock-amount up">+4.37亿</span></span>
+                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">风华高科</span><span class="stock-amount up">+4.12亿</span></span>
+                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">美诺华</span><span class="stock-amount up">+1.94亿</span></span>
+                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">蔚蓝锂芯</span><span class="stock-amount up">+1.01亿</span></span>
+                        </div>
+                        <div class="section-title sell-title">▼ 机构净卖出</div>
+                        <div class="stock-row">
+                            <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">华天科技</span><span class="stock-amount down">-14.03亿</span></span>
+                            <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">南亚新材</span><span class="stock-amount down">-1.46亿</span></span>
+                            <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">通源石油</span><span class="stock-amount down">-8878万</span></span>
+                        </div>
+                        <div class="section-title youzi-title">▲ 游资买入</div>
+                        <div class="stock-row">
+                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">东北猛男·ST南新、ST标准、上海港湾、华微电子、南亚新材</span><span class="stock-amount up">+1.99亿</span></span>
+                        </div>
+                        <div class="section-title youzi-sell-title">▼ 游资卖出</div>
+                        <div class="stock-row">
+                            <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">T王量化·上海港湾、灵康药业、金煤科技</span><span class="stock-amount down">-1859万</span></span>
+                        </div>
+                    </div>
+                </div>
+                    </td>
                     <td onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number">15</span></div><div class="empty-content">--</div></div></td>
                     <td onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number">16</span></div><div class="empty-content">--</div></div></td>
                     <td onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number">17</span></div><div class="empty-content">--</div></div></td>
@@ -1244,11 +1263,11 @@
                             </div>
                         </div>
                         <div class="week-section">
-                            <div class="week-section-title" style="color:#d29922;">★ 共振信号</div>
+                            <div class="week-section-title" style="color:#ffd700;">★ 共振信号</div>
                             <div class="week-stock-item">
-                                <span class="week-stock-rank" style="background:#d29922;">1</span>
-                                <span class="week-stock-name" style="color:#d29922;font-weight:600;">华天科技</span>
-                                <span class="week-stock-amount" style="color:#d29922;">机构+游资共买</span>
+                                <span class="week-stock-rank" style="background:#ffd700;">1</span>
+                                <span class="week-stock-name" style="color:#ffd700;font-weight:600;">华天科技</span>
+                                <span class="week-stock-amount" style="color:#ffd700;">机构+游资共买</span>
                             </div>
                         </div>
                     </div>
@@ -1276,7 +1295,7 @@
                             <div class="week-stock-item">
                                 <span class="week-stock-rank">4</span>
                                 <span class="week-stock-name">美诺华</span>
-                                <span class="week-stock-amount" style="color:#d29922;">★ +4131万</span>
+                                <span class="week-stock-amount" style="color:#ffd700;">★ +4131万</span>
                             </div>
                             <div class="week-stock-item">
                                 <span class="week-stock-rank">5</span>
@@ -1309,15 +1328,15 @@
                             <div class="week-stock-item">
                                 <span class="week-stock-rank">5</span>
                                 <span class="week-stock-name">T王·美诺华</span>
-                                <span class="week-stock-amount" style="color:#d29922;">★ +5910万</span>
+                                <span class="week-stock-amount" style="color:#ffd700;">★ +5910万</span>
                             </div>
                         </div>
                         <div class="week-section">
-                            <div class="week-section-title" style="color:#d29922;">★ 共振信号</div>
+                            <div class="week-section-title" style="color:#ffd700;">★ 共振信号</div>
                             <div class="week-stock-item">
-                                <span class="week-stock-rank" style="background:#d29922;">1</span>
-                                <span class="week-stock-name" style="color:#d29922;font-weight:600;">美诺华</span>
-                                <span class="week-stock-amount" style="color:#d29922;">机构+游资共买</span>
+                                <span class="week-stock-rank" style="background:#ffd700;">1</span>
+                                <span class="week-stock-name" style="color:#ffd700;font-weight:600;">美诺华</span>
+                                <span class="week-stock-amount" style="color:#ffd700;">机构+游资共买</span>
                             </div>
                         </div>
                     </div>
@@ -1410,7 +1429,7 @@
         <div class="footer-note">
             <strong>机游共振说明：</strong><br>
             1. 本日历展示龙虎榜机构席位（公募/社保/险资等）与游资席位（知名营业部）的每日净买入数据。<br>
-            2. <strong style="color:#d29922;">★ 机游共振</strong> = 同一只股票当日同时出现机构净买入和知名游资净买入，代表两类资金形成合力。<br>
+            2. <strong style="color:#ffd700;">★ 机游共振</strong> = 同一只股票当日同时出现机构净买入和知名游资净买入，代表两类资金形成合力。<br>
             3. 机构席位侧重基本面驱动、中期趋势；游资席位侧重情绪驱动、短线博弈。共振信号意味着市场共识较强。<br>
             4. 7月1日~8日所有数据已通过证券时报·数据宝、东方财富网等公开来源补充完整。<br>
             5. 本页数据来源：沪深交易所龙虎榜官方披露 / 证券时报·数据宝 / 东方财富Choice / 金融界。
