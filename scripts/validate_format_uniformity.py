@@ -101,6 +101,44 @@ def normalize_structure_signature(html: str) -> str:
                 style_part = f' style="{"; ".join(sorted(keep))}"'
         return f"<{tag}{cls}{style_part}>"
 
+    # 对 stock-icon / stock-amount 的 class 做语义归一化：所有变体统一为基类
+    # （up/down/resonance/resonance-amount 等属于语义差异，不是结构差异）
+    s = re.sub(
+        r'class="stock-icon[^"]*"',
+        'class="stock-icon"',
+        s,
+    )
+    s = re.sub(
+        r'class="stock-amount[^"]*"',
+        'class="stock-amount"',
+        s,
+    )
+    # 共振区 section-title 的 resonance-title class 属于语义修饰，归一化为基础 section-title
+    s = re.sub(
+        r'class="section-title[^"]*"',
+        'class="section-title"',
+        s,
+    )
+    # 共振区 stock-icon / stock-name / stock-amount 的 style 颜色
+    # 属于语义差异（共振金色/上涨红色等），不是结构差异，从标签中移除整个 style 属性
+    def _strip_stock_style(m):
+        full = m.group(0)
+        return re.sub(r'\s+style="[^"]*"', '', full)
+    s = re.sub(
+        r'<span\b[^>]*class="stock-(?:icon|name|amount)[^"]*"[^>]*>',
+        _strip_stock_style,
+        s,
+    )
+    # 共振区的 stock-amount 标签属于"可选"字段（有的共振格式有，有的没有）
+    # 对结构签名来说属于可选元素，进一步移除 stock-amount span 以避免误报
+    def _remove_stock_amount(m):
+        full = m.group(0)
+        return ''
+    s = re.sub(
+        r'<span\b[^>]*class="stock-amount[^"]*"[^>]*>.*?</span>',
+        _remove_stock_amount,
+        s,
+    )
     s = re.sub(
         r'<(\w+)([^>]*)>',
         lambda m: tag_replacer(m) if m.group(1) not in ("br", "hr", "img") else f"<{m.group(1)}>",
