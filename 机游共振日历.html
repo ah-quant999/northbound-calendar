@@ -1582,7 +1582,11 @@
                     if (currentSection) html += '</div>';
                     currentSection = child.textContent.trim();
                     html += '<div class="detail-section">';
-                    html += '<div class="detail-section-title">' + currentSection + '</div>';
+                    var sectionTitleStyle = '';
+                    if (currentSection && currentSection.indexOf('机游共振') >= 0) {
+                        sectionTitleStyle = ' style="color:#ffd700;"';
+                    }
+                    html += '<div class="detail-section-title"' + sectionTitleStyle + '>' + currentSection + '</div>';
                 } else if (child.classList.contains('stock-item')) {
                     var icon = child.querySelector('.stock-icon');
                     var name = child.querySelector('.stock-name');
@@ -1601,6 +1605,7 @@
                     html += '</div>';
                 } else if (child.classList.contains('stock-row')) {
                     // 机游共振的 stock-row 内含多个 stock-item
+                    var isResonance = currentSection && currentSection.indexOf('机游共振') >= 0;
                     var items = child.querySelectorAll('.stock-item');
                     for (var j = 0; j < items.length; j++) {
                         var item = items[j];
@@ -1611,7 +1616,9 @@
                         var inameText = iname ? iname.textContent.trim() : '';
                         var iamountText = iamount ? iamount.textContent.trim() : '';
                         var icolorStyle = '';
-                        if (iname && iname.style.color) {
+                        if (isResonance) {
+                            icolorStyle = 'color:#ffd700;font-weight:600;';
+                        } else if (iname && iname.style.color) {
                             icolorStyle = 'color:' + iname.style.color + ';';
                         } else if (iamount) {
                             if (iamount.classList.contains('up')) icolorStyle = 'color:#f85149;';
