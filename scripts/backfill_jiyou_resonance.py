@@ -24,7 +24,7 @@ from update_jiyou_resonance_calendar import (
     update_html,
     format_amount,
     is_a_stock_holiday,
-    RESONANCE_LHB_TOP_N,
+    RESONANCE_YOUZI_TOP_N,
 )
 
 
@@ -302,7 +302,7 @@ def main():
 
         date_range_str = f"{dates[0]}~{dates[-1]}"
         commit_msg = (f"refactor: 机游共振日历重构为纯数据交叉版 {date_range_str}\n\n"
-                      f"共振逻辑: 机构净买入TOP5 ∩ 龙虎榜净买入TOP{RESONANCE_LHB_TOP_N}\n"
+                      f"共振逻辑: 机构净买入TOP5 ∩ 龙虎榜净买入TOP{RESONANCE_YOUZI_TOP_N}\n"
                       f"移除游资席位识别，全部基于东财官方API数据交叉计算\n"
                       f"回刷日期: {', '.join(dates)}\n"
                       f"变更天数: {len(changed_dates)}\n"
@@ -331,7 +331,7 @@ def main():
     print(f"\n{'='*60}")
     print("📋 回刷完成汇总")
     print(f"{'='*60}")
-    print(f"共振逻辑: 机构净买入TOP5 ∩ 龙虎榜净买入TOP{RESONANCE_LHB_TOP_N}")
+    print(f"共振逻辑: 机构净买入TOP5 ∩ 龙虎榜净买入TOP{RESONANCE_YOUZI_TOP_N}")
     print(f"回刷日期: {', '.join(dates)}")
     print(f"总天数: {len(dates)}")
     print(f"成功处理: {len(results)}天")

@@ -7,8 +7,15 @@
   - 龙虎榜个股明细：RPT_DAILYBILLBOARD_DETAILSNEW, filter=(TRADE_DATE='YYYY-MM-DD')
 
 共振逻辑：
-  机构净买入TOP5  ∩  龙虎榜个股买入净额TOP20  =  机游共振
-  （龙虎榜买入净额代表市场整体游资/主力资金买入力度，不做任何席位识别）
+  机构净买入TOP5  ∩  游资净买入TOP20  =  机游共振
+  （游资净买入 = 龙虎榜个股明细的净买入额，按股票维度聚合，不做任何席位识别）
+
+页面区块（从上到下）：
+  1. ▲ 机构净买入TOP5（红）
+  2. ▼ 机构净卖出TOP5（绿）
+  3. ★ 机游共振（黄）
+  4. ▲ 游资净买入TOP5（红）— 龙虎榜个股净买入额排名前5，按股票展示，不显示游资名
+  5. ▼ 游资净卖出TOP5（绿）— 龙虎榜个股净卖出额排名前5，按股票展示，不显示游资名
 
 参数：
   --html_path: HTML文件路径
@@ -61,8 +68,11 @@ REPORT_INSTITUTION = "RPT_ORGANIZATION_TRADE_DETAILS"
 # 龙虎榜个股明细（用于共振判断：市场整体买入力度TOP20）
 REPORT_DAILY_DETAILS = "RPT_DAILYBILLBOARD_DETAILSNEW"
 
-# 共振参数：龙虎榜个股买入净额 TOP N
-RESONANCE_LHB_TOP_N = 20
+# 共振参数：游资净买入 TOP N（用于共振判断）
+RESONANCE_YOUZI_TOP_N = 20
+
+# 展示参数：游资净买卖各展示 TOP N
+YOUZI_DISPLAY_TOP_N = 5
 
 # A股法定假日集合
 A_STOCK_HOLIDAYS_2026 = {
@@ -92,11 +102,18 @@ class InstitutionStock(BaseModel):
     code: str = Field(description="股票代码", default="")
 
 
+class YouziStock(BaseModel):
+    """游资龙虎榜股票净买入/卖出数据（按股票维度，不识别游资）"""
+    name: str = Field(description="股票名称")
+    amount: float = Field(description="净买入金额(万元)，正数净买，负数净卖")
+    code: str = Field(description="股票代码", default="")
+
+
 class ResonanceItem(BaseModel):
     """共振信号"""
     stock_name: str = Field(description="共振股票名称")
     inst_amount: float = Field(description="机构净买入金额(万元)", default=0.0)
-    lhb_amount: float = Field(description="龙虎榜净买入金额(万元)", default=0.0)
+    youzi_amount: float = Field(description="游资净买入金额(万元)", default=0.0)
 
 
 class DailyData(BaseModel):
@@ -105,6 +122,8 @@ class DailyData(BaseModel):
     institution_top5: List[InstitutionStock] = Field(description="机构净买入TOP5", default_factory=list)
     institution_sell_top5: List[InstitutionStock] = Field(description="机构净卖出TOP5", default_factory=list)
     resonance: List[ResonanceItem] = Field(description="机游共振信号", default_factory=list)
+    youzi_buy_top5: List[YouziStock] = Field(description="游资净买入TOP5（按股票）", default_factory=list)
+    youzi_sell_top5: List[YouziStock] = Field(description="游资净卖出TOP5（按股票）", default_factory=list)
     data_source: str = Field(description="数据来源", default="东方财富龙虎榜官方API")
 
 
@@ -121,10 +140,25 @@ def init_state_db():
             data_source TEXT,
             institution_top5 TEXT,
             institution_sell_top5 TEXT,
+            youzi_buy_top5 TEXT,
+            youzi_sell_top5 TEXT,
             resonance TEXT,
             pushed_at TEXT
         )
     """)
+    # 迁移旧表字段
+    try:
+        conn.execute("ALTER TABLE update_history ADD COLUMN institution_sell_top5 TEXT")
+    except Exception:
+        pass
+    try:
+        conn.execute("ALTER TABLE update_history ADD COLUMN youzi_buy_top5 TEXT")
+    except Exception:
+        pass
+    try:
+        conn.execute("ALTER TABLE update_history ADD COLUMN youzi_sell_top5 TEXT")
+    except Exception:
+        pass
     conn.commit()
     conn.close()
 
@@ -139,7 +173,8 @@ def get_last_update(date: str) -> Optional[Dict]:
     if row:
         cols = [desc[0] for desc in cursor.description]
         data = dict(zip(cols, row))
-        for k in ["institution_top5", "institution_sell_top5", "resonance"]:
+        for k in ["institution_top5", "institution_sell_top5",
+                   "youzi_buy_top5", "youzi_sell_top5", "resonance"]:
             val = data.get(k)
             data[k] = json.loads(val) if val else []
         return data
@@ -153,14 +188,16 @@ def save_update(data: DailyData, pushed_at: Optional[str] = None):
     conn.execute("""
         INSERT OR REPLACE INTO update_history
         (date, updated_at, data_source, institution_top5, institution_sell_top5,
-         resonance, pushed_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+         youzi_buy_top5, youzi_sell_top5, resonance, pushed_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         data.date,
         now,
         data.data_source,
         json.dumps([s.model_dump() for s in data.institution_top5], ensure_ascii=False),
         json.dumps([s.model_dump() for s in data.institution_sell_top5], ensure_ascii=False),
+        json.dumps([s.model_dump() for s in data.youzi_buy_top5], ensure_ascii=False),
+        json.dumps([s.model_dump() for s in data.youzi_sell_top5], ensure_ascii=False),
         json.dumps([s.model_dump() for s in data.resonance], ensure_ascii=False),
         pushed_at or now,
     ))
@@ -310,12 +347,12 @@ def get_institution_data(date_str: str) -> Dict[str, List[Dict]]:
 
 # ===== 龙虎榜个股明细数据 =====
 
-def get_lhb_stock_data(date_str: str) -> Dict[str, List[Dict]]:
+def get_youzi_stock_data(date_str: str) -> Dict[str, List[Dict]]:
     """
     获取龙虎榜个股明细数据，按股票聚合（同一股票可能因不同上榜原因出现多条）
 
     数据源: RPT_DAILYBILLBOARD_DETAILSNEW
-    用途：龙虎榜净买入TOP20代表市场整体买入力度（游资+主力），用于共振判断
+    用途：游资净买入TOP20代表市场整体买入力度（游资+主力），用于共振判断
 
     Returns:
         {"buy_sorted": [...], "sell_sorted": [...]}
@@ -362,7 +399,7 @@ def get_lhb_stock_data(date_str: str) -> Dict[str, List[Dict]]:
     sell_sorted = sorted(stocks, key=lambda x: x["net_buy"])
 
     print(f"    去重后股票数: {len(stocks)}")
-    print(f"    龙虎榜净买入TOP10: {[(s['name'], round(s['net_buy_wan'],2)) for s in buy_sorted[:10]]}")
+    print(f"    游资净买入TOP10: {[(s['name'], round(s['net_buy_wan'],2)) for s in buy_sorted[:10]]}")
     print(f"    龙虎榜净卖出TOP5: {[(s['name'], round(s['net_buy_wan'],2)) for s in sell_sorted[:5]]}")
 
     return {"buy_sorted": buy_sorted, "sell_sorted": sell_sorted}
@@ -370,7 +407,7 @@ def get_lhb_stock_data(date_str: str) -> Dict[str, List[Dict]]:
 
 # ===== 数据校验 =====
 
-def validate_data(inst_data: Dict, lhb_data: Dict, date_str: str) -> List[str]:
+def validate_data(inst_data: Dict, youzi_data: Dict, date_str: str) -> List[str]:
     """
     数据校验：检查数据完整性、金额方向、数量等
 
@@ -404,29 +441,29 @@ def validate_data(inst_data: Dict, lhb_data: Dict, date_str: str) -> List[str]:
         if abs(s["net_buy_wan"]) > 1000000:  # 100亿
             errors.append(f"机构净买入金额异常: {s['name']} {s['net_buy_wan']:.2f}万")
 
-    # 龙虎榜数据校验
-    lhb_buy = [s for s in lhb_data["buy_sorted"] if s["net_buy"] > 0]
-    if len(lhb_buy) < RESONANCE_LHB_TOP_N:
+    # 龙虎榜数据校验（游资侧）
+    youzi_buy = [s for s in youzi_data["buy_sorted"] if s["net_buy"] > 0]
+    if len(youzi_buy) < RESONANCE_YOUZI_TOP_N:
         # 可能是节假日后或特殊日期，只作警告
-        print(f"  ⚠️  龙虎榜净买入股票数不足{RESONANCE_LHB_TOP_N}只（实际{len(lhb_buy)}只）")
+        print(f"  ⚠️  游资净买入股票数不足{RESONANCE_YOUZI_TOP_N}只（实际{len(youzi_buy)}只）")
 
     return errors
 
 
 # ===== 共振计算 =====
 
-def compute_resonance(inst_top5: List[Dict], lhb_data: Dict) -> List[ResonanceItem]:
+def compute_resonance(inst_top5: List[Dict], youzi_data: Dict) -> List[ResonanceItem]:
     """
-    计算机游共振：机构净买入TOP5 ∩ 龙虎榜个股买入净额TOP20
+    计算机游共振：机构净买入TOP5 ∩ 游资净买入TOP20
 
     逻辑：
       - 机构净买入TOP5：代表机构资金强烈看好
-      - 龙虎榜净买入TOP20：代表市场整体（游资+主力）资金强烈买入
+      - 游资净买入TOP20：龙虎榜个股净买入额前20，代表市场整体资金强烈买入
       - 两者交集即为"机游共振"——机构与市场主力资金同向买入
 
     Args:
         inst_top5: 机构净买入TOP5列表
-        lhb_data: 龙虎榜数据（含 buy_sorted）
+        youzi_data: 游资数据（含 buy_sorted）
 
     Returns:
         共振信号列表（按机构排名顺序）
@@ -435,16 +472,16 @@ def compute_resonance(inst_top5: List[Dict], lhb_data: Dict) -> List[ResonanceIt
     inst_stock_names = {s["name"] for s in inst_top5[:5]}
     inst_stock_codes = {s["code"] for s in inst_top5[:5]}
 
-    # 龙虎榜净买入TOP N 股票名称/代码集合
-    lhb_top_n = lhb_data["buy_sorted"][:RESONANCE_LHB_TOP_N]
-    lhb_stock_names = {s["name"] for s in lhb_top_n}
-    lhb_stock_codes = {s["code"] for s in lhb_top_n}
+    # 游资净买入TOP N 股票名称/代码集合
+    youzi_top_n = youzi_data["buy_sorted"][:RESONANCE_YOUZI_TOP_N]
+    youzi_stock_names = {s["name"] for s in youzi_top_n}
+    youzi_stock_codes = {s["code"] for s in youzi_top_n}
 
     # 找出重叠股票（优先按代码匹配，名称兜底）
-    overlap_codes = inst_stock_codes & lhb_stock_codes
+    overlap_codes = inst_stock_codes & youzi_stock_codes
 
-    # 构建龙虎榜股票的代码->金额映射
-    lhb_code_to_amount = {s["code"]: s["net_buy_wan"] for s in lhb_top_n}
+    # 构建游资股票的代码->金额映射
+    youzi_code_to_amount = {s["code"]: s["net_buy_wan"] for s in youzi_top_n}
 
     resonance = []
     # 按机构排名顺序输出
@@ -453,12 +490,12 @@ def compute_resonance(inst_top5: List[Dict], lhb_data: Dict) -> List[ResonanceIt
             resonance.append(ResonanceItem(
                 stock_name=s["name"],
                 inst_amount=round(s["net_buy_wan"], 2),
-                lhb_amount=round(lhb_code_to_amount.get(s["code"], 0.0), 2),
+                youzi_amount=round(youzi_code_to_amount.get(s["code"], 0.0), 2),
             ))
 
     print(f"    共振股票数: {len(resonance)}")
     for r in resonance:
-        print(f"      - {r.stock_name}: 机构+{r.inst_amount:.0f}万, 龙虎榜+{r.lhb_amount:.0f}万")
+        print(f"      - {r.stock_name}: 机构+{r.inst_amount:.0f}万, 游资+{r.youzi_amount:.0f}万")
 
     return resonance
 
@@ -471,11 +508,11 @@ def build_daily_data(date_str: str) -> DailyData:
 
     # 1. 获取机构数据
     inst_data = get_institution_data(date_str)
-    # 2. 获取龙虎榜个股明细数据
-    lhb_data = get_lhb_stock_data(date_str)
+    # 2. 获取游资龙虎榜数据（按股票维度）
+    youzi_data = get_youzi_stock_data(date_str)
 
     # 数据校验
-    errors = validate_data(inst_data, lhb_data, date_str)
+    errors = validate_data(inst_data, youzi_data, date_str)
     if errors:
         print("⚠️  数据校验警告:")
         for e in errors:
@@ -506,14 +543,38 @@ def build_daily_data(date_str: str) -> DailyData:
         if s["net_buy"] < 0
     ]
 
+    # ===== 游资净买入TOP5（按股票展示，不显示游资名） =====
+    youzi_buy_top5 = [
+        YouziStock(
+            name=s["name"],
+            code=s["code"],
+            amount=round(s["net_buy_wan"], 2),
+        )
+        for s in youzi_data["buy_sorted"][:YOUZI_DISPLAY_TOP_N]
+        if s["net_buy"] > 0
+    ]
+
+    # ===== 游资净卖出TOP5（按股票展示，不显示游资名） =====
+    youzi_sell_top5 = [
+        YouziStock(
+            name=s["name"],
+            code=s["code"],
+            amount=round(s["net_buy_wan"], 2),  # 负数
+        )
+        for s in youzi_data["sell_sorted"][:YOUZI_DISPLAY_TOP_N]
+        if s["net_buy"] < 0
+    ]
+
     # 共振判断
-    resonance = compute_resonance(inst_data["buy_sorted"][:5], lhb_data)
+    resonance = compute_resonance(inst_data["buy_sorted"][:5], youzi_data)
 
     return DailyData(
         date=date_str,
         institution_top5=inst_top5,
         institution_sell_top5=inst_sell_top5,
         resonance=resonance,
+        youzi_buy_top5=youzi_buy_top5,
+        youzi_sell_top5=youzi_sell_top5,
         data_source="东方财富龙虎榜官方API",
     )
 
@@ -581,7 +642,25 @@ def build_day_cell_html(data: DailyData) -> str:
         lines.append(f'                        <div class="stock-row">')
         for res in data.resonance:
             display = f"{res.stock_name}"
-            lines.append(f'                            <span class="stock-item"><span class="stock-icon resonance">★</span><span class="stock-name">{display}</span><span class="stock-amount resonance-amount">+{format_amount(res.lhb_amount)}</span></span>')
+            lines.append(f'                            <span class="stock-item"><span class="stock-icon resonance">★</span><span class="stock-name">{display}</span><span class="stock-amount resonance-amount">+{format_amount(res.youzi_amount)}</span></span>')
+        lines.append(f'                        </div>')
+
+    # 4. 游资净买入TOP5（按股票维度，不显示游资名）
+    if data.youzi_buy_top5:
+        lines.append(f'                        <div class="section-title youzi-title">▲ 游资净买入TOP5</div>')
+        lines.append(f'                        <div class="stock-row">')
+        for stock in data.youzi_buy_top5[:YOUZI_DISPLAY_TOP_N]:
+            amount_str = f"+{format_amount(stock.amount)}"
+            lines.append(f'                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">{stock.name}</span><span class="stock-amount up">{amount_str}</span></span>')
+        lines.append(f'                        </div>')
+
+    # 5. 游资净卖出TOP5（按股票维度，不显示游资名）
+    if data.youzi_sell_top5:
+        lines.append(f'                        <div class="section-title youzi-sell-title">▼ 游资净卖出TOP5</div>')
+        lines.append(f'                        <div class="stock-row">')
+        for stock in data.youzi_sell_top5[:YOUZI_DISPLAY_TOP_N]:
+            amount_str = f"{format_amount(stock.amount)}"
+            lines.append(f'                            <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">{stock.name}</span><span class="stock-amount down">{amount_str}</span></span>')
         lines.append(f'                        </div>')
 
     lines.append(f'                    </div>')
@@ -841,7 +920,7 @@ async def main():
     print(f"📁 仓库路径: {repo_path}")
     print(f"🔧 强制模式: {force_update}")
     print(f"📊 数据源: 东方财富龙虎榜官方API（纯数据交叉版）")
-    print(f"🔬 共振逻辑: 机构净买入TOP5 ∩ 龙虎榜净买入TOP{RESONANCE_LHB_TOP_N}")
+    print(f"🔬 共振逻辑: 机构净买入TOP5 ∩ 游资净买入TOP{RESONANCE_YOUZI_TOP_N}")
 
     try:
         init_state_db()
@@ -898,7 +977,7 @@ async def main():
                 print(f"    {i}. {s.name} ({s.code}) {format_amount(s.amount)}")
             print(f"  ⭐ 共振信号:")
             for r in daily_data.resonance:
-                print(f"    ★ {r.stock_name}: 机构+{format_amount(r.inst_amount)}, 龙虎榜+{format_amount(r.lhb_amount)}")
+                print(f"    ★ {r.stock_name}: 机构+{format_amount(r.inst_amount)}, 游资+{format_amount(r.youzi_amount)}")
             await sdk.submit_result(
                 message=f"[DRY-RUN] [{target_date}] 机游共振数据已抓取，未写入HTML\n"
                         f"机构TOP5: {len(daily_data.institution_top5)}只, 共振: {len(daily_data.resonance)}个",
@@ -985,9 +1064,9 @@ async def main():
                 message_parts.append(f"  {i}. {stock.name}  {format_amount(stock.amount)}\n")
 
         if daily_data.resonance:
-            message_parts.append(f"\n⭐ 机游共振信号（机构TOP5 ∩ 龙虎榜TOP{RESONANCE_LHB_TOP_N}）:\n")
+            message_parts.append(f"\n⭐ 机游共振信号（机构TOP5 ∩ 游资TOP{RESONANCE_YOUZI_TOP_N}）:\n")
             for res in daily_data.resonance:
-                message_parts.append(f"  ★ {res.stock_name}: 机构+{format_amount(res.inst_amount)} / 龙虎榜+{format_amount(res.lhb_amount)}\n")
+                message_parts.append(f"  ★ {res.stock_name}: 机构+{format_amount(res.inst_amount)} / 游资+{format_amount(res.youzi_amount)}\n")
 
         if file_url:
             message_parts.append(f"\n🔗 [查看完整日历]({file_url})")
@@ -1007,7 +1086,7 @@ async def main():
                 "resonance_count": len(daily_data.resonance),
                 "pushed": push_ok,
                 "data_source": "eastmoney_official_api_pure_data",
-                "resonance_logic": f"机构TOP5 ∩ 龙虎榜TOP{RESONANCE_LHB_TOP_N}",
+                "resonance_logic": f"机构TOP5 ∩ 游资TOP{RESONANCE_YOUZI_TOP_N}",
             },
         )
         print("✅ 更新完成")
