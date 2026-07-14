@@ -1598,9 +1598,13 @@
                     var colorStyle = '';
                     if (amountClass.indexOf('up') >= 0) colorStyle = 'color:#f85149;';
                     else if (amountClass.indexOf('down') >= 0) colorStyle = 'color:#3fb950;';
+                    var nameColorStyle = '';
+                    if (currentSection && currentSection.indexOf('机构净买入') >= 0 && amountClass.indexOf('up') >= 0) {
+                        nameColorStyle = 'color:#f85149;';
+                    }
                     html += '<div class="detail-item">';
                     html += '<span class="detail-icon">' + iconText + '</span>';
-                    html += '<span class="detail-name" style="' + colorStyle + '">' + nameText + '</span>';
+                    html += '<span class="detail-name" style="' + nameColorStyle + '">' + nameText + '</span>';
                     html += '<span class="detail-amount" style="' + colorStyle + '">' + amountText + '</span>';
                     html += '</div>';
                 } else if (child.classList.contains('stock-row')) {
