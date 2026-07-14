@@ -1,0 +1,261 @@
+#!/usr/bin/env python3
+"""
+机游共振日历 — 每日更新流水线（GitHub Actions 纯 Python 版）
+
+完全不依赖 CodeActSDK / pydantic，只用标准库 + requests。
+运行在 GitHub Actions 的 ubuntu-latest 环境中，当前目录就是仓库根目录。
+
+流程：
+  1. 当日数据更新
+  2. 回刷前 2 个交易日（防漏更）
+  3. 同步 index.html（复制主HTML → index.html）
+  4. API 模式数据一致性校验
+  5. HTML 模式格式校验
+  6. 有变更则输出标志（供 Actions commit/push）
+
+用法：
+  python3 daily_update_jiyou_gha.py --html 机游共振日历.html
+  python3 daily_update_jiyou_gha.py --html 机游共振日历.html --date 2026-07-14
+  python3 daily_update_jiyou_gha.py --html 机游共振日历.html --lookback 3
+"""
+
+import argparse
+import os
+import shutil
+import subprocess
+import sys
+from datetime import datetime, timedelta
+from pathlib import Path
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(SCRIPT_DIR))
+
+from update_jiyou_resonance_gha import is_trading_day  # noqa: E402
+
+
+def log_info(msg: str) -> None:
+    print()
+    print(f"🟢 {msg}")
+
+
+def log_warn(msg: str) -> None:
+    print(f"🟡 {msg}")
+
+
+def log_error(msg: str) -> None:
+    print(f"🔴 {msg}", file=sys.stderr)
+
+
+def run_cmd(cmd: list, cwd: str | None = None, timeout: int = 300) -> subprocess.CompletedProcess:
+    """运行命令，返回 CompletedProcess（不抛异常）"""
+    print(f"  $ {' '.join(cmd)}")
+    result = subprocess.run(
+        cmd,
+        cwd=cwd,
+        capture_output=True,
+        text=True,
+        timeout=timeout,
+    )
+    if result.stdout:
+        lines = result.stdout.strip().splitlines()
+        for line in lines[-10:]:
+            print(f"  | {line}")
+        if len(lines) > 10:
+            print(f"  ... (共 {len(lines)} 行 stdout)")
+    if result.returncode != 0 and result.stderr:
+        lines = result.stderr.strip().splitlines()
+        for line in lines[-10:]:
+            print(f"  ERR | {line}")
+    return result
+
+
+def get_prev_trading_days(date_str: str, n: int) -> list:
+    """获取 date_str 之前的 n 个交易日（不含当天）"""
+    dates = []
+    cur = datetime.strptime(date_str, "%Y-%m-%d") - timedelta(days=1)
+    while len(dates) < n:
+        ds = cur.strftime("%Y-%m-%d")
+        if is_trading_day(ds):
+            dates.append(ds)
+        cur -= timedelta(days=1)
+        if cur < datetime(2020, 1, 1):
+            break
+    return dates
+
+
+def run_update(html_path: str, date_str: str) -> bool:
+    """运行单日更新，成功返回True"""
+    update_script = str(SCRIPT_DIR / "update_jiyou_resonance_gha.py")
+    r = run_cmd([
+        sys.executable, update_script,
+        "--date", date_str,
+        "--html", html_path,
+    ], timeout=120)
+    if r.returncode != 0:
+        log_error(f"更新 {date_str} 失败（返回码={r.returncode}）")
+        return False
+    return True
+
+
+def run_validate_api(date_str: str) -> bool:
+    """API模式校验"""
+    val_script = str(SCRIPT_DIR / "validate_data_consistency_gha.py")
+    r = run_cmd([
+        sys.executable, val_script,
+        "--date", date_str,
+    ], timeout=120)
+    if r.returncode != 0:
+        log_error(f"API模式校验 {date_str} 失败")
+        return False
+    return True
+
+
+def run_validate_html(html_path: str) -> bool:
+    """HTML模式校验"""
+    val_script = str(SCRIPT_DIR / "validate_data_consistency_gha.py")
+    r = run_cmd([
+        sys.executable, val_script,
+        "--html", html_path,
+    ], timeout=60)
+    if r.returncode != 0:
+        log_error("HTML模式校验失败")
+        return False
+    return True
+
+
+def has_git_changes(repo_dir: str, files: list) -> bool:
+    """检查git是否有变更"""
+    r1 = run_cmd(["git", "diff", "--quiet", "--"] + files, cwd=repo_dir, timeout=30)
+    if r1.returncode != 0:
+        return True
+    r2 = run_cmd(["git", "diff", "--cached", "--quiet", "--"] + files, cwd=repo_dir, timeout=30)
+    if r2.returncode != 0:
+        return True
+    # 也检查是否有未跟踪文件
+    r3 = run_cmd(["git", "status", "--porcelain", "--"] + files, cwd=repo_dir, timeout=30)
+    if r3.stdout.strip():
+        return True
+    return False
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="机游共振日历每日更新流水线 (GHA纯Python版)"
+    )
+    parser.add_argument("--html", default="机游共振日历.html",
+                        help="主HTML文件路径（默认：机游共振日历.html）")
+    parser.add_argument("--date", default="",
+                        help="目标日期（默认今天）")
+    parser.add_argument("--lookback", type=int, default=2,
+                        help="回刷前N个交易日（默认2）")
+    parser.add_argument("--repo-dir", default=".",
+                        help="仓库根目录（默认当前目录）")
+    parser.add_argument("--skip-validate", action="store_true",
+                        help="跳过校验（调试用）")
+    args = parser.parse_args()
+
+    repo_dir = str(Path(args.repo_dir).resolve())
+    html_file = args.html
+    html_path = os.path.join(repo_dir, html_file) if not os.path.isabs(html_file) else html_file
+    index_path = os.path.join(os.path.dirname(html_path), "index.html")
+
+    target_date = args.date or datetime.now().strftime("%Y-%m-%d")
+
+    print("=" * 60)
+    print("🚀 机游共振日历 — 每日更新流水线 (GHA版)")
+    print(f"📅 目标日期: {target_date}")
+    print(f"📁 仓库目录: {repo_dir}")
+    print(f"📄 HTML 文件: {html_path}")
+    print(f"🔁 回刷天数: 前 {args.lookback} 个交易日")
+    print("=" * 60)
+
+    # 检查 HTML 文件是否存在
+    if not os.path.isfile(html_path):
+        log_error(f"HTML 文件不存在: {html_path}")
+        sys.exit(1)
+
+    # 记录变更前文件大小
+    size_before = os.path.getsize(html_path)
+    print(f"📏 更新前文件大小: {size_before} 字节")
+
+    # 计算待更新日期列表
+    update_dates = []
+    if is_trading_day(target_date):
+        update_dates.append(target_date)
+    else:
+        log_warn(f"{target_date} 是非交易日，跳过当日更新")
+
+    prev_days = get_prev_trading_days(target_date, args.lookback)
+    update_dates.extend(prev_days)
+
+    if not update_dates:
+        log_warn("没有需要更新的日期")
+        print("GHA_NO_CHANGE=true")
+        sys.exit(0)
+
+    print(f"📋 待更新日期: {', '.join(update_dates)}")
+
+    # 步骤1：逐个更新
+    log_info("步骤1/4：更新数据")
+    all_ok = True
+    for ds in update_dates:
+        print(f"\n--- 更新 {ds} ---")
+        if not run_update(html_path, ds):
+            all_ok = False
+
+    if not all_ok:
+        log_error("数据更新失败")
+        sys.exit(1)
+
+    # 步骤2：同步 index.html
+    log_info("步骤2/4：同步 index.html")
+    shutil.copy2(html_path, index_path)
+    print(f"✅ index.html 已同步: {index_path}")
+
+    # 步骤3：API 模式校验（校验当日 + 回刷日的数据正确性）
+    if not args.skip_validate:
+        log_info("步骤3/4：API 模式数据一致性校验")
+        val_ok = True
+        for ds in update_dates:
+            if not is_trading_day(ds):
+                continue
+            print(f"\n--- 校验 {ds} ---")
+            if not run_validate_api(ds):
+                val_ok = False
+        if not val_ok:
+            log_error("API 模式校验失败，流水线中止")
+            sys.exit(1)
+
+        # 步骤4：HTML 模式校验
+        log_info("步骤4/4：HTML 模式格式校验")
+        if not run_validate_html(html_path):
+            log_error("HTML 模式校验失败，流水线中止")
+            sys.exit(1)
+    else:
+        log_info("步骤3/4：跳过API校验（--skip-validate）")
+        log_info("步骤4/4：跳过HTML校验（--skip-validate）")
+
+    # 检查是否有变更
+    size_after = os.path.getsize(html_path)
+    print(f"\n📏 更新后文件大小: {size_after} 字节")
+
+    # 检查 git 状态
+    changed = has_git_changes(repo_dir, [html_file, "index.html"])
+
+    print()
+    print("=" * 60)
+    if changed:
+        print("✅ 有数据变更，需要提交推送")
+        print("GHA_HAS_CHANGES=true")
+        print(f"GHA_TARGET_DATE={target_date}")
+    else:
+        print("ℹ️  无数据变更")
+        print("GHA_NO_CHANGE=true")
+    print("🎉 流水线完成")
+    print("=" * 60)
+
+    sys.exit(0)
+
+
+if __name__ == "__main__":
+    main()
