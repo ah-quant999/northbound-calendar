@@ -1600,7 +1600,7 @@
                     else if (amountClass.indexOf('down') >= 0) colorStyle = 'color:#3fb950;';
                     html += '<div class="detail-item">';
                     html += '<span class="detail-icon">' + iconText + '</span>';
-                    html += '<span class="detail-name">' + nameText + '</span>';
+                    html += '<span class="detail-name" style="' + colorStyle + '">' + nameText + '</span>';
                     html += '<span class="detail-amount" style="' + colorStyle + '">' + amountText + '</span>';
                     html += '</div>';
                 } else if (child.classList.contains('stock-row')) {
