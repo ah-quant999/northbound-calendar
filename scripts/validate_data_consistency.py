@@ -285,6 +285,7 @@ def extract_day_cells(html: str) -> list:
 
             # 机游共振区的股票名
             resonance_stocks = []
+            resonance_items = []
             res_section = re.search(
                 r'<div class="section-title[^"]*">★ 机游共振.*?</div>\s*<div class="stock-row">(.*?)</div>',
                 td_html, re.DOTALL,
@@ -295,13 +296,17 @@ def extract_day_cells(html: str) -> list:
                     r'<span class="stock-name[^"]*">(.*?)</span>',
                     row_html, re.DOTALL,
                 )
-                # 共振区的 stock-name 可能含详情文本（如"金安国纪 机构+3.22亿+北向+1.83亿"）
-                # 取第一个词作为股票名（中文股票名通常不空格）
+                # 共振区的 stock-name 可能含详情文本，格式：
+                #   "股票名（游资A、游资B）"  或  "股票名 机构+X亿+游资+Y亿"
+                # 提取股票名：取空格或括号之前的部分
                 for n in names:
                     n = n.strip()
-                    # 只取第一个空格前的部分
-                    stock = n.split()[0] if n.split() else n
-                    resonance_stocks.append(stock)
+                    # 去掉括号及之后的内容（如"格科微 (T王量化、东北猛男)"）
+                    stock = re.split(r'[\s（(]', n)[0]
+                    if stock:
+                        resonance_stocks.append(stock)
+                # 保存完整共振文本，用于提取游资名
+                resonance_items = [n.strip() for n in names if n.strip()]
 
             results.append({
                 "month": month,
@@ -313,6 +318,7 @@ def extract_day_cells(html: str) -> list:
                 "youzi_sell": youzi_sell,
                 "has_resonance_tag": has_resonance_tag,
                 "resonance_stocks": resonance_stocks,
+                "resonance_items": resonance_items,
             })
 
     return results
@@ -335,53 +341,125 @@ def parse_amount_to_float(amt_str: str):
         return None
 
 
+def extract_youzi_names(youzi_items: list) -> list:
+    """
+    从游资 item 的 name 中提取游资名称（绰号）。
+    支持格式："游资名称·股票1、股票2..." 或 "股票 游资名称"
+    返回游资名称列表（去重）
+    """
+    names = set()
+    youzi_keywords = {
+        "T王", "T王量化", "章盟主", "作手新一", "佛山系", "宁波桑田路", "桑田路",
+        "中山东路", "北京中关村", "溧阳路", "赵老哥", "炒股养家",
+        "欢乐海岸", "小鳄鱼", "刺客", "著名刺客", "方新侠", "上塘路",
+        "西湖国贸", "湖州劳动路", "交易猿", "成都系", "温州帮",
+        "低位挖掘", "上海超短", "湛江万豪世家", "山东帮",
+        "葛卫东", "开源西安太华路", "杭州帮", "东北猛男",
+        "东北猛男",
+    }
+    for item in youzi_items:
+        name = item.get("name", "").strip()
+        if not name:
+            continue
+        # 去掉前缀 "卖"
+        cleaned = name
+        if cleaned.startswith("卖") and len(cleaned) > 2:
+            cleaned = cleaned[1:]
+        # 尝试 · 分隔
+        if "·" in cleaned:
+            parts = cleaned.split("·", 1)
+            for p in parts:
+                p = p.strip()
+                if any(kw in p for kw in youzi_keywords) and len(p) <= 12:
+                    names.add(p)
+        else:
+            # 空格分隔
+            parts = re.split(r'\s+', cleaned)
+            for p in parts:
+                if any(kw in p for kw in youzi_keywords) and len(p) <= 12:
+                    names.add(p)
+    return list(names)
+
+
 def extract_youzi_stock_names(youzi_items: list) -> list:
     """
     从游资 item 的 name 中提取股票名。
-    格式多样："T王·托伦斯" / "华天科技 国泰海通三亚迎宾路" / "杭电股份 T王" 等
-    启发式：
-      - 含"·"分隔：前面是席位，后面可能是股票；反之亦然
-      - 含空格：第一个token是股票名的概率高
+    支持格式：
+      - "游资名称·股票1、股票2、股票3"（多只）
+      - "游资名称·股票"（单只）
+      - "股票 游资名称"（空格分隔）
+      - "卖股票 游资名称"
     返回股票名列表（去重）
     """
     stocks = set()
+
+    # 游资关键词（用于判断哪部分是游资名、哪部分是股票名）
+    youzi_keywords = {
+        "T王", "T王量化", "章盟主", "作手新一", "佛山系", "宁波桑田路", "桑田路",
+        "中山东路", "北京中关村", "溧阳路", "赵老哥", "炒股养家",
+        "欢乐海岸", "小鳄鱼", "刺客", "著名刺客", "方新侠", "上塘路",
+        "西湖国贸", "湖州劳动路", "交易猿", "成都系", "温州帮",
+        "低位挖掘", "上海超短", "湛江万豪世家", "山东帮",
+        "葛卫东", "开源西安太华路", "杭州帮", "东北猛男",
+        "华泰证券", "中信证券", "国泰海通", "海通证券",
+        "东吴扬富路", "华源深圳", "国泰海通自贸区",
+        "国泰海通三亚迎宾路", "国泰海通武汉紫阳东路",
+        "国泰海通北京知春路", "中信证券深圳深南中路中信大厦",
+        "中信证券上海分公司", "国泰海通证券总部",
+        "营业部", "总部", "分公司",
+    }
+
+    def _is_youzi(text: str) -> bool:
+        return any(kw in text for kw in youzi_keywords)
+
     for item in youzi_items:
         name = item["name"].strip()
         if not name:
             continue
-        # 去掉前缀 "卖"（如"卖江化微 章盟主"）
+        # 去掉前缀 "卖"
         cleaned = name
         if cleaned.startswith("卖") and len(cleaned) > 2:
             cleaned = cleaned[1:]
 
-        # 按 · 或 空格 分割
-        parts = re.split(r'[·\s]+', cleaned)
+        # 格式1: "游资名·股票1、股票2、股票3" 或 "股票1、股票2、股票3·游资名"
+        if "·" in cleaned:
+            parts = cleaned.split("·", 1)
+            left = parts[0].strip()
+            right = parts[1].strip()
+            # 判断哪边是游资名
+            youzi_side = None
+            stock_side = None
+            if _is_youzi(left) and not _is_youzi(right):
+                youzi_side = left
+                stock_side = right
+            elif _is_youzi(right) and not _is_youzi(left):
+                youzi_side = right
+                stock_side = left
+            else:
+                # 不确定时，取较短的一边作为游资名（游资名通常更短）
+                youzi_side = left if len(left) < len(right) else right
+                stock_side = right if len(left) < len(right) else left
+
+            if stock_side:
+                # 支持顿号分隔多只股票
+                for s in re.split(r'[、,，/\s]+', stock_side):
+                    s = s.strip()
+                    if s and len(s) >= 2 and not _is_youzi(s):
+                        stocks.add(s)
+            continue
+
+        # 格式2: 空格分隔
+        parts = re.split(r'\s+', cleaned)
         parts = [p for p in parts if p]
         if not parts:
             continue
 
-        # 常见游资/机构/营业部关键词，出现则不是股票名
-        youzi_keywords = {
-            "T王", "章盟主", "作手新一", "佛山系", "宁波桑田路", "桑田路",
-            "中山东路", "北京中关村", "溧阳路", "赵老哥", "炒股养家",
-            "欢乐海岸", "小鳄鱼", "刺客", "著名刺客", "方新侠", "上塘路",
-            "西湖国贸", "湖州劳动路", "交易猿", "成都系", "温州帮",
-            "低位挖掘", "上海超短", "湛江万豪世家", "山东帮",
-            "葛卫东", "开源西安太华路", "杭州帮",
-            "华泰证券", "中信证券", "国泰海通", "海通证券",
-            "东吴扬富路", "华源深圳", "国泰海通自贸区",
-            "国泰海通三亚迎宾路", "国泰海通武汉紫阳东路",
-            "国泰海通北京知春路", "中信证券深圳深南中路中信大厦",
-            "中信证券上海分公司", "国泰海通证券总部",
-            "营业部", "总部", "分公司",
-        }
-
+        # 找到第一个非游资关键词的部分作为股票名
         for p in parts:
-            # 判断是否为游资关键词
-            is_youzi = any(kw in p for kw in youzi_keywords)
-            if not is_youzi and len(p) >= 2 and not p.startswith("卖"):
+            if not _is_youzi(p) and len(p) >= 2:
                 stocks.add(p)
-                break  # 每个 item 只取一个股票名
+                break
+
     return list(stocks)
 
 
@@ -470,44 +548,73 @@ def check_zero_amount_with_resonance(cells: list) -> list:
 
 
 def check_resonance_no_overlap(cells: list) -> list:
-    """有共振标记但机构TOP5和游资买入无重叠股票"""
+    """有共振标记但机构TOP5和游资买入无重叠股票
+    注意：HTML中游资只显示前N只股票，全量买入股票无法从HTML完整获取。
+    校验策略：
+      1. 若共振标的在机构TOP5中，且游资买入榜有对应游资名称匹配共振区描述 → 视为有效
+      2. 若共振标的不在机构TOP5中 → 报错
+      3. 若游资买入榜完全为空但有共振 → 报错
+    """
     errors = []
     for cell in cells:
         if not cell["has_resonance_tag"]:
             continue
         if not cell["inst_top5"]:
+            errors.append(
+                f"【共振无机构】{cell['date_label']} 有共振标记但无机构数据"
+            )
             continue
         inst_names = {s["name"] for s in cell["inst_top5"]}
         youzi_stocks = set(extract_youzi_stock_names(cell["youzi_buy"]))
+        youzi_buy_names = set(extract_youzi_names(cell["youzi_buy"]))
+        youzi_sell_names = set(extract_youzi_names(cell["youzi_sell"]))
 
-        # 共振区股票与机构/游资的交集
         res_stocks = set(cell["resonance_stocks"])
 
-        if not youzi_stocks:
-            # 没有游资买入数据但标了共振，也值得注意
+        if not cell["youzi_buy"] and not cell["youzi_sell"]:
             if res_stocks:
                 errors.append(
                     f"【共振无游资】{cell['date_label']} 有共振标记但无游资买入数据"
                 )
             continue
 
-        overlap = inst_names & youzi_stocks
-        # 如果有共振标记但完全没有重叠，且共振股票也对不上，则告警
-        res_overlap_with_inst = res_stocks & inst_names if res_stocks else set()
-        res_overlap_with_youzi = res_stocks & youzi_stocks if res_stocks else set()
+        # 直接从HTML提取（从共振区文本中提取游资名）
+        res_youzi_names = set()
+        for item in cell.get("resonance_items", []):
+            # 共振区格式："股票名 (游资A、游资B)"
+            m = re.search(r'[（(]([^）)]+)[）)]', item)
+            if m:
+                for yz in re.split(r'[、,，]+', m.group(1)):
+                    yz = yz.strip()
+                    if yz:
+                        res_youzi_names.add(yz)
 
-        if not overlap and not res_stocks:
+        overlap = inst_names & youzi_stocks
+
+        # 策略：
+        # 1. 共振股票必须在机构TOP5中
+        # 2. 共振提到的游资名必须出现在游资买入榜中（名称匹配即可）
+        res_in_inst = bool(res_stocks & inst_names) if res_stocks else False
+        res_youzi_in_buy = bool(res_youzi_names & (youzi_buy_names | youzi_sell_names)) if res_youzi_names else False
+
+        if not res_stocks:
+            # 有共振标记但没有共振标的（异常）
             errors.append(
-                f"【共振无重叠】{cell['date_label']} 有共振标记但机构TOP5与游资买入无重叠股票\n"
-                f"        机构: {sorted(inst_names)}\n"
-                f"        游资(提取): {sorted(youzi_stocks)}"
+                f"【共振无标的】{cell['date_label']} 有共振标记但无共振标的"
             )
-        elif not overlap and res_stocks and not (res_overlap_with_inst and res_overlap_with_youzi):
+        elif not res_in_inst:
             errors.append(
-                f"【共振无重叠】{cell['date_label']} 机构TOP5与游资买入无重叠股票，共振区标的也无法同时匹配两边\n"
+                f"【共振无重叠】{cell['date_label']} 共振标的不在机构TOP5中\n"
                 f"        机构: {sorted(inst_names)}\n"
-                f"        游资(提取): {sorted(youzi_stocks)}\n"
                 f"        共振区: {sorted(res_stocks)}"
+            )
+        elif res_youzi_names and not res_youzi_in_buy:
+            # 共振提到的游资不在游资榜中
+            errors.append(
+                f"【共振游资不匹配】{cell['date_label']} 共振描述的游资不在游资买卖榜中\n"
+                f"        共振游资: {sorted(res_youzi_names)}\n"
+                f"        游资买入榜: {sorted(youzi_buy_names)}\n"
+                f"        游资卖出榜: {sorted(youzi_sell_names)}"
             )
 
     return errors
