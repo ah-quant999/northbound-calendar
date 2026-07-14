@@ -557,7 +557,39 @@
 
 
 
-    </style>
+    
+    /* ===== 详情弹窗颜色统一规则 ===== */
+    #day-detail-panel .detail-item .detail-name {
+        color: #c9d1d9 !important;
+    }
+    #day-detail-panel .detail-item .detail-amount {
+        color: #f85149 !important;
+    }
+    #day-detail-panel .detail-item .detail-amount.down {
+        color: #3fb950 !important;
+    }
+    /* 共振区黄色 - 通过section-title紧跟的区块内的detail-item来选择 */
+    #day-detail-panel .detail-section-title.resonance-title + div .detail-item .detail-name,
+    #day-detail-panel .detail-section-title.resonance-title + div .detail-item .detail-amount,
+    #day-detail-panel .detail-section-title.resonance-title + div .detail-item .detail-icon {
+        color: #ffd700 !important;
+    }
+    /* 日历格子也统一：非共振股票名白色，共振黄色 */
+    .day-cell .stock-item .stock-name {
+        color: #c9d1d9 !important;
+    }
+    .day-cell .stock-item .stock-amount.up {
+        color: #f85149 !important;
+    }
+    .day-cell .stock-item .stock-amount.down {
+        color: #3fb950 !important;
+    }
+    .day-cell .resonance-title + .stock-row .stock-item .stock-name,
+    .day-cell .resonance-title + .stock-row .stock-item .stock-amount,
+    .day-cell .resonance-title + .stock-row .stock-item .stock-icon {
+        color: #ffd700 !important;
+    }
+</style>
 </head>
 <body>
     <div class="container">
@@ -1657,11 +1689,13 @@
                     if (currentSection) html += '</div>';
                     currentSection = child.textContent.trim();
                     html += '<div class="detail-section">';
+                    var sectionTitleClass = 'detail-section-title';
                     var sectionTitleStyle = '';
                     if (currentSection && currentSection.indexOf('机游共振') >= 0) {
+                        sectionTitleClass += ' resonance-title';
                         sectionTitleStyle = ' style="color:#ffd700;"';
                     }
-                    html += '<div class="detail-section-title"' + sectionTitleStyle + '>' + currentSection + '</div>';
+                    html += '<div class="' + sectionTitleClass + '"' + sectionTitleStyle + '>' + currentSection + '</div>';
                 } else if (child.classList.contains('stock-item')) {
                     var icon = child.querySelector('.stock-icon');
                     var name = child.querySelector('.stock-name');
