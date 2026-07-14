@@ -618,9 +618,9 @@ def main():
 
         all_errors = []
         check_funcs = [
-            ("跨日数据张冠李戴检测", check_duplicate_top5_across_days),
-            ("机构/游资错列检测", check_inst_youzi_misalignment),
-            ("共振-机构金额一致性", check_resonance_zero_amount),
+            ("跨日数据张冠李戴检测", check_top5_duplicate_across_days),
+            ("机构/游资错列检测", check_inst_youzi_overlap),
+            ("共振-机构金额一致性", check_zero_amount_with_resonance),
             ("共振-双向重叠检测", check_resonance_no_overlap),
         ]
 
