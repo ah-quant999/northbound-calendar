@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-机游共振日历批量回刷脚本
+机游共振日历批量回刷脚本（纯数据交叉版）
 使用东方财富官方API，按日期逐个回刷指定日期范围的数据。
+
+共振逻辑：机构净买入TOP5 ∩ 龙虎榜个股买入净额TOP20
 """
 
 import argparse
-import hashlib
 import json
 import os
 import re
@@ -23,12 +24,12 @@ from update_jiyou_resonance_calendar import (
     update_html,
     format_amount,
     is_a_stock_holiday,
+    RESONANCE_LHB_TOP_N,
 )
 
 
 def extract_day_snippet(html: str, day: int, month: int) -> str:
     """从HTML中提取指定日期单元格的文本片段，用于对比变化"""
-    # 先在本月区域找
     for m in [month, month + 1]:
         month_pattern = rf'<div class="month-section[^"]*" id="month-{m}"'
         mm = re.search(month_pattern, html)
@@ -82,10 +83,10 @@ def run_validate_with_range(script_name: str, html_path: str) -> dict:
     try:
         result = subprocess.run(
             [sys.executable, script_path,
-             "--range", "2026-06-29", "2026-07-31",
+             "--range", "2026-07-01", "2026-07-31",
              "--mode", "html",
              "--html-path", html_path],
-            capture_output=True, text=True, timeout=60,
+            capture_output=True, text=True, timeout=120,
         )
         ok = result.returncode == 0
         return {
@@ -100,7 +101,7 @@ def run_validate_with_range(script_name: str, html_path: str) -> dict:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="机游共振日历批量回刷脚本")
+    parser = argparse.ArgumentParser(description="机游共振日历批量回刷脚本（纯数据交叉版）")
     parser.add_argument("--html_path", required=True, help="HTML文件路径")
     parser.add_argument("--dates", nargs="+", required=True, help="需要回刷的日期列表")
     parser.add_argument("--no-backup", action="store_true", help="不备份")
@@ -160,13 +161,11 @@ def main():
                 "date": date_str,
                 "ok": ok,
                 "inst_top5": len(daily_data.institution_top5),
-                "inst_sell_top3": len(daily_data.institution_sell_top3),
-                "youzi_buy_top5": len(daily_data.youzi_buy_top5),
-                "youzi_sell_top3": len(daily_data.youzi_sell_top3),
+                "inst_sell_top5": len(daily_data.institution_sell_top5),
                 "resonance": len(daily_data.resonance),
             })
             print(f"✅ {date_str} 处理完成: 机构TOP5={len(daily_data.institution_top5)}, "
-                  f"游资买TOP5={len(daily_data.youzi_buy_top5)}, 共振={len(daily_data.resonance)}")
+                  f"卖出TOP5={len(daily_data.institution_sell_top5)}, 共振={len(daily_data.resonance)}")
         except Exception as e:
             import traceback
             traceback.print_exc()
@@ -203,8 +202,7 @@ def main():
         if before_snippet != after_snippet:
             changed_dates.append(r)
             print(f"🔄 {date_str}: 数据已变更")
-            print(f"   机构TOP5:{r['inst_top5']}只 卖出TOP3:{r['inst_sell_top3']}只 "
-                  f"游资买TOP5:{r['youzi_buy_top5']}只 卖TOP3:{r['youzi_sell_top3']}只 "
+            print(f"   机构TOP5:{r['inst_top5']}只 卖出TOP5:{r['inst_sell_top5']}只 "
                   f"共振:{r['resonance']}个")
         else:
             unchanged_dates.append(r)
@@ -282,7 +280,11 @@ def main():
         jiyou_dst = os.path.join(repo_path, "jiyou-resonance.html")
         if src_abs != os.path.abspath(jiyou_dst):
             shutil.copy2(html_path, jiyou_dst)
-        print(f"📄 已复制到仓库: {dst}, jiyou-resonance.html")
+        # 同步 index.html
+        index_dst = os.path.join(repo_path, "index.html")
+        if src_abs != os.path.abspath(index_dst):
+            shutil.copy2(html_path, index_dst)
+        print(f"📄 已复制到仓库: {dst}, jiyou-resonance.html, index.html")
 
         script_files = [
             "update_jiyou_resonance_calendar.py",
@@ -299,13 +301,15 @@ def main():
                 shutil.copy2(src, dst)
 
         date_range_str = f"{dates[0]}~{dates[-1]}"
-        commit_msg = (f"auto: 机游共振日历批量回刷 {date_range_str} (东财官方API)\n\n"
+        commit_msg = (f"refactor: 机游共振日历重构为纯数据交叉版 {date_range_str}\n\n"
+                      f"共振逻辑: 机构净买入TOP5 ∩ 龙虎榜净买入TOP{RESONANCE_LHB_TOP_N}\n"
+                      f"移除游资席位识别，全部基于东财官方API数据交叉计算\n"
                       f"回刷日期: {', '.join(dates)}\n"
                       f"变更天数: {len(changed_dates)}\n"
                       f"无变化: {len(unchanged_dates)}\n"
                       f"跳过(周末/假日): {len(skipped_dates)}")
 
-        files_to_push = [file_name, "jiyou-resonance.html"] + \
+        files_to_push = [file_name, "jiyou-resonance.html", "index.html"] + \
                         [f"scripts/{s}" for s in script_files
                          if os.path.exists(os.path.join(SCRIPT_DIR, s))]
 
@@ -327,6 +331,7 @@ def main():
     print(f"\n{'='*60}")
     print("📋 回刷完成汇总")
     print(f"{'='*60}")
+    print(f"共振逻辑: 机构净买入TOP5 ∩ 龙虎榜净买入TOP{RESONANCE_LHB_TOP_N}")
     print(f"回刷日期: {', '.join(dates)}")
     print(f"总天数: {len(dates)}")
     print(f"成功处理: {len(results)}天")

@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
-机游共振日历 — 每日自动更新流水线
+机游共振日历 — 每日自动更新流水线（纯数据交叉版）
 适配中文文件名「机游共振日历.html」，可作为每日定时任务独立运行
+
+共振逻辑：机构净买入TOP5 ∩ 龙虎榜个股买入净额TOP20
 
 流程：
   1. 克隆/拉取仓库（calendar-pages 分支）
@@ -251,7 +253,7 @@ def git_deploy(target_date: str, no_push: bool, token: str) -> str:
     run_cmd(["git", "add", HTML_FILE, INDEX_FILE], cwd=str(REPO_DIR))
 
     # commit
-    commit_msg = f"{target_date} 机游共振日历每日更新"
+    commit_msg = f"auto: {target_date} 机游共振日历每日更新 (纯数据交叉版)"
     r = run_cmd(["git", "commit", "-m", commit_msg], cwd=str(REPO_DIR))
     if r.returncode != 0 and "nothing to commit" in r.stdout:
         msg = f"[{target_date}] 机游共振日历无变更，流水线完成"
