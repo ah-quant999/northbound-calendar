@@ -478,6 +478,15 @@ def update_html(html_path: str, data: DailyData) -> bool:
     has_resonance = len(data.resonance) > 0
     has_data = data.institution_top5 or data.youzi_items
 
+    # ====== 写入前自检：确保目标td的日期注释与写入日期一致 ======
+    # 在目标月份区域内找到目标日期单元格时，检查附近是否有 "!-- M/D 星期" 格式的注释
+    # 找到匹配的 td 后，检查其上方最近的注释日期是否匹配
+    # 简化方案：使用月份+日号匹配，同时检查 HTML 注释是否一致
+    # 先记录目标日期的星期
+    target_dt = datetime.strptime(data.date, "%Y-%m-%d")
+    target_weekday = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"][target_dt.weekday()]
+    target_md_comment = f"!-- {target_dt.month}/{target_dt.day} {target_weekday} --"
+
     # 更新数据更新时间
     now = datetime.now()
     update_time_str = now.strftime("%Y-%m-%d %H:%M")
@@ -554,6 +563,30 @@ def update_html(html_path: str, data: DailyData) -> bool:
     if all_matches:
         target_match = all_matches[0]
         td_open = target_match.group(1)
+
+        # ====== 写入前自检：检查目标td上方的日期注释是否匹配 ======
+        td_abs_start = section_start + target_match.start()
+        # 取 td 之前 200 个字符范围内的注释
+        pre_context = html[max(0, td_abs_start - 300):td_abs_start]
+        # 查找日期格式注释 "!-- M/D 星期 --"
+        comment_m = re.search(r'!--\s*(\d+)/(\d+)\s*([一二三四五六日天]+)\s*--', pre_context)
+        if comment_m:
+            cm_month = int(comment_m.group(1))
+            cm_day = int(comment_m.group(2))
+            cm_weekday = comment_m.group(3)
+            if cm_month != month or cm_day != day:
+                print(f"❌ 日期注释不匹配！注释={cm_month}/{cm_day}，写入日期={month}/{day}")
+                print(f"   上下文: {pre_context[-100:]}")
+                # 拒绝写入
+                return False
+            # 校验星期
+            real_weekday = ["周一","周二","周三","周四","周五","周六","周日"][target_dt.weekday()]
+            if cm_weekday not in real_weekday and real_weekday not in cm_weekday:
+                print(f"⚠️  星期标注不匹配：注释={cm_weekday}，真实={real_weekday}")
+        # 如果没找到注释，发出警告但不阻止写入（旧格式可能没注释）
+        else:
+            print(f"⚠️  未找到 {month}月{day}日 的日期注释，跳过注释校验")
+
         # 如果有机游共振，给td加上has-resonance类
         if has_resonance and has_data:
             if 'class="' in td_open:
@@ -643,6 +676,9 @@ async def main():
     force_update = False
     target_date = datetime.now().strftime("%Y-%m-%d")
     result_mode = "auto"
+    dry_run = False
+    no_push = False
+    skip_self_check = False
 
     i = 1
     while i < len(sys.argv):
@@ -662,6 +698,15 @@ async def main():
         elif arg == "--result_mode" and i + 1 < len(sys.argv):
             result_mode = sys.argv[i + 1]
             i += 2
+        elif arg == "--dry-run":
+            dry_run = True
+            i += 1
+        elif arg == "--no-push":
+            no_push = True
+            i += 1
+        elif arg == "--skip-self-check":
+            skip_self_check = True
+            i += 1
         else:
             i += 1
 
@@ -788,6 +833,35 @@ async def main():
         best_data = max(all_data, key=lambda d: len(d.institution_top5) * 3 + len(d.youzi_items) + len(d.resonance) * 2)
         print(f"✅ 获取到数据: 机构TOP5 {len(best_data.institution_top5)} 只, 游资 {len(best_data.youzi_items)} 条, 共振 {len(best_data.resonance)} 个（从{len(all_data)}个来源中选择最佳）")
 
+        # dry-run 模式：只打印，不写入
+        if dry_run:
+            print("\n🔍 [DRY-RUN] 抓取到的数据如下（不写入HTML）：")
+            print(f"  📅 日期: {best_data.date}")
+            print(f"  🏦 机构净买入TOP5:")
+            for i, s in enumerate(best_data.institution_top5, 1):
+                print(f"    {i}. {s.name} ({s.code}) +{format_amount(s.amount)}")
+            print(f"  ⭐ 共振信号:")
+            for r in best_data.resonance:
+                print(f"    ★ {r.stock_name}: {', '.join(r.youzi_items)}")
+            print(f"  🔥 游资席位动向:")
+            for yz in best_data.youzi_items[:10]:
+                sign = "+" if yz.amount >= 0 else ""
+                print(f"    {yz.name}: {sign}{format_amount(yz.amount)}")
+            await sdk.submit_result(
+                message=f"[DRY-RUN] [{target_date}] 机游共振数据已抓取，未写入HTML\n"
+                        f"机构TOP5: {len(best_data.institution_top5)}只, 游资: {len(best_data.youzi_items)}条, 共振: {len(best_data.resonance)}个",
+                result_mode=actual_mode,
+                status="success",
+                data={
+                    "date": target_date,
+                    "institution_count": len(best_data.institution_top5),
+                    "youzi_count": len(best_data.youzi_items),
+                    "resonance_count": len(best_data.resonance),
+                    "dry_run": True,
+                },
+            )
+            return
+
         # 更新HTML
         print("📝 正在更新HTML文件...")
         if not update_html(html_path, best_data):
@@ -798,10 +872,39 @@ async def main():
             )
             return
 
+        # 写入完成后，运行数据一致性自检验证
+        if not skip_self_check:
+            print("🔍 运行数据一致性自检...")
+            validate_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "validate_data_consistency.py")
+            if os.path.exists(validate_script):
+                import subprocess
+                validate_result = subprocess.run(
+                    [sys.executable, validate_script, html_path],
+                    capture_output=True, text=True, timeout=30,
+                )
+                print(validate_result.stdout)
+                if validate_result.returncode != 0:
+                    print("❌ 数据一致性自检失败，拒绝继续部署")
+                    await sdk.submit_result(
+                        message=f"[{target_date}] 数据一致性自检失败，已中止部署\n{validate_result.stdout[:500]}",
+                        result_mode="notify",
+                        status="error",
+                        data={"error_type": "SelfCheckFailed", "date": target_date},
+                    )
+                    return
+                print("✅ 数据一致性自检通过")
+            else:
+                print("⚠️  未找到 validate_data_consistency.py，跳过自检")
+
         # 推送到GitHub
         print("📤 正在推送到GitHub...")
-        push_ok = git_push(repo_path, file_name, target_date)
-        pushed_at = datetime.now().isoformat() if push_ok else None
+        if no_push:
+            print("🚫 [--no-push] 跳过GitHub推送")
+            push_ok = False
+            pushed_at = None
+        else:
+            push_ok = git_push(repo_path, file_name, target_date)
+            pushed_at = datetime.now().isoformat() if push_ok else None
 
         save_update(best_data, pushed_at)
 
