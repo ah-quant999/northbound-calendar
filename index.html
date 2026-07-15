@@ -574,16 +574,18 @@
     #day-detail-panel .detail-section-title.resonance-title + div .detail-item .detail-icon {
         color: #ffd700 !important;
     }
-    /* 日历格子也统一：非共振股票名白色，共振黄色 */
+    /* 日历格子也统一：非共振股票名白色，金额买红卖绿 */
     .day-cell .stock-item .stock-name {
         color: #c9d1d9 !important;
     }
-    .day-cell .stock-item .stock-amount.up {
+    .day-cell .stock-item .stock-amount.up,
+    .day-cell .stock-item .stock-amount.resonance-amount {
         color: #f85149 !important;
     }
     .day-cell .stock-item .stock-amount.down {
         color: #3fb950 !important;
     }
+    /* 只有机游共振独立区块的金额才是黄色 */
     .day-cell .resonance-title + .stock-row .stock-item .stock-name,
     .day-cell .resonance-title + .stock-row .stock-item .stock-amount,
     .day-cell .resonance-title + .stock-row .stock-item .stock-icon {
@@ -1711,7 +1713,7 @@
                     html += '<div class="detail-item">';
                     html += '<span class="detail-icon">' + iconText + '</span>';
                     html += '<span class="detail-name">' + nameText + '</span>';
-                    html += '<span class="detail-amount" style="' + colorStyle + '">' + amountText + '</span>';
+                    var amountCls = 'detail-amount'; if (amountClass.indexOf('up') >= 0) amountCls += ' up'; else if (amountClass.indexOf('down') >= 0) amountCls += ' down'; html += '<span class="' + amountCls + '" style="' + colorStyle + '">' + amountText + '</span>';
                     html += '</div>';
                 } else if (child.classList.contains('stock-row')) {
                     // 机游共振的 stock-row 内含多个 stock-item
