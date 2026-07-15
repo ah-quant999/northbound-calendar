@@ -432,7 +432,30 @@
         background: #21262d;
         color: #c9d1d9;
     }
-    #day-detail-panel .detail-section {
+        /* 两列布局：左净买入 | 右净卖出 */
+    #day-detail-panel .detail-columns {
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+    }
+    #day-detail-panel .detail-col {
+        flex: 1;
+        min-width: 0;
+    }
+    #day-detail-panel .detail-col .detail-section {
+        margin-bottom: 10px;
+    }
+    /* 名字和金额拉近 */
+    #day-detail-panel .detail-item {
+        gap: 6px;
+    }
+    #day-detail-panel .detail-name {
+        flex: none;
+    }
+    #day-detail-panel .detail-amount {
+        margin-left: 2px;
+    }
+#day-detail-panel .detail-section {
         margin-bottom: 12px;
     }
     #day-detail-panel .detail-section-title {
@@ -444,7 +467,7 @@
     #day-detail-panel .detail-item {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
         padding: 4px 0;
         font-size: 16px;
     }
@@ -1169,19 +1192,40 @@
         }
         var dateStr = yr + '-' + (m < 10 ? '0' + m : m) + '-' + (parseInt(dayNum) < 10 ? '0' + dayNum : dayNum);
 
-        // 提取数据
+        // 提取数据，两列布局：左净买入 | 右净卖出
         var html = '';
         var stockList = dayCell.querySelector('.stock-list');
         if (stockList) {
             var children = stockList.children;
-            var currentSection = null;
+            var colBuy = '';   // 左列：净买入
+            var colSell = '';  // 右列：净卖出
+            var currentCol = null; // 'buy' / 'sell'
+            var sectionOpen = false;
+
+            function _appendCol(col, s) {
+                if (col === 'buy') colBuy += s;
+                else if (col === 'sell') colSell += s;
+            }
+
             for (var i = 0; i < children.length; i++) {
                 var child = children[i];
                 if (child.classList.contains('section-title')) {
-                    if (currentSection) html += '</div>';
-                    currentSection = child.textContent.trim();
-                    html += '<div class="detail-section">';
-                    html += '<div class="detail-section-title">' + currentSection + '</div>';
+                    if (sectionOpen && currentCol) {
+                        _appendCol(currentCol, '</div>');
+                        sectionOpen = false;
+                    }
+                    var titleText = child.textContent.trim();
+                    // 判断列归属：含"买"归左列，含"卖"归右列
+                    if (titleText.indexOf('买入') >= 0 || titleText.indexOf('▲') >= 0) {
+                        currentCol = 'buy';
+                    } else if (titleText.indexOf('卖出') >= 0 || titleText.indexOf('▼') >= 0) {
+                        currentCol = 'sell';
+                    } else {
+                        currentCol = 'buy';
+                    }
+                    _appendCol(currentCol, '<div class="detail-section">');
+                    _appendCol(currentCol, '<div class="detail-section-title">' + titleText + '</div>');
+                    sectionOpen = true;
                 } else if (child.classList.contains('stock-item')) {
                     var icon = child.querySelector('.stock-icon');
                     var name = child.querySelector('.stock-name');
@@ -1193,13 +1237,13 @@
                     var colorStyle = '';
                     if (amountClass.indexOf('up') >= 0) colorStyle = 'color:#f85149;';
                     else if (amountClass.indexOf('down') >= 0) colorStyle = 'color:#3fb950;';
-                    html += '<div class="detail-item">';
-                    html += '<span class="detail-icon">' + iconText + '</span>';
-                    html += '<span class="detail-name">' + nameText + '</span>';
-                    html += '<span class="detail-amount" style="' + colorStyle + '">' + amountText + '</span>';
-                    html += '</div>';
+                    var itemHtml = '<div class="detail-item">';
+                    itemHtml += '<span class="detail-icon">' + iconText + '</span>';
+                    itemHtml += '<span class="detail-name">' + nameText + '</span>';
+                    itemHtml += '<span class="detail-amount" style="' + colorStyle + '">' + amountText + '</span>';
+                    itemHtml += '</div>';
+                    if (currentCol) _appendCol(currentCol, itemHtml);
                 } else if (child.classList.contains('stock-row')) {
-                    // 机游共振的 stock-row 内含多个 stock-item
                     var items = child.querySelectorAll('.stock-item');
                     for (var j = 0; j < items.length; j++) {
                         var item = items[j];
@@ -1216,17 +1260,24 @@
                             if (iamount.classList.contains('up')) icolorStyle = 'color:#f85149;';
                             else if (iamount.classList.contains('down')) icolorStyle = 'color:#3fb950;';
                         }
-                        html += '<div class="detail-item">';
-                        html += '<span class="detail-icon">' + iiconText + '</span>';
-                        html += '<span class="detail-name" style="' + icolorStyle + '">' + inameText + '</span>';
-                        html += '<span class="detail-amount" style="' + icolorStyle + '">' + iamountText + '</span>';
-                        html += '</div>';
+                        var itemHtml2 = '<div class="detail-item">';
+                        itemHtml2 += '<span class="detail-icon">' + iiconText + '</span>';
+                        itemHtml2 += '<span class="detail-name" style="' + icolorStyle + '">' + inameText + '</span>';
+                        itemHtml2 += '<span class="detail-amount" style="' + icolorStyle + '">' + iamountText + '</span>';
+                        itemHtml2 += '</div>';
+                        if (currentCol) _appendCol(currentCol, itemHtml2);
                     }
                 }
             }
-            if (currentSection) html += '</div>';
+            if (sectionOpen && currentCol) {
+                _appendCol(currentCol, '</div>');
+            }
+            // 组装两列
+            html += '<div class="detail-columns">';
+            html += '<div class="detail-col">' + (colBuy || '<div style="color:#6e7681;font-size:14px;">暂无数据</div>') + '</div>';
+            html += '<div class="detail-col">' + (colSell || '<div style="color:#6e7681;font-size:14px;">暂无数据</div>') + '</div>';
+            html += '</div>';
         } else {
-            // empty-content
             var empty = dayCell.querySelector('.empty-content');
             var emptyText = empty ? empty.textContent.trim() : '暂无数据';
             html = '<div style="color:#6e7681;font-size:16px;">' + emptyText + '</div>';
@@ -1236,6 +1287,7 @@
         panel.style.display = 'block';
         panel.scrollIntoView({behavior: 'smooth', block: 'nearest'});
     }
+
 
     function closeDayDetail() {
         var panel = document.getElementById('day-detail-panel');
@@ -1247,5 +1299,4 @@
 
     </script>
 </body>
-</html
-    >
+</html>
