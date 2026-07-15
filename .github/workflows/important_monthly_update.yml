@@ -1,0 +1,84 @@
+name: 重要日历月度更新
+
+# 触发方式：
+#   - cron: 北京时间 每月1日 07:30 = UTC 前一日 23:30
+#   - workflow_dispatch: 手动触发，可指定月份
+on:
+  schedule:
+    - cron: '30 23 1 * *'
+  workflow_dispatch:
+    inputs:
+      month:
+        description: '目标月份 (YYYY-MM，留空为当前月)'
+        required: false
+        default: ''
+      lookahead:
+        description: '向前展望月数（含本月，默认3）'
+        required: false
+        default: '3'
+
+permissions:
+  contents: write
+
+jobs:
+  update-calendar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: calendar-pages
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Configure git
+        run: |
+          git config user.email "afoxli@coze.email"
+          git config user.name "afoxli"
+
+      - name: Run monthly update
+        id: update
+        run: |
+          MONTH_ARG=""
+          if [ -n "${{ github.event.inputs.month }}" ]; then
+            MONTH_ARG="--month ${{ github.event.inputs.month }}"
+          fi
+          LOOKAHEAD_ARG="--lookahead 3"
+          if [ -n "${{ github.event.inputs.lookahead }}" ]; then
+            LOOKAHEAD_ARG="--lookahead ${{ github.event.inputs.lookahead }}"
+          fi
+
+          python3 scripts/update_important_gha.py \
+            --repo-dir "." \
+            $MONTH_ARG \
+            $LOOKAHEAD_ARG \
+            2>&1 | tee update_output.log
+
+          # 从输出中提取 GHA_HAS_CHANGES / GHA_NO_CHANGE
+          if grep -q "GHA_HAS_CHANGES=true" update_output.log; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            TARGET_MONTH=$(grep "GHA_TARGET_MONTH=" update_output.log | tail -1 | sed 's/GHA_TARGET_MONTH=//')
+            echo "target_month=$TARGET_MONTH" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push changes
+        if: steps.update.outputs.has_changes == 'true'
+        run: |
+          git add "重要日历*.html"
+          git commit -m "auto: ${{ steps.update.outputs.target_month }} 重要日历月度更新 (GHA)"
+          git push origin calendar-pages
+          echo "✅ 已推送到 calendar-pages 分支"
+
+      - name: No changes
+        if: steps.update.outputs.has_changes == 'false'
+        run: echo "ℹ️  无数据变更，跳过提交"

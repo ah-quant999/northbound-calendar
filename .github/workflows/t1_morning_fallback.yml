@@ -1,0 +1,83 @@
+name: T+1早间兜底复核
+
+# 触发方式：
+#   - cron: 北京时间周二到周六早上7:30 = UTC周一到周五23:30
+#     因为 T+1 早上跑的是 T 日（前一交易日）的兜底
+#     周一早上跑的是上周五的 T 日（周六周日休市不用跑）
+#   - workflow_dispatch: 手动触发，可指定 T 日日期
+on:
+  schedule:
+    - cron: '30 23 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'T 日日期 (YYYY-MM-DD，留空则自动取北京时间昨日)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  t1-fallback:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: calendar-pages
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Configure git
+        run: |
+          git config user.email "afoxli@coze.email"
+          git config user.name "afoxli"
+
+      - name: Run T+1 morning fallback
+        id: fallback
+        run: |
+          DATE_ARG=""
+          if [ -n "${{ github.event.inputs.date }}" ]; then
+            DATE_ARG="--date ${{ github.event.inputs.date }}"
+          fi
+
+          python3 scripts/t1_morning_fallback.py \
+            --repo-dir "." \
+            $DATE_ARG \
+            2>&1 | tee fallback_output.log
+
+          # 从输出中提取 GHA_HAS_CHANGES / GHA_NO_CHANGE
+          if grep -q "GHA_HAS_CHANGES=true" fallback_output.log; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            TARGET_DATE=$(grep "GHA_TARGET_DATE=" fallback_output.log | tail -1 | sed 's/GHA_TARGET_DATE=//')
+            echo "target_date=$TARGET_DATE" >> $GITHUB_OUTPUT
+            CHANGED_FILES=$(grep "GHA_CHANGED_FILES=" fallback_output.log | tail -1 | sed 's/GHA_CHANGED_FILES=//')
+            echo "changed_files=$CHANGED_FILES" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            TARGET_DATE=$(grep "GHA_TARGET_DATE=" fallback_output.log | tail -1 | sed 's/GHA_TARGET_DATE=//')
+            echo "target_date=$TARGET_DATE" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push changes
+        if: steps.fallback.outputs.has_changes == 'true'
+        run: |
+          # 只提交变更的文件
+          FILES="${{ steps.fallback.outputs.changed_files }}"
+          git add $FILES
+          git commit -m "auto: ${{ steps.fallback.outputs.target_date }} T+1早间兜底补抓 (北向+机游)"
+          git push origin calendar-pages
+          echo "✅ 已推送到 calendar-pages 分支"
+
+      - name: No changes
+        if: steps.fallback.outputs.has_changes == 'false'
+        run: echo "ℹ️  无数据变更（${{ steps.fallback.outputs.target_date }} 数据完整，无需补抓），跳过提交"
