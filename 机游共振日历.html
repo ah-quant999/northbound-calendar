@@ -1750,157 +1750,58 @@
         }
         var dateStr = yr + '-' + (m < 10 ? '0' + m : m) + '-' + (parseInt(dayNum) < 10 ? '0' + dayNum : dayNum);
 
-        // 提取数据
+        // 提取数据，三列布局：左机构 | 中共振 | 右游资
         var html = '';
         var stockList = dayCell.querySelector('.stock-list');
         if (stockList) {
             var children = stockList.children;
-            var currentSection = null;
-            for (var i = 0; i < children.length; i++) {
-                var child = children[i];
-                if (child.classList.contains('section-title')) {
-                    if (currentSection) html += '</div>';
-                    currentSection = child.textContent.trim();
-                    html += '<div class="detail-section">';
-                    var sectionTitleClass = 'detail-section-title';
-                    var sectionTitleStyle = '';
-                    if (currentSection && currentSection.indexOf('机游共振') >= 0) {
-                        sectionTitleClass += ' resonance-title';
-                        sectionTitleStyle = ' style="color:#ffd700;"';
-                    }
-                    html += '<div class="' + sectionTitleClass + '"' + sectionTitleStyle + '>' + currentSection + '</div>';
-                } else if (child.classList.contains('stock-item')) {
-                    var icon = child.querySelector('.stock-icon');
-                    var name = child.querySelector('.stock-name');
-                    var amount = child.querySelector('.stock-amount');
-                    var iconText = icon ? icon.textContent.trim() : '';
-                    var nameText = name ? name.textContent.trim() : '';
-                    var amountText = amount ? amount.textContent.trim() : '';
-                    var amountClass = amount ? amount.className : '';
-                    var colorStyle = '';
-                    if (amountClass.indexOf('up') >= 0) colorStyle = 'color:#f85149;';
-                    else if (amountClass.indexOf('down') >= 0) colorStyle = 'color:#3fb950;';
-                    // 所有非共振区块股票名统一用默认白色，不加 nameColorStyle
-                    html += '<div class="detail-item">';
-                    html += '<span class="detail-icon">' + iconText + '</span>';
-                    html += '<span class="detail-name">' + nameText + '</span>';
-                    var amountCls = 'detail-amount'; if (amountClass.indexOf('up') >= 0) amountCls += ' up'; else if (amountClass.indexOf('down') >= 0) amountCls += ' down'; html += '<span class="' + amountCls + '" style="' + colorStyle + '">' + amountText + '</span>';
-                    html += '</div>';
-                } else if (child.classList.contains('stock-row')) {
-                    // 机游共振的 stock-row 内含多个 stock-item
-                    var isResonance = currentSection && currentSection.indexOf('机游共振') >= 0;
-                    var items = child.querySelectorAll('.stock-item');
-                    for (var j = 0; j < items.length; j++) {
-                        var item = items[j];
-                        var iicon = item.querySelector('.stock-icon');
-                        var iname = item.querySelector('.stock-name');
-                        var iamount = item.querySelector('.stock-amount');
-                        var iiconText = iicon ? iicon.textContent.trim() : '';
-                        var inameText = iname ? iname.textContent.trim() : '';
-                        var iamountText = iamount ? iamount.textContent.trim() : '';
-                        var inameStyle = '';
-                        var iamountStyle = '';
-                        if (isResonance) {
-                            // 共振区：股票名黄色加粗，金额也是黄色
-                            inameStyle = 'color:#ffd700;font-weight:600;';
-                            iamountStyle = 'color:#ffd700;';
-                        } else {
-                            // 非共振区：股票名白色（默认），金额按方向
-                            inameStyle = '';
-                            if (iamount && iamount.classList.contains('up')) iamountStyle = 'color:#f85149;';
-                            else if (iamount && iamount.classList.contains('down')) iamountStyle = 'color:#3fb950;';
-                        }
-                        var iamountCls = 'detail-amount';
-                        if (iamount && iamount.classList.contains('up')) iamountCls += ' up';
-                        else if (iamount && iamount.classList.contains('down')) iamountCls += ' down';
-                        html += '<div class="detail-item">';
-                        html += '<span class="detail-icon">' + iiconText + '</span>';
-                        html += '<span class="detail-name" style="' + inameStyle + '">' + inameText + '</span>';
-                        html += '<span class="' + iamountCls + '" style="' + iamountStyle + '">' + iamountText + '</span>';
-                        html += '</div>';
-                    }
-                }
+            // 三列分组
+            var colOrg = '';
+            var colRes = '';
+            var colYou = '';
+            var currentCol = null; // 'org' / 'res' / 'you'
+            var sectionOpen = false;
+
+            function _getColBuffer(col) {
+                if (col === 'org') return colOrg;
+                if (col === 'res') return colRes;
+                if (col === 'you') return colYou;
+                return '';
             }
-            if (currentSection) html += '</div>';
-        } else {
-            // empty-content
-            var empty = dayCell.querySelector('.empty-content');
-            var emptyText = empty ? empty.textContent.trim() : '暂无数据';
-            html = '<div style="color:#6e7681;font-size:16px;">' + emptyText + '</div>';
-        }
-
-        panel.innerHTML = '<div class="detail-header"><span class="detail-title">' + dateStr + ' 当日详情</span><span class="detail-close" onclick="closeDayDetail()">✕ 关闭</span></div>' + html;
-        panel.style.display = 'block';
-        panel.scrollIntoView({behavior: 'smooth', block: 'nearest'});
-    }
-
-    function closeDayDetail() {
-        var panel = document.getElementById('day-detail-panel');
-        if (panel) panel.style.display = 'none';
-        _detailCurrentTd = null;
-    }
-
-
-    </script>
-</body>
-</html>        // 构造内容（三列布局：左机构 | 中共振 | 右游资）
-        var html = '';
-        var stockList = dayCell.querySelector('.stock-list');
-        if (stockList) {
-            var children = stockList.children;
-            // 三列分组收集：org（机构）、resonance（共振）、youzi（游资）
-            var colHtml = { org: '', resonance: '', youzi: '' };
-            var currentSection = null;
-            var currentCol = null;
-
-            function renderItem(iconText, nameText, amountText, amountClass, isResonance, colKey) {
-                var inameStyle = '';
-                var iamountStyle = '';
-                if (isResonance) {
-                    inameStyle = 'color:#ffd700;font-weight:600;';
-                    iamountStyle = 'color:#ffd700;';
-                } else {
-                    inameStyle = '';
-                    if (amountClass.indexOf('up') >= 0) iamountStyle = 'color:#f85149;';
-                    else if (amountClass.indexOf('down') >= 0) iamountStyle = 'color:#3fb950;';
-                }
-                var iamountCls = 'detail-amount';
-                if (amountClass.indexOf('up') >= 0) iamountCls += ' up';
-                else if (amountClass.indexOf('down') >= 0) iamountCls += ' down';
-                var item = '<div class="detail-item">';
-                item += '<span class="detail-icon">' + iconText + '</span>';
-                item += '<span class="detail-name" style="' + inameStyle + '">' + nameText + '</span>';
-                item += '<span class="' + iamountCls + '" style="' + iamountStyle + '">' + amountText + '</span>';
-                item += '</div>';
-                colHtml[colKey] += item;
+            function _appendCol(col, s) {
+                if (col === 'org') colOrg += s;
+                else if (col === 'res') colRes += s;
+                else if (col === 'you') colYou += s;
             }
 
             for (var i = 0; i < children.length; i++) {
                 var child = children[i];
                 if (child.classList.contains('section-title')) {
                     // 关闭上一个section
-                    if (currentSection && currentCol) {
-                        colHtml[currentCol] += '</div>';
+                    if (sectionOpen && currentCol) {
+                        _appendCol(currentCol, '</div>');
+                        sectionOpen = false;
                     }
-                    currentSection = child.textContent.trim();
-                    // 判断归属哪一列
-                    if (currentSection.indexOf('机游共振') >= 0) {
-                        currentCol = 'resonance';
-                    } else if (currentSection.indexOf('机构') >= 0) {
+                    var titleText = child.textContent.trim();
+                    // 判断列归属
+                    if (titleText.indexOf('机游共振') >= 0) {
+                        currentCol = 'res';
+                    } else if (titleText.indexOf('机构') >= 0) {
                         currentCol = 'org';
-                    } else if (currentSection.indexOf('游资') >= 0) {
-                        currentCol = 'youzi';
+                    } else if (titleText.indexOf('游资') >= 0) {
+                        currentCol = 'you';
                     } else {
                         currentCol = 'org';
                     }
-                    var sectionTitleClass = 'detail-section-title';
-                    var sectionTitleStyle = '';
-                    if (currentCol === 'resonance') {
-                        sectionTitleClass += ' resonance-title';
-                        sectionTitleStyle = ' style="color:#ffd700;"';
+                    var titleClass = 'detail-section-title';
+                    var titleStyle = '';
+                    if (currentCol === 'res') {
+                        titleClass += ' resonance-title';
+                        titleStyle = ' style="color:#ffd700;"';
                     }
-                    colHtml[currentCol] += '<div class="detail-section">';
-                    colHtml[currentCol] += '<div class="' + sectionTitleClass + '"' + sectionTitleStyle + '>' + currentSection + '</div>';
+                    _appendCol(currentCol, '<div class="detail-section">');
+                    _appendCol(currentCol, '<div class="' + titleClass + '"' + titleStyle + '>' + titleText + '</div>');
+                    sectionOpen = true;
                 } else if (child.classList.contains('stock-item')) {
                     var icon = child.querySelector('.stock-icon');
                     var name = child.querySelector('.stock-name');
@@ -1909,7 +1810,24 @@
                     var nameText = name ? name.textContent.trim() : '';
                     var amountText = amount ? amount.textContent.trim() : '';
                     var amountClass = amount ? amount.className : '';
-                    renderItem(iconText, nameText, amountText, amountClass, currentCol === 'resonance', currentCol || 'org');
+                    var isRes = (currentCol === 'res');
+                    var inameStyle = isRes ? 'color:#ffd700;font-weight:600;' : '';
+                    var iamountStyle = '';
+                    if (isRes) {
+                        iamountStyle = 'color:#ffd700;';
+                    } else {
+                        if (amountClass.indexOf('up') >= 0) iamountStyle = 'color:#f85149;';
+                        else if (amountClass.indexOf('down') >= 0) iamountStyle = 'color:#3fb950;';
+                    }
+                    var iamountCls = 'detail-amount';
+                    if (amountClass.indexOf('up') >= 0) iamountCls += ' up';
+                    else if (amountClass.indexOf('down') >= 0) iamountCls += ' down';
+                    var itemHtml = '<div class="detail-item">';
+                    itemHtml += '<span class="detail-icon">' + iconText + '</span>';
+                    itemHtml += '<span class="detail-name" style="' + inameStyle + '">' + nameText + '</span>';
+                    itemHtml += '<span class="' + iamountCls + '" style="' + iamountStyle + '">' + amountText + '</span>';
+                    itemHtml += '</div>';
+                    if (currentCol) _appendCol(currentCol, itemHtml);
                 } else if (child.classList.contains('stock-row')) {
                     var items = child.querySelectorAll('.stock-item');
                     for (var j = 0; j < items.length; j++) {
@@ -1921,23 +1839,38 @@
                         var inameText = iname ? iname.textContent.trim() : '';
                         var iamountText = iamount ? iamount.textContent.trim() : '';
                         var iamountClass = iamount ? iamount.className : '';
-                        renderItem(iiconText, inameText, iamountText, iamountClass, currentCol === 'resonance', currentCol || 'org');
+                        var isRes = (currentCol === 'res');
+                        var inameStyle2 = isRes ? 'color:#ffd700;font-weight:600;' : '';
+                        var iamountStyle2 = '';
+                        if (isRes) {
+                            iamountStyle2 = 'color:#ffd700;';
+                        } else {
+                            if (iamountClass.indexOf('up') >= 0) iamountStyle2 = 'color:#f85149;';
+                            else if (iamountClass.indexOf('down') >= 0) iamountStyle2 = 'color:#3fb950;';
+                        }
+                        var iamountCls2 = 'detail-amount';
+                        if (iamountClass.indexOf('up') >= 0) iamountCls2 += ' up';
+                        else if (iamountClass.indexOf('down') >= 0) iamountCls2 += ' down';
+                        var itemHtml2 = '<div class="detail-item">';
+                        itemHtml2 += '<span class="detail-icon">' + iiconText + '</span>';
+                        itemHtml2 += '<span class="detail-name" style="' + inameStyle2 + '">' + inameText + '</span>';
+                        itemHtml2 += '<span class="' + iamountCls2 + '" style="' + iamountStyle2 + '">' + iamountText + '</span>';
+                        itemHtml2 += '</div>';
+                        if (currentCol) _appendCol(currentCol, itemHtml2);
                     }
                 }
             }
             // 关闭最后一个section
-            if (currentSection && currentCol) {
-                colHtml[currentCol] += '</div>';
+            if (sectionOpen && currentCol) {
+                _appendCol(currentCol, '</div>');
             }
-            // 三列容器
+            // 组装三列
             html += '<div class="detail-columns">';
-            html += '<div class="detail-col">' + (colHtml.org || '<div style="color:#6e7681;font-size:14px;">暂无数据</div>') + '</div>';
-            html += '<div class="detail-col">' + (colHtml.resonance || '<div style="color:#6e7681;font-size:14px;">暂无数据</div>') + '</div>';
-            html += '<div class="detail-col">' + (colHtml.youzi || '<div style="color:#6e7681;font-size:14px;">暂无数据</div>') + '</div>';
+            html += '<div class="detail-col">' + (colOrg || '<div style="color:#6e7681;font-size:14px;">暂无数据</div>') + '</div>';
+            html += '<div class="detail-col">' + (colRes || '<div style="color:#6e7681;font-size:14px;">暂无数据</div>') + '</div>';
+            html += '<div class="detail-col">' + (colYou || '<div style="color:#6e7681;font-size:14px;">暂无数据</div>') + '</div>';
             html += '</div>';
         } else {
-        } else {
-            // empty-content
             var empty = dayCell.querySelector('.empty-content');
             var emptyText = empty ? empty.textContent.trim() : '暂无数据';
             html = '<div style="color:#6e7681;font-size:16px;">' + emptyText + '</div>';
@@ -1947,6 +1880,7 @@
         panel.style.display = 'block';
         panel.scrollIntoView({behavior: 'smooth', block: 'nearest'});
     }
+
 
     function closeDayDetail() {
         var panel = document.getElementById('day-detail-panel');
