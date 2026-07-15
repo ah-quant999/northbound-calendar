@@ -75,6 +75,8 @@ jobs:
           FILES="${{ steps.fallback.outputs.changed_files }}"
           git add $FILES
           git commit -m "auto: ${{ steps.fallback.outputs.target_date }} T+1早间兜底补抓 (北向+机游)"
+          # 先 rebase 拉取远端最新提交，避免并发 workflow 冲突
+          git pull origin calendar-pages --rebase || (git rebase --abort && echo "❌ git pull --rebase 冲突，推送失败" && exit 1)
           git push origin calendar-pages
           echo "✅ 已推送到 calendar-pages 分支"
 

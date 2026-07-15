@@ -76,6 +76,8 @@ jobs:
         run: |
           git add "重要日历*.html"
           git commit -m "auto: ${{ steps.update.outputs.target_month }} 重要日历月度更新 (GHA)"
+          # 先 rebase 拉取远端最新提交，避免并发 workflow 冲突
+          git pull origin calendar-pages --rebase || (git rebase --abort && echo "❌ git pull --rebase 冲突，推送失败" && exit 1)
           git push origin calendar-pages
           echo "✅ 已推送到 calendar-pages 分支"
 
