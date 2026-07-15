@@ -402,65 +402,6 @@
             margin-top: 2px;
         }
 
-        /* 今日事件区块 */
-        .today-events-section {
-            margin-top: 30px;
-            padding: 24px 28px;
-            background: rgba(22, 27, 34, 0.96);
-            border: 1px solid #30363d;
-            border-radius: 12px;
-        }
-        .today-events-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #d29922;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #30363d;
-        }
-        .today-event-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 10px 14px;
-            margin-bottom: 8px;
-            border-radius: 8px;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.06);
-        }
-        .today-event-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            flex-shrink: 0;
-            margin-top: 4px;
-        }
-        .today-event-text {
-            font-size: 16px;
-            color: #e6edf3;
-            line-height: 1.5;
-            flex: 1;
-        }
-        .today-event-star {
-            color: #e63946;
-            font-size: 16px;
-            margin-right: 4px;
-        }
-        .today-event-cls {
-            font-size: 12px;
-            padding: 2px 10px;
-            border-radius: 4px;
-            white-space: nowrap;
-            flex-shrink: 0;
-            margin-top: 2px;
-        }
-        .today-events-empty {
-            color: #8b949e;
-            font-size: 16px;
-            text-align: center;
-            padding: 20px;
-        }
-
         @media (max-width: 768px) {
             .container { padding: 10px; }
             .week-table tbody td { min-height: 120px; padding: 4px; }
@@ -940,12 +881,6 @@
             <button class="detail-close-btn" onclick="closeDayDetail()">✕</button>
         </div>
         <div id="detail-events-list"></div>
-    </div>
-
-    <!-- ========== 今日事件 ========== -->
-    <div class="today-events-section">
-        <div class="today-events-title">📅 今日事件(0个) · 2026-07-11</div>
-        <div class="today-events-empty">今日暂无重要事件</div>
     </div>
 
     <!-- ========== 色块标注区 ========== -->
