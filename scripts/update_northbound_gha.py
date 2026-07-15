@@ -270,18 +270,30 @@ def build_daily_data(date_str: str) -> Dict:
     """
     print(f"📊 正在获取 {date_str} 的龙虎榜北向席位数据...")
 
-    name_map = get_stock_name_map(date_str)
-    dept_rows = get_northbound_dept_data(date_str)
-
-    if not dept_rows:
-        # 没有北向席位数据（可能是港股休市或当天龙虎榜没有北向）
+    # 港股休日：北向通道关闭，直接返回（不抓取、不显示数据）
+    if is_hk_holiday(date_str):
+        print(f"  🏛️  {date_str} 港股休市，北向通道关闭")
         return {
             "date": date_str,
             "total_inflow_wan": None,
             "top_buy": [],
             "top_sell": [],
             "data_source": "东方财富龙虎榜官方API",
-            "hk_holiday": is_hk_holiday(date_str),
+            "hk_holiday": True,
+        }
+
+    name_map = get_stock_name_map(date_str)
+    dept_rows = get_northbound_dept_data(date_str)
+
+    if not dept_rows:
+        # 没有北向席位数据（当天龙虎榜没有北向）
+        return {
+            "date": date_str,
+            "total_inflow_wan": None,
+            "top_buy": [],
+            "top_sell": [],
+            "data_source": "东方财富龙虎榜官方API",
+            "hk_holiday": False,
         }
 
     agg = aggregate_northbound(dept_rows, name_map)
