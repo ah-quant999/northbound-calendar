@@ -1739,10 +1739,13 @@
                             if (iamount && iamount.classList.contains('up')) iamountStyle = 'color:#f85149;';
                             else if (iamount && iamount.classList.contains('down')) iamountStyle = 'color:#3fb950;';
                         }
+                        var iamountCls = 'detail-amount';
+                        if (iamount && iamount.classList.contains('up')) iamountCls += ' up';
+                        else if (iamount && iamount.classList.contains('down')) iamountCls += ' down';
                         html += '<div class="detail-item">';
                         html += '<span class="detail-icon">' + iiconText + '</span>';
                         html += '<span class="detail-name" style="' + inameStyle + '">' + inameText + '</span>';
-                        html += '<span class="detail-amount" style="' + iamountStyle + '">' + iamountText + '</span>';
+                        html += '<span class="' + iamountCls + '" style="' + iamountStyle + '">' + iamountText + '</span>';
                         html += '</div>';
                     }
                 }
