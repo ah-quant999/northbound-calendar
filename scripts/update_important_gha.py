@@ -1,20 +1,23 @@
 #!/usr/bin/env python3
 """
-重要日历月度更新脚本 — GitHub Actions 纯 Python 版
+重要日历月度更新脚本 — GitHub Actions 增量更新版
 
-完全不依赖 CodeActSDK / pydantic，只用标准库 + requests。
+核心原则：
+  1. 绝对不重新生成页面，只在现有母版 HTML 上做增量数据更新
+  2. 绝不修改 HTML 结构、布局、样式、颜色、顶栏导航
+  3. 只更新日历格子里的数据（事件、数值、✅标记、更新时间）
+  4. 用正则精确匹配 <td onclick="showDayDetail(N)"> 块，逐格替换 data-events 和 event-list
+
 数据来源：
-  - 基础日历结构：本地 generate_calendars.py 模板
   - 中国宏观数据（CPI/PPI/PMI/GDP）：东方财富 datacenter 官方 API
-  - 美股/台股/韩股财报：关注股披露日期（硬编码季度规律 + API补充）
-  - 节假日：内置日历数据
-  - FOMC：联邦公开市场委员会日程内置
+  - 美股/台股/韩股财报：关注股季度规律
+  - FOMC：2026-2027 日程内置，季度会议标注 SEP/点阵图
+  - 节假日/交割等：模板已有，不改动
 
 用法：
   python3 scripts/update_important_gha.py --month 2026-07 --repo-dir .
   python3 scripts/update_important_gha.py --month 2026-07 --repo-dir . --dry-run
   python3 scripts/update_important_gha.py --repo-dir .
-  # 默认 month = 当前月
 """
 
 import argparse
@@ -25,7 +28,7 @@ import os
 import re
 import sys
 import time
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 
 try:
     import requests
@@ -36,8 +39,7 @@ except ImportError:
 # ========== 路径与常量 ==========
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-REPO_ROOT = os.path.dirname(SCRIPT_DIR)  # 仓库根目录
-GENERATE_SCRIPT = os.path.join(REPO_ROOT, "generate_calendars.py")
+REPO_ROOT = os.path.dirname(SCRIPT_DIR)
 
 # 东方财富 API
 EASTMONEY_API_BASE = "https://datacenter-web.eastmoney.com/api/data/v1/get"
@@ -48,7 +50,7 @@ EASTMONEY_HEADERS = {
     "Accept": "application/json, text/plain, */*",
 }
 
-# 关注的核心股票（用于财报日期注入）
+# 关注的核心股票（用于财报事件构建）
 US_EARNINGS_WATCH = {
     "TSLA": "特斯拉",
     "GOOGL": "谷歌",
@@ -114,10 +116,8 @@ def _safe_float(v):
 def _extract_dup_keywords(cls, text):
     """从事件文本中提取用于去重的关键词"""
     keywords = []
-    # 提取股票代码（美股代码格式：大写字母，如 TSLA、AAPL）
     stock_codes = re.findall(r'\(([A-Z]{2,6})\)', text)
     keywords.extend(stock_codes)
-    # 提取公司名片段
     if cls == 'us-stock':
         for name in US_EARNINGS_WATCH.values():
             if name in text:
@@ -132,21 +132,7 @@ def _extract_dup_keywords(cls, text):
     return keywords
 
 
-def parse_date(date_str):
-    """解析日期字符串为 date 对象"""
-    if not date_str:
-        return None
-    date_str = date_str.strip()
-    for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d", "%Y/%m/%d", "%Y年%m月%d日"):
-        try:
-            return datetime.strptime(date_str, fmt).date()
-        except ValueError:
-            continue
-    return None
-
-
 def file_md5(path):
-    """计算文件 MD5"""
     if not os.path.isfile(path):
         return None
     h = hashlib.md5()
@@ -197,7 +183,6 @@ def fetch_eastmoney_report(report_name, columns="ALL", page_size=50,
 
 
 def fetch_cpi_data(year, month):
-    """获取 CPI 数据，返回该月数据 dict 或 None"""
     target = f"{year}-{month:02d}-01"
     data = fetch_eastmoney_report(
         "RPT_ECONOMY_CPI",
@@ -213,7 +198,6 @@ def fetch_cpi_data(year, month):
 
 
 def fetch_ppi_data(year, month):
-    """获取 PPI 数据"""
     target = f"{year}-{month:02d}-01"
     data = fetch_eastmoney_report(
         "RPT_ECONOMY_PPI",
@@ -229,7 +213,6 @@ def fetch_ppi_data(year, month):
 
 
 def fetch_pmi_data(year, month):
-    """获取官方 PMI 数据"""
     target = f"{year}-{month:02d}-01"
     data = fetch_eastmoney_report(
         "RPT_ECONOMY_PMI",
@@ -245,7 +228,6 @@ def fetch_pmi_data(year, month):
 
 
 def fetch_gdp_data(year, quarter):
-    """获取 GDP 数据"""
     data = fetch_eastmoney_report(
         "RPT_ECONOMY_GDP",
         sort_col="REPORT_DATE",
@@ -255,7 +237,6 @@ def fetch_gdp_data(year, quarter):
     for item in data:
         rd = item.get("REPORT_DATE", "")
         if rd.startswith(f"{year}-"):
-            # 按季度匹配
             q_end_month = quarter * 3
             month_str = f"{q_end_month:02d}"
             if f"-{month_str}-" in rd or rd.startswith(f"{year}-{month_str}"):
@@ -268,15 +249,9 @@ def fetch_gdp_data(year, quarter):
 def build_macro_publish_status(target_year, target_month):
     """
     检查 target_year 年 target_month 月 各宏观数据的发布状态
-    返回 dict: {event_key: {"published": bool, "value": str, "publish_day": int or None}}
+    返回 dict: {event_key: {"published": bool, "value": str, ...}}
     """
     status = {}
-
-    # CPI/PPI: 通常次月 9 日左右发布上月数据
-    # 例如 2026年6月CPI 于 2026年7月9日发布
-    # 我们查的是「数据所属月份」= target_month 的发布情况
-    # 实际上我们的日历事件中，每月9日是「上月CPI/PPI发布日」
-    # 所以对于 month=M，CPI/PPI 事件对应的是 (M-1) 月的数据
 
     # 上月数据
     prev_month = target_month - 1
@@ -323,16 +298,13 @@ def build_macro_publish_status(target_year, target_month):
         "data_month_label": f"{prev_year}年{prev_month}月",
     }
 
-    # PMI: 当月最后一天发布当月数据（官方PMI）
-    # 日历里每月最后一天有 PMI 事件
+    # PMI
     pmi = fetch_pmi_data(target_year, target_month)
     pmi_published = pmi is not None
     pmi_value = ""
     if pmi_published:
-        # 找制造业PMI值
         manu = _safe_float(pmi.get("MANU_PMI") or pmi.get("PMI_MANU") or pmi.get("MANUFACTURING_PMI"))
         if manu is None:
-            # 尝试用第一个非 None 的数值字段
             for key in ["PMI", "MANU_PMI", "SERVICE_PMI", "NATIONAL_PMI"]:
                 v = _safe_float(pmi.get(key))
                 if v is not None:
@@ -345,19 +317,15 @@ def build_macro_publish_status(target_year, target_month):
         "value": pmi_value,
     }
 
-    # 工业/社零/固投: 每月15日左右发布上月数据
+    # 工业/社零/固投
     status["industrial"] = {
-        "published": False,  # API暂未找到对应报表
+        "published": False,
         "value": "",
         "data_month_label": f"{prev_year}年{prev_month}月",
     }
 
-    # GDP: 季度数据，在季后月中旬发布
-    # 季度末月+1 月的 15 日左右
-    if target_month in (1, 4, 7, 10):
-        # target_month = 发布月
-        q_num = (target_month - 1) // 3  # 季度序号 (0=Q1发布在4月? 不对)
-        # 1月: 上年Q4? 不，1月一般没GDP。4月: Q1, 7月: Q2上修, 10月: Q3
+    # GDP: 季度数据，4/7/10月发布
+    if target_month in (4, 7, 10):
         quarter_map = {4: 1, 7: 2, 10: 3}
         q = quarter_map.get(target_month)
         if q:
@@ -379,28 +347,26 @@ def build_macro_publish_status(target_year, target_month):
 
 # ========== 财报日期（关注股） ==========
 
-def estimate_us_earnings_dates(year, quarter):
-    """
-    估算美股关注股财报日期（基于历史规律，用于未来月份）
-    返回: list of (day, stock_code, stock_name, period_text)
-    """
-    # 简化：根据季度估算大致发布周
-    # Q1财报季: 4月中下旬
-    # Q2财报季: 7月中下旬
-    # Q3财报季: 10月中下旬
-    # Q4/年报: 1月中下旬
-    quarter_month_map = {1: 4, 2: 7, 3: 10, 4: 1}
+def build_us_earnings_events(year, month):
+    """构建美股财报事件列表（基于季度规律，用于未来月份预估）"""
+    events = []
+    month_to_quarter = {
+        1: 4,
+        4: 1,
+        7: 2,
+        10: 3,
+    }
+    if month not in month_to_quarter:
+        return events
 
-    target_month = quarter_month_map[quarter]
-    target_year = year if quarter != 4 else year + 1
+    q = month_to_quarter[month]
+    year_for_q = year if q != 4 else year - 1
 
-    # 简化估算（按历史规律）
+    # 简化估算（按历史规律，仅作占位用，未来会被 API 覆盖）
     estimates = []
-    # 银行股：财报季第2周（约 14-15 日）
     bank_stocks = [("JPM", "摩根大通"), ("MS", "摩根士丹利"), ("BLK", "贝莱德")]
     for code, name in bank_stocks:
-        estimates.append((14, code, name, f"{target_year}年Q{quarter}"))
-    # 科技股：财报季第3周后半（约 22-30 日）
+        estimates.append((14, code, name, f"{year_for_q}年Q{q}"))
     tech_week3 = [
         (22, "TSLA", "特斯拉"),
         (23, "GOOGL", "谷歌"),
@@ -410,55 +376,25 @@ def estimate_us_earnings_dates(year, quarter):
         (30, "AMZN", "亚马逊"),
     ]
     for day, code, name in tech_week3:
-        estimates.append((day, code, name, f"{target_year}年Q{quarter}"))
-    # 其他
+        estimates.append((day, code, name, f"{year_for_q}年Q{q}"))
     others = {
         1: [(12, "PEP", "百事"), (10, "DAL", "达美航空")],
         2: [(16, "NFLX", "奈飞"), (28, "SPGI", "标普全球"), (29, "ADP", "ADP")],
         3: [(18, "NFLX", "奈飞")],
         4: [(17, "NFLX", "奈飞")],
     }
-    for day, code, name in others.get(quarter, []):
-        estimates.append((day, code, name, f"{target_year}年Q{quarter}"))
-    # 英伟达
-    if quarter == 2:
-        estimates.append((28, "NVDA", "英伟达", f"{target_year}年Q{quarter}"))
-    elif quarter == 3:
-        estimates.append((28, "NVDA", "英伟达", f"{target_year}年Q{quarter}"))
-    # 美光
-    if quarter == 3:
-        estimates.append((25, "MU", "美光", f"{target_year}年Q{quarter}"))
-    elif quarter == 1:
-        estimates.append((20, "MU", "美光", f"{target_year}年Q{quarter}"))
+    for day, code, name in others.get(q, []):
+        estimates.append((day, code, name, f"{year_for_q}年Q{q}"))
+    if q == 2:
+        estimates.append((28, "NVDA", "英伟达", f"{year_for_q}年Q{q}"))
+    elif q == 3:
+        estimates.append((28, "NVDA", "英伟达", f"{year_for_q}年Q{q}"))
+    if q == 3:
+        estimates.append((25, "MU", "美光", f"{year_for_q}年Q{q}"))
+    elif q == 1:
+        estimates.append((20, "MU", "美光", f"{year_for_q}年Q{q}"))
 
-    # 过滤出 target_month 的
-    return [e for e in estimates if target_month == target_month or True]
-
-
-def build_us_earnings_events(year, month):
-    """
-    构建美股财报事件列表
-    返回: list of dict {'day': int, 'cls': 'us-stock', 'text': str}
-    """
-    events = []
-    # 判断该月属于哪个财报季
-    month_to_quarter = {
-        1: 4,    # 1月 = 上一年Q4财报季
-        4: 1,    # 4月 = Q1财报季
-        7: 2,    # 7月 = Q2财报季
-        10: 3,   # 10月 = Q3财报季
-    }
-    if month not in month_to_quarter:
-        return events
-
-    q = month_to_quarter[month]
-    year_for_q = year if q != 4 else year - 1
-
-    estimates = estimate_us_earnings_dates(year_for_q, q)
-    # 过滤出本月的
-    month_estimates = [(d, c, n, p) for d, c, n, p in estimates if d > 0 and d <= 31]
-
-    for day, code, name, period in month_estimates:
+    for day, code, name, period in estimates:
         events.append({
             'day': day,
             'cls': 'us-stock',
@@ -467,8 +403,6 @@ def build_us_earnings_events(year, month):
 
     return events
 
-
-# ========== FOMC 事件 ==========
 
 def build_fomc_events(year, month):
     """构建 FOMC 事件"""
@@ -493,38 +427,20 @@ def build_fomc_events(year, month):
         'text': f'🇺🇸 FOMC利率决议 {sep_text}北京时间{month}/{day2}凌晨',
     })
 
-    # 会议纪要：会议后 3 周左右（一般在会后第 3 周的周三/周四）
-    # 简化处理，不做精确计算，只在对应月标注
     return events
 
 
-# ========== 其他月度事件增强 ==========
-
 def build_kr_earnings_events(year, month):
-    """韩股财报事件（三星/SK海力士）"""
+    """韩股财报事件"""
     events = []
-    # 三星电子：业绩指引在季度最后一个月的第一周初，正式财报在下个月第一周
-    # Q1: 指引 4月初，财报 4月底
-    # Q2: 指引 7月初，财报 7月底
-    # Q3: 指引 10月初，财报 10月底
-    # Q4: 指引 1月初，财报 1月底
-    quarter_data = {
-        1: ("指引", 7, 1, None),   # 1月: 上年Q4指引? 实际 Q4指引在1月初
-        4: ("Q1业绩指引", 7, 1, "Q1完整财报"),
-        7: ("Q2业绩指引", 7, 2, "Q2完整财报"),
-        10: ("Q3业绩指引", 7, 3, "Q3完整财报"),
-    }
-    # 指引在季度末月+1 的月初；完整财报在月末
     if month in (1, 4, 7, 10):
         q_label = {1: "Q4", 4: "Q1", 7: "Q2", 10: "Q3"}[month]
         y = year if month != 1 else year - 1
-        # 月初：业绩指引（约 7 日）
         events.append({
             'day': 7,
             'cls': 'kr-stock',
             'text': f'🇰🇷 三星电子{y}年{q_label}业绩指引',
         })
-        # 月底：完整财报（约 30 日）
         last_day = calendar.monthrange(year, month)[1]
         events.append({
             'day': last_day,
@@ -537,13 +453,10 @@ def build_kr_earnings_events(year, month):
 def build_tw_earnings_events(year, month):
     """台股财报事件（台积电）"""
     events = []
-    # 台积电：法说会/财报在 4/7/10/1 月中旬
     if month in (1, 4, 7, 10):
         q_map = {1: "Q4", 4: "Q1", 7: "Q2", 10: "Q3"}
         y = year if month != 1 else year - 1
         q = q_map[month]
-        # 台积电通常在当月第 3 周的周四发布
-        # 简化：18 日
         events.append({
             'day': 18,
             'cls': 'tw-stock',
@@ -552,17 +465,82 @@ def build_tw_earnings_events(year, month):
     return events
 
 
-# ========== HTML 事件注入与更新 ==========
+# ========== HTML 增量更新核心 ==========
+
+def _get_indent(event_item_html):
+    """从事件行提取缩进字符串"""
+    m = re.match(r'^(\s*)', event_item_html)
+    return m.group(1) if m else ''
+
+
+def update_day_cell_in_html(html, day, updated_events, day_indent_info):
+    """
+    精确更新指定日期的单元格事件：
+    - 替换 data-events='[...]'
+    - 替换 <div class="event-list">...</div> 内容（或替换 empty-content）
+    保持 td 标签、class、day-header、缩进完全不变。
+
+    从后往前替换（大 day 号先替换），避免字符串长度变化导致后续匹配错位。
+    """
+    # 匹配当天 td 完整块（从 <td onclick="showDayDetail(N)" ...> 到 </td>）
+    # 注意：用非贪婪匹配，只匹配到第一个 </td>
+    pattern = re.compile(
+        r'(<td[^>]*onclick="showDayDetail\(' + str(day) + r'\)"[^>]*data-events=\')([^\']*)(\'[^>]*>\s*<div class="day-cell">\s*<div class="day-header">.*?</div>\s*)(<div class="(?:event-list|empty-content)">.*?</div>)(\s*</div>\s*</td>)',
+        re.DOTALL,
+    )
+    m = pattern.search(html)
+    if not m:
+        return html, False
+
+    td_before_data = m.group(1)   # <td ... data-events='
+    old_data_events = m.group(2)  # [...] 内的 JSON
+    td_middle = m.group(3)        # '> 到 <div class="event-list|empty-content"> 之前的内容
+    old_events_block = m.group(4)  # 整个 event-list 或 empty-content div
+    td_after = m.group(5)         # 结束部分
+
+    # 构建新的 data-events JSON
+    new_data_json = json.dumps(
+        [{"cls": e["cls"], "text": e["text"]} for e in updated_events],
+        ensure_ascii=False,
+    )
+
+    # 从原块中精确提取缩进格式
+    # list_indent: event-list/empty-content 外层缩进
+    list_indent_match = re.search(r'^(\s*)<div class="(?:event-list|empty-content)">', old_events_block, re.MULTILINE)
+    list_indent = list_indent_match.group(1) if list_indent_match else '                        '
+
+    # item_indent: 每个 event-item 的缩进（含前导换行）
+    item_indent_match = re.search(r'(\n\s*)<div class="event-item ', old_events_block)
+    item_indent_full = item_indent_match.group(1) if item_indent_match else '\n                            '
+    # 去掉开头的换行，保留纯空格缩进
+    item_inner_indent = item_indent_full.lstrip('\n')
+    # 结尾 </div> 的缩进（取空行后紧跟 </div> 的格式）
+    closing_match = re.search(r'(\n\s*)</div>\s*$', old_events_block)
+    closing_indent = closing_match.group(1) if closing_match else '\n' + list_indent
+
+    if updated_events:
+        parts = [f'{list_indent}<div class="event-list">']
+        for ev in updated_events:
+            parts.append(f'\n{item_inner_indent}<div class="event-item {ev["cls"]}">{ev["text"]}</div>')
+        parts.append(f'{closing_indent}</div>')
+        new_events_block = ''.join(parts)
+    else:
+        new_events_block = f'{list_indent}<div class="empty-content">--</div>'
+
+    new_td = td_before_data + new_data_json + td_middle + new_events_block + td_after
+
+    return html[:m.start()] + new_td + html[m.end():], True
+
 
 def inject_events_into_html(html, year, month, new_events, macro_status):
     """
-    将新事件注入到 HTML 的日历格子中，同时更新宏观事件的「已发布」标记
-    仅修改当前月日期的格子内容，保持所有样式/结构/颜色不变
+    增量更新 HTML 中的日历格子事件：
+    1. 读取每个日期现有的 data-events
+    2. 更新宏观事件（加 ✅ 和数值）
+    3. 合并新增事件（按去重规则）
+    4. 精确替换该天的 data-events 和 event-list 块
 
-    策略：
-      1. 对于每个日期，在现有事件基础上合并新增事件（按 cls 去重）
-      2. 对于宏观事件（CPI/PPI/PMI等），若已发布则更新文本加 ✅ 标记
-      3. 同时更新 data-events 属性和 event-list 内容
+    只修改事件数据，绝不改动任何其他 DOM 结构。
     """
     # 按天分组新事件
     events_by_day = {}
@@ -574,39 +552,44 @@ def inject_events_into_html(html, year, month, new_events, macro_status):
 
     days_in_month = calendar.monthrange(year, month)[1]
 
-    for day in range(1, days_in_month + 1):
-        day_new_events = events_by_day.get(day, [])
-        if not day_new_events and day not in [9, 15, days_in_month]:
-            # 既没有新事件，也不是需要检查宏观发布状态的日期，跳过
+    # 收集需要更新的日期（有新增事件 + 需要检查宏观发布的日期）
+    days_to_update = set(events_by_day.keys())
+    # 每月固定需要检查的宏观日期
+    days_to_update.add(9)    # CPI/PPI
+    days_to_update.add(15)   # 工业/社零/固投
+    days_to_update.add(days_in_month)  # PMI
+    # GDP 发布月（月中）
+    if month in (4, 7, 10):
+        days_to_update.add(15)
+
+    changed_days = []
+
+    # 从后往前替换，避免字符串长度变化导致匹配偏移
+    sorted_days = sorted(days_to_update, reverse=True)
+
+    for day in sorted_days:
+        if day < 1 or day > days_in_month:
             continue
 
-        # 找到当天的 <td> 块
-        # 用正则匹配：onclick="showDayDetail(N)" 精确到天
+        # 先提取当天现有事件
         pattern = re.compile(
-            r'(<td[^>]*onclick="showDayDetail\(' + str(day) + r'\)"[^>]*data-events=\'[^\']*\'>.*?</td>)',
+            r'<td[^>]*onclick="showDayDetail\(' + str(day) + r'\)"[^>]*data-events=\'([^\']*)\'',
             re.DOTALL,
         )
         m = pattern.search(html)
         if not m:
-            print(f"  ⚠️  未找到 {month}月{day}日 的单元格")
             continue
 
-        td_block = m.group(1)
-
-        # 提取 data-events 中的现有事件
-        data_m = re.search(r"data-events='(\[.*?\])'", td_block, re.DOTALL)
-        if not data_m:
-            continue
         try:
-            existing_events = json.loads(data_m.group(1))
+            existing_events = json.loads(m.group(1))
         except json.JSONDecodeError:
             continue
 
-        # 更新宏观事件：标记已发布 + 附加数值
+        # ---- 更新宏观事件：标记已发布 + 附加数值 ----
         updated_events = []
         seen_keys = set()
         for ev in existing_events:
-            ev = dict(ev)  # 复制
+            ev = dict(ev)
             cls = ev.get('cls', '')
             text = ev.get('text', '')
 
@@ -642,7 +625,7 @@ def inject_events_into_html(html, year, month, new_events, macro_status):
                         suffix += f"（{val}）"
                     if '✅' not in text:
                         ev['text'] = text + suffix
-            # GDP（4/7/10月）
+            # GDP
             elif cls == 'macro' and 'GDP' in text:
                 ms = macro_status.get('gdp', {})
                 if ms.get('published'):
@@ -658,42 +641,37 @@ def inject_events_into_html(html, year, month, new_events, macro_status):
                 seen_keys.add(key)
                 updated_events.append(ev)
 
-        # 注入新事件（按 cls + 关键词 去重，避免与基础日历已有的具体事件重复）
+        # ---- 注入新事件（去重） ----
+        day_new_events = events_by_day.get(day, [])
         for new_ev in day_new_events:
             cls = new_ev['cls']
             text = new_ev['text']
-
-            # 生成去重关键词
             dup_keywords = _extract_dup_keywords(cls, text)
 
-            # 检查是否与现有事件重复（同类事件且关键词高度重叠）
             is_dup = False
             for existing in updated_events:
                 if existing['cls'] != cls:
                     continue
                 existing_text = existing['text']
-                # 对财报类：检查股票代码/名称是否重复
                 if cls in ('us-stock', 'tw-stock', 'kr-stock', 'eu-earn', 'jp-earn'):
                     for kw in dup_keywords:
                         if kw and kw in existing_text:
                             is_dup = True
                             break
-                # 对 FOMC：同一天的 FOMC 只保留更详细的
                 elif cls == 'fomc':
-                    # 同一天的 FOMC 事件，如果现有文本已经包含日期/天数等关键信息，则不重复添加
-                    if ('FOMC' in existing_text and 'FOMC' in text):
-                        # 保留文本更长、更详细的那个
+                    if 'FOMC' in existing_text and 'FOMC' in text:
                         if len(text) > len(existing_text):
                             updated_events.remove(existing)
                             seen_keys.discard((existing['cls'], existing['text']))
                         else:
                             is_dup = True
                         break
-                # 其他类：精确 cls+text 去重
                 else:
                     if existing_text == text:
                         is_dup = True
                         break
+                if is_dup:
+                    break
 
             if not is_dup:
                 key = (new_ev['cls'], new_ev['text'])
@@ -704,170 +682,57 @@ def inject_events_into_html(html, year, month, new_events, macro_status):
         # 按 cls 排序
         updated_events.sort(key=lambda x: x['cls'])
 
-        # 重建 data-events 和 event-list
-        new_data_events = json.dumps(
-            [{"cls": e["cls"], "text": e["text"]} for e in updated_events],
-            ensure_ascii=False,
-        ).replace("'", "&#39;")
+        # 判断是否有变化
+        old_json = json.dumps([{"cls": e["cls"], "text": e["text"]} for e in existing_events],
+                              ensure_ascii=False, sort_keys=True)
+        new_json = json.dumps([{"cls": e["cls"], "text": e["text"]} for e in updated_events],
+                              ensure_ascii=False, sort_keys=True)
+        if old_json == new_json:
+            continue
 
-        # 重建 event-list 或 empty-content
-        if updated_events:
-            event_html_lines = ['                        <div class="event-list">']
-            for ev in updated_events:
-                event_html_lines.append(
-                    f'                            <div class="event-item {ev["cls"]}">{ev["text"]}</div>'
-                )
-            event_html_lines.append('                        </div>')
-            event_html = '\n'.join(event_html_lines)
-        else:
-            event_html = '                        <div class="empty-content">--</div>'
+        # 执行替换
+        html, ok = update_day_cell_in_html(html, day, updated_events, None)
+        if ok:
+            changed_days.append(day)
 
-        # 替换 data-events
-        new_td = re.sub(
-            r"data-events='\[.*?\]'",
-            f"data-events='{new_data_events}'",
-            td_block,
-            count=1,
-            flags=re.DOTALL,
-        )
-
-        # 替换 event-list 或 empty-content 块
-        # 先尝试替换 event-list
-        if re.search(r'<div class="event-list">.*?</div>', new_td, re.DOTALL):
-            new_td = re.sub(
-                r'<div class="event-list">.*?</div>',
-                event_html if updated_events else '                        <div class="empty-content">--</div>',
-                new_td,
-                count=1,
-                flags=re.DOTALL,
-            )
-        else:
-            # 替换 empty-content
-            new_td = re.sub(
-                r'<div class="empty-content">.*?</div>',
-                event_html if updated_events else '                        <div class="empty-content">--</div>',
-                new_td,
-                count=1,
-                flags=re.DOTALL,
-            )
-
-        html = html[:m.start()] + new_td + html[m.end():]
-
-    return html
-
-
-def update_today_events_section(html, year, month, today_date):
-    """更新「今日事件」区块（如果今天在本月）"""
-    if not (today_date.year == year and today_date.month == month):
-        return html
-
-    today_day = today_date.day
-    # 从 data-events 中提取今日事件
-    pattern = re.compile(
-        r'<td[^>]*onclick="showDayDetail\(' + str(today_day) + r'\)"[^>]*data-events=\'([^\']*)\'',
-        re.DOTALL,
-    )
-    m = pattern.search(html)
-    if not m:
-        return html
-
-    try:
-        today_events = json.loads(m.group(1))
-    except json.JSONDecodeError:
-        return html
-
-    if not today_events:
-        return html
-
-    today_events.sort(key=lambda x: x['cls'])
-
-    color_map = {
-        'policy': '#ff8c42', 'cbank': '#ffd700', 'macro': '#e8b830',
-        'earn-end': '#ff6b55', 'option': '#4da6ff', 'futures': '#6cb4ff',
-        'a50': '#ff5a52', 'hk-holiday': '#78828a', 'tw-stock': '#2ea043',
-        'phone': '#c084fc', 'fomc': '#e63946', 'us-holiday': '#5a6270',
-        'us-stock': '#388bfd', 'eu-earn': '#4ade80', 'jp-earn': '#f0c040',
-        'kr-stock': '#a855f7', 'sg-holiday': '#ff528a',
-    }
-    cls_label_map = {
-        'policy': '重要政策', 'cbank': '央行/LPR', 'macro': '中国数据',
-        'earn-end': '财报截止', 'option': '期权交割', 'futures': '期货交割',
-        'a50': 'A50交割', 'hk-holiday': '港股休市', 'tw-stock': '台股财报',
-        'phone': '苹果/华为', 'fomc': 'FOMC', 'us-holiday': '美股休市',
-        'us-stock': '美股财报', 'eu-earn': '欧股财报', 'jp-earn': '日股财报',
-        'kr-stock': '韩股财报', 'sg-holiday': 'SG公假',
-    }
-
-    lines = []
-    for ev in today_events:
-        is_important = ev['cls'] in ('fomc', 'earn-end', 'a50', 'policy')
-        star_html = '<span class="today-event-star">★</span>' if is_important else ''
-        dot_color = color_map.get(ev['cls'], '#8b949e')
-        cls_label = cls_label_map.get(ev['cls'], ev['cls'])
-        lines.append(f'        <div class="today-event-item">')
-        lines.append(f'            <span class="today-event-dot" style="background:{dot_color};"></span>')
-        lines.append(f'            <span class="today-event-text">{star_html}{ev["text"]}</span>')
-        lines.append(f'            <span class="today-event-cls" style="background:{dot_color};color:#fff;">{cls_label}</span>')
-        lines.append(f'        </div>')
-
-    today_html = '\n'.join(lines)
-
-    # 找到今日事件区块并替换内容
-    section_pattern = re.compile(
-        r'(<div class="today-events-section">.*?<div class="today-events-title">.*?</div>\n)(.*?)(\n    </div>)',
-        re.DOTALL,
-    )
-    m2 = section_pattern.search(html)
-    if not m2:
-        return html
-
-    # 更新标题里的数量
-    title_pattern = re.compile(
-        r'📅 今日事件\(\d+个\) · \d{4}-\d{2}-\d{2}'
-    )
-    new_title = f'📅 今日事件({len(today_events)}个) · {today_date.strftime("%Y-%m-%d")}'
-
-    new_section = m2.group(1) + today_html + m2.group(3)
-    new_section = title_pattern.sub(new_title, new_section)
-
-    html = html[:m2.start()] + new_section + html[m2.end():]
-
-    return html
+    return html, changed_days
 
 
 def update_update_time(html, now_dt):
     """更新「本次更新时间」"""
     new_text = f'本次更新时间: {now_dt.strftime("%Y-%m-%d %H:%M")}'
-    html = re.sub(
+    new_html, n = re.subn(
         r'本次更新时间: \d{4}-\d{2}-\d{2} \d{2}:\d{2}',
         new_text,
         html,
     )
-    return html
+    return new_html, n > 0
 
 
 # ========== 主流程 ==========
 
 def update_month_calendar(year, month, repo_dir, dry_run=False):
-    """更新单月日历"""
+    """增量更新单月日历"""
     print(f"\n{'=' * 60}")
-    print(f"📅 更新 {year}年{month}月 重要日历")
+    print(f"📅 增量更新 {year}年{month}月 重要日历")
     print(f"{'=' * 60}")
 
-    # 导入生成模块
-    sys.path.insert(0, repo_dir)
-    try:
-        from generate_calendars import generate_month_html
-    except ImportError as e:
-        print(f"❌ 无法导入 generate_calendars: {e}")
+    filename = f"重要日历_{year}{month:02d}.html"
+    filepath = os.path.join(repo_dir, filename)
+
+    if not os.path.isfile(filepath):
+        print(f"❌ 文件不存在: {filepath}")
         return False
 
     today = date.today()
     now_dt = datetime.now()
 
-    # 1. 生成基础 HTML
-    print("1/4 生成基础日历 HTML...")
-    base_html = generate_month_html(year, month, today)
+    # 1. 读取现有 HTML 母版
+    print("1/4 读取现有 HTML 母版...")
+    old_md5 = file_md5(filepath)
+    with open(filepath, "r", encoding="utf-8") as f:
+        html = f.read()
+    print(f"   文件: {filename}（{len(html)} 字符）")
 
     # 2. 获取宏观数据发布状态
     print("2/4 获取宏观数据发布状态...")
@@ -892,37 +757,37 @@ def update_month_calendar(year, month, repo_dir, dry_run=False):
     print(f"   韩股财报事件: {sum(1 for e in extra_events if e['cls']=='kr-stock')} 个")
     print(f"   台股财报事件: {sum(1 for e in extra_events if e['cls']=='tw-stock')} 个")
 
-    # 4. 注入事件到 HTML
-    print("4/4 注入事件并更新 HTML...")
-    updated_html = inject_events_into_html(base_html, year, month, extra_events, macro_status)
-    updated_html = update_today_events_section(updated_html, year, month, today)
-    updated_html = update_update_time(updated_html, now_dt)
+    # 4. 增量更新 HTML
+    print("4/4 增量更新 HTML（仅修改事件数据）...")
+    updated_html, changed_days = inject_events_into_html(html, year, month, extra_events, macro_status)
+    updated_html, time_changed = update_update_time(updated_html, now_dt)
 
-    # 写入文件
-    filename = f"重要日历_{year}{month:02d}.html"
-    filepath = os.path.join(repo_dir, filename)
+    new_md5 = hashlib.md5(updated_html.encode("utf-8")).hexdigest()
+    changed = old_md5 != new_md5
+
+    if changed_days:
+        print(f"   有变化的日期: {sorted(changed_days)}")
+    else:
+        print(f"   事件数据无变化")
+    if time_changed:
+        print(f"   已更新「本次更新时间」")
 
     if dry_run:
-        print(f"\n🔍 [DRY-RUN] 不写入文件: {filename}")
-        print(f"   原 HTML 长度: {len(base_html)}")
-        print(f"   新 HTML 长度: {len(updated_html)}")
-        return True
+        print(f"\n🔍 [DRY-RUN] 不写入文件")
+        print(f"   原长度: {len(html)}  新长度: {len(updated_html)}")
+        print(f"   状态: {'有变化' if changed else '无变化'}")
+        return changed
 
-    # 比较变化
-    old_md5 = file_md5(filepath)
-
+    # 写回文件
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(updated_html)
-
-    new_md5 = file_md5(filepath)
-    changed = old_md5 != new_md5
 
     if changed:
         print(f"✅ {filename} 已更新（有变化）")
     else:
         print(f"ℹ️  {filename} 无变化")
 
-    # 同时更新「重要日历.html」（默认页 = 当前月）
+    # 同步更新默认页（重要日历.html）—— 如果本月是当前月
     if today.year == year and today.month == month:
         default_path = os.path.join(repo_dir, "重要日历.html")
         default_old_md5 = file_md5(default_path)
@@ -930,16 +795,16 @@ def update_month_calendar(year, month, repo_dir, dry_run=False):
             f.write(updated_html)
         default_new_md5 = file_md5(default_path)
         if default_old_md5 != default_new_md5:
-            print(f"✅ 重要日历.html（默认页）已更新")
+            print(f"✅ 重要日历.html（默认页）已同步更新")
         else:
             print(f"ℹ️  重要日历.html（默认页）无变化")
 
-    return changed if old_md5 is not None else True
+    return changed
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="重要日历月度更新脚本 (GHA纯Python版)"
+        description="重要日历月度更新脚本 (GHA增量更新版)"
     )
     parser.add_argument(
         "--month",
@@ -966,7 +831,7 @@ def main():
 
     repo_dir = os.path.abspath(args.repo_dir)
     print("=" * 60)
-    print("🚀 重要日历月度更新 (GHA纯Python版)")
+    print("🚀 重要日历月度更新 (GHA增量更新版)")
     print(f"📁 仓库目录: {repo_dir}")
     print(f"🔍 dry-run: {args.dry_run}")
     print("=" * 60)
