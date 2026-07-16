@@ -71,9 +71,9 @@ jobs:
       - name: Commit and push changes
         if: steps.fallback.outputs.has_changes == 'true'
         run: |
-          # 只提交变更的文件
-          FILES="${{ steps.fallback.outputs.changed_files }}"
-          git add $FILES
+          # 直接用 git diff 查出变更的文件并逐个 add，避免中文文件名编码问题
+          git diff --name-only | while read f; do git add "$f"; done
+          git diff --cached --name-only | while read f; do echo "变更文件: $f"; done
           git commit -m "auto: ${{ steps.fallback.outputs.target_date }} T+1早间兜底补抓 (北向+机游)"
           # 先 rebase 拉取远端最新提交，避免并发 workflow 冲突
           git pull origin calendar-pages --rebase || (git rebase --abort && echo "❌ git pull --rebase 冲突，推送失败" && exit 1)
