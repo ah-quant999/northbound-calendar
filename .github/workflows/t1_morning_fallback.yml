@@ -41,6 +41,7 @@ jobs:
         run: |
           git config user.email "afoxli@coze.email"
           git config user.name "afoxli"
+          git config core.quotePath false
 
       - name: Run T+1 morning fallback and push (带冲突重试)
         run: |
