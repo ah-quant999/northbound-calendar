@@ -42,44 +42,54 @@ jobs:
           git config user.email "afoxli@coze.email"
           git config user.name "afoxli"
 
-      - name: Run T+1 morning fallback
-        id: fallback
+      - name: Run T+1 morning fallback and push (带冲突重试)
         run: |
           DATE_ARG=""
           if [ -n "${{ github.event.inputs.date }}" ]; then
             DATE_ARG="--date ${{ github.event.inputs.date }}"
           fi
 
-          python3 scripts/t1_morning_fallback.py \
-            --repo-dir "." \
-            $DATE_ARG \
-            2>&1 | tee fallback_output.log
+          MAX_RETRIES=3
+          RETRY=0
+          while [ $RETRY -lt $MAX_RETRIES ]; do
+            echo "=== 第 $((RETRY+1)) 次尝试 ==="
 
-          # 从输出中提取 GHA_HAS_CHANGES / GHA_NO_CHANGE
-          if grep -q "GHA_HAS_CHANGES=true" fallback_output.log; then
-            echo "has_changes=true" >> $GITHUB_OUTPUT
+            # 拉取最新代码，确保从最新状态开始
+            git fetch origin calendar-pages
+            git reset --hard origin/calendar-pages
+
+            # 执行兜底脚本
+            python3 scripts/t1_morning_fallback.py \
+              --repo-dir "." \
+              $DATE_ARG \
+              2>&1 | tee fallback_output.log
+
+            # 检查是否有变更
+            if ! grep -q "GHA_HAS_CHANGES=true" fallback_output.log; then
+              TARGET_DATE=$(grep "GHA_TARGET_DATE=" fallback_output.log | tail -1 | sed 's/GHA_TARGET_DATE=//')
+              echo "ℹ️  无数据变更（$TARGET_DATE 数据完整，无需补抓），跳过提交"
+              exit 0
+            fi
+
             TARGET_DATE=$(grep "GHA_TARGET_DATE=" fallback_output.log | tail -1 | sed 's/GHA_TARGET_DATE=//')
-            echo "target_date=$TARGET_DATE" >> $GITHUB_OUTPUT
-            CHANGED_FILES=$(grep "GHA_CHANGED_FILES=" fallback_output.log | tail -1 | sed 's/GHA_CHANGED_FILES=//')
-            echo "changed_files=$CHANGED_FILES" >> $GITHUB_OUTPUT
-          else
-            echo "has_changes=false" >> $GITHUB_OUTPUT
-            TARGET_DATE=$(grep "GHA_TARGET_DATE=" fallback_output.log | tail -1 | sed 's/GHA_TARGET_DATE=//')
-            echo "target_date=$TARGET_DATE" >> $GITHUB_OUTPUT
-          fi
+            echo "📅 目标日期: $TARGET_DATE"
 
-      - name: Commit and push changes
-        if: steps.fallback.outputs.has_changes == 'true'
-        run: |
-          # 直接用 git diff 查出变更的文件并逐个 add，避免中文文件名编码问题
-          git diff --name-only | while read f; do git add "$f"; done
-          git diff --cached --name-only | while read f; do echo "变更文件: $f"; done
-          git commit -m "auto: ${{ steps.fallback.outputs.target_date }} T+1早间兜底补抓 (北向+机游)"
-          # 先 rebase 拉取远端最新提交，避免并发 workflow 冲突
-          git pull origin calendar-pages --rebase || (git rebase --abort && echo "❌ git pull --rebase 冲突，推送失败" && exit 1)
-          git push origin calendar-pages
-          echo "✅ 已推送到 calendar-pages 分支"
+            # 提交（git diff逐文件add，避开中文文件名编码问题）
+            git diff --name-only | while read f; do git add "$f"; done
+            git diff --cached --name-only | while read f; do echo "  变更文件: $f"; done
+            git commit -m "auto: $TARGET_DATE T+1早间兜底补抓 (北向+机游)"
 
-      - name: No changes
-        if: steps.fallback.outputs.has_changes == 'false'
-        run: echo "ℹ️  无数据变更（${{ steps.fallback.outputs.target_date }} 数据完整，无需补抓），跳过提交"
+            # 推送
+            if git push origin calendar-pages; then
+              echo "✅ 已推送到 calendar-pages 分支"
+              exit 0
+            else
+              echo "⚠️  推送失败，可能有并发冲突，准备重试..."
+              git reset --hard HEAD~1
+              RETRY=$((RETRY+1))
+              sleep $((RETRY * 10))
+            fi
+          done
+
+          echo "❌ 重试 $MAX_RETRIES 次后仍然失败"
+          exit 1
