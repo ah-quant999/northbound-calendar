@@ -40,6 +40,11 @@ EASTMONEY_HEADERS = {
 
 REPORT_INSTITUTION = "RPT_ORGANIZATION_TRADE_DETAILS"
 REPORT_DAILY_DETAILS = "RPT_DAILYBILLBOARD_DETAILSNEW"
+REPORT_BUY_DETAILS = "RPT_BILLBOARD_DAILYDETAILSBUY"
+REPORT_SELL_DETAILS = "RPT_BILLBOARD_DAILYDETAILSSELL"
+
+# 游资数据排除的席位类型（北向+机构，确保游资口径纯净）
+YOUZI_EXCLUDE_DEPT_KEYWORDS = ["机构专用", "沪股通专用", "深股通专用"]
 
 # 共振参数
 RESONANCE_YOUZI_TOP_N = 20
@@ -190,33 +195,89 @@ def get_institution_data(date_str: str) -> Dict[str, List[Dict]]:
 
 
 def get_youzi_stock_data(date_str: str) -> Dict[str, List[Dict]]:
-    """获取龙虎榜个股明细数据（按股票聚合，代表市场整体买入力度）"""
-    print(f"  📡 [龙虎榜] 调用 {REPORT_DAILY_DETAILS} ...")
-    raw_data = fetch_eastmoney_api(
+    """
+    获取游资净买卖数据（龙虎榜营业部明细口径，剔除机构专用/北向席位）
+
+    数据来源：
+      - RPT_BILLBOARD_DAILYDETAILSBUY（买入营业部明细）
+      - RPT_BILLBOARD_DAILYDETAILSSELL（卖出营业部明细）
+
+    处理逻辑：
+      1. 分别获取所有营业部买入/卖出明细
+      2. 剔除机构专用、沪股通专用、深股通专用席位
+      3. 按股票代码聚合净买卖金额
+      4. 得到纯净游资口径的净买入/净卖出排名
+    """
+    print(f"  📡 [游资] 调用营业部买卖明细（剔除机构+北向）...")
+
+    # 1. 获取名称映射（从个股明细接口拿股票名称）
+    daily_details = fetch_eastmoney_api(
         REPORT_DAILY_DETAILS,
         filter_expr=f"(TRADE_DATE='{date_str}')",
         sort_columns="BILLBOARD_NET_AMT,TRADE_DATE,SECURITY_CODE",
         sort_types="-1,-1,1",
-        page_size=200, max_pages=5,
+        page_size=200, max_pages=3,
     )
-    print(f"    原始记录数: {len(raw_data)}")
-
-    stock_map = {}
-    for item in raw_data:
+    name_map = {}
+    for item in daily_details:
         code = item.get("SECURITY_CODE", "")
         name = item.get("SECURITY_NAME_ABBR", "")
-        net_buy = _safe_num(item.get("BILLBOARD_NET_AMT"))
-        buy_amt = _safe_num(item.get("BILLBOARD_BUY_AMT"))
-        sell_amt = _safe_num(item.get("BILLBOARD_SELL_AMT"))
+        if code and name:
+            name_map[code] = name
 
+    filter_expr = f"(TRADE_DATE='{date_str}')"
+
+    # 2. 获取买入营业部明细
+    buy_raw = fetch_eastmoney_api(
+        REPORT_BUY_DETAILS,
+        filter_expr=filter_expr,
+        sort_columns="TRADE_DATE",
+        sort_types="-1",
+        page_size=500, max_pages=5,
+    )
+    print(f"    买入明细原始记录数: {len(buy_raw)}")
+
+    # 3. 获取卖出营业部明细
+    sell_raw = fetch_eastmoney_api(
+        REPORT_SELL_DETAILS,
+        filter_expr=filter_expr,
+        sort_columns="TRADE_DATE",
+        sort_types="-1",
+        page_size=500, max_pages=5,
+    )
+    print(f"    卖出明细原始记录数: {len(sell_raw)}")
+
+    # 4. 按股票聚合，剔除机构/北向席位
+    stock_map = {}
+
+    def _agg_item(item, is_buy):
+        code = item.get("SECURITY_CODE", "")
+        dept = item.get("OPERATEDEPT_NAME", "")
+        if not code:
+            return
+        # 剔除机构/北向席位
+        for kw in YOUZI_EXCLUDE_DEPT_KEYWORDS:
+            if kw in dept:
+                return
         if code not in stock_map:
             stock_map[code] = {
-                "code": code, "name": name,
-                "net_buy": 0.0, "buy_amt": 0.0, "sell_amt": 0.0,
+                "code": code,
+                "name": name_map.get(code, code),
+                "net_buy": 0.0,
+                "buy_amt": 0.0,
+                "sell_amt": 0.0,
             }
-        stock_map[code]["net_buy"] += net_buy
-        stock_map[code]["buy_amt"] += buy_amt
-        stock_map[code]["sell_amt"] += sell_amt
+        if is_buy:
+            stock_map[code]["buy_amt"] += _safe_num(item.get("BUY"))
+            stock_map[code]["net_buy"] += _safe_num(item.get("BUY"))
+        else:
+            stock_map[code]["sell_amt"] += _safe_num(item.get("SELL"))
+            stock_map[code]["net_buy"] -= _safe_num(item.get("SELL"))
+
+    for item in buy_raw:
+        _agg_item(item, is_buy=True)
+    for item in sell_raw:
+        _agg_item(item, is_buy=False)
 
     stocks = list(stock_map.values())
     for s in stocks:
@@ -228,7 +289,7 @@ def get_youzi_stock_data(date_str: str) -> Dict[str, List[Dict]]:
     sell_sorted = sorted(stocks, key=lambda x: x["net_buy"])
 
     print(f"    去重后股票数: {len(stocks)}")
-    print(f"    龙虎榜净买入TOP10: {[(s['name'], round(s['net_buy_wan'],2)) for s in buy_sorted[:10]]}")
+    print(f"    游资净买入TOP10: {[(s['name'], round(s['net_buy_wan'],2)) for s in buy_sorted[:10]]}")
 
     return {"buy_sorted": buy_sorted, "sell_sorted": sell_sorted}
 
