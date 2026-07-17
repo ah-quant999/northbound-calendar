@@ -23,7 +23,7 @@ import os
 import re
 import sys
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional, List, Dict
 
 import requests
@@ -43,8 +43,48 @@ REPORT_DAILY_DETAILS = "RPT_DAILYBILLBOARD_DETAILSNEW"
 REPORT_BUY_DETAILS = "RPT_BILLBOARD_DAILYDETAILSBUY"
 REPORT_SELL_DETAILS = "RPT_BILLBOARD_DAILYDETAILSSELL"
 
-# 游资数据排除的席位类型（北向+机构，确保游资口径纯净）
-YOUZI_EXCLUDE_DEPT_KEYWORDS = ["机构专用", "沪股通专用", "深股通专用"]
+# 游资数据排除的席位类型（北向+机构+非营业部席位，确保游资口径纯净）
+# 黑名单：匹配即排除
+YOUZI_EXCLUDE_DEPT_KEYWORDS = [
+    # 北向席位（含各种变体）
+    "沪股通", "深股通", "陆股通", "香港中央结算",
+    # 机构席位
+    "机构专用",
+    # 非营业部席位（龙虎榜中的股东类型，不是真实营业部）
+    "自然人", "中小投资者", "其他自然人", "机构投资者",
+    "个人投资者", "一般法人", "国有法人", "境内非国有法人",
+    "境外法人", "境内自然人", "境外自然人", "内部职工股",
+    "战略投资者", "网下配售", "公募基金", "社保基金",
+    "养老金", "保险资金", "企业年金", "信托",
+]
+
+# 游资营业部白名单关键词（名称中包含任一关键词才认为是真实营业部）
+YOUZI_INCLUDE_DEPT_KEYWORDS = [
+    "证券", "银行", "营业部", "分公司", "有限责任公司", "股份有限公司",
+    "资产管理", "投资", "证券投资", "创业投资", "股权投资",
+    "高盛", "摩根", "瑞银", "中金", "中信建投", "国泰君安", "国泰海通",
+    "华泰", "招商", "广发", "银河", "海通", "申万", "国信",
+    "东方财富", "平安", "兴业", "光大", "方正", "中泰",
+    "长江", "国金", "华西", "东吴", "浙商", "财通",
+    "开源", "华鑫", "信达", "国投", "中金财富", "中国银河",
+    "中信证券", "中信建投证券",
+]
+
+
+def _is_real_business_department(dept_name: str) -> bool:
+    """判断营业部名称是否为真实营业部（黑名单优先排除，白名单二次确认）"""
+    if not dept_name:
+        return False
+    # 黑名单优先
+    for kw in YOUZI_EXCLUDE_DEPT_KEYWORDS:
+        if kw in dept_name:
+            return False
+    # 白名单确认（至少命中一个）
+    for kw in YOUZI_INCLUDE_DEPT_KEYWORDS:
+        if kw in dept_name:
+            return True
+    return False
+
 
 # 共振参数
 RESONANCE_YOUZI_TOP_N = 20
@@ -255,10 +295,9 @@ def get_youzi_stock_data(date_str: str) -> Dict[str, List[Dict]]:
         dept = item.get("OPERATEDEPT_NAME", "")
         if not code:
             return
-        # 剔除机构/北向席位
-        for kw in YOUZI_EXCLUDE_DEPT_KEYWORDS:
-            if kw in dept:
-                return
+        # 剔除非营业部席位（黑名单+白名单双校验）
+        if not _is_real_business_department(dept):
+            return
         if code not in stock_map:
             stock_map[code] = {
                 "code": code,
@@ -605,6 +644,589 @@ def update_html(html_path: str, data: Dict) -> bool:
         with open(html_path, "w", encoding="utf-8") as f:
             f.write(html)
         print(f"✅ HTML文件已更新: {html_path}")
+        return True
+    except Exception as e:
+        print(f"❌ 写入HTML文件失败: {e}")
+        return False
+
+
+# ========== HTML 工具函数 ==========
+
+def find_matching_div(html: str, start_idx: int) -> int:
+    """
+    从 start_idx（某个 <div ...> 的起始位置）开始，通过层级计数找到匹配的 </div> 结束位置（闭合标签之后的索引）。
+    正确处理嵌套div。返回匹配的 </div> 的 end 位置，未找到返回 -1。
+    """
+    if not html[start_idx:start_idx+4].lower().startswith('<div'):
+        prev_div = html.rfind('<div', 0, start_idx + 1)
+        if prev_div < 0:
+            return -1
+        start_idx = prev_div
+    depth = 0
+    i = start_idx
+    n = len(html)
+    while i < n:
+        next_open = html.find('<div', i)
+        next_close = html.find('</div>', i)
+        if next_close < 0:
+            return -1
+        if next_open >= 0 and next_open < next_close:
+            depth += 1
+            i = next_open + 4
+        else:
+            depth -= 1
+            if depth == 0:
+                return next_close + 6
+            i = next_close + 6
+    return -1
+
+
+def find_week_box_by_title(html: str, week_label: str) -> tuple:
+    """
+    在 HTML 中根据周标题（如 "7/13-7/19"）找到所属 week-box 的起止位置和周号。
+    返回 (start, end, week_num)，未找到返回 (-1, -1, 0)。
+    """
+    title_pattern = re.compile(
+        r'<div class="week-title">\s*第(\d+)周\s*' + re.escape(week_label) + r'\s*</div>',
+        re.DOTALL,
+    )
+    m = title_pattern.search(html)
+    if not m:
+        return -1, -1, 0
+    week_num = int(m.group(1))
+    title_pos = m.start()
+    box_start = html.rfind('<div class="week-box">', 0, title_pos)
+    if box_start < 0:
+        return -1, -1, 0
+    box_end = find_matching_div(html, box_start)
+    if box_end < 0:
+        return -1, -1, 0
+    return box_start, box_end, week_num
+
+
+def find_month_section(html: str, month_num: int) -> tuple:
+    """
+    定位指定月份的 month-section 区块（id="summary-{month_num}"）。
+    返回 (start, end)，未找到返回 (-1, -1)。
+    """
+    pat = re.compile(r'<div[^>]*id="summary-' + str(month_num) + r'"[^>]*>')
+    m = pat.search(html)
+    if not m:
+        return -1, -1
+    sec_start = m.start()
+    sec_end = find_matching_div(html, sec_start)
+    if sec_end < 0:
+        return -1, -1
+    return sec_start, sec_end
+
+
+# ========== 周/月汇总 ==========
+
+def get_week_trading_days(date_str: str) -> List[str]:
+    """获取当周（周一至当天）所有A股交易日"""
+    dt = datetime.strptime(date_str, "%Y-%m-%d")
+    monday = dt - timedelta(days=dt.weekday())
+    dates = []
+    cur = monday
+    while cur <= dt:
+        ds = cur.strftime("%Y-%m-%d")
+        if is_trading_day(ds):
+            dates.append(ds)
+        cur += timedelta(days=1)
+    return dates
+
+
+def get_month_trading_days(date_str: str) -> List[str]:
+    """获取当月（1日至当天）所有A股交易日"""
+    dt = datetime.strptime(date_str, "%Y-%m-%d")
+    first = dt.replace(day=1)
+    dates = []
+    cur = first
+    while cur <= dt:
+        ds = cur.strftime("%Y-%m-%d")
+        if is_trading_day(ds):
+            dates.append(ds)
+        cur += timedelta(days=1)
+    return dates
+
+
+def aggregate_inst_period(date_list: List[str]) -> Dict:
+    """
+    聚合一段时间的机构净买卖数据（按股票代码累计）
+    返回: {"stocks": [...], "date_count": int}
+    """
+    stock_map = {}
+    valid_count = 0
+    for ds in date_list:
+        print(f"    📅 [机构] 汇总 {ds} ...")
+        try:
+            inst_data = get_institution_data(ds)
+            if not inst_data["buy_sorted"] and not inst_data["sell_sorted"]:
+                continue
+            valid_count += 1
+            all_stocks = inst_data["buy_sorted"] + [
+                s for s in inst_data["sell_sorted"]
+                if s["code"] not in {x["code"] for x in inst_data["buy_sorted"]}
+            ]
+            for s in all_stocks:
+                code = s["code"]
+                if code not in stock_map:
+                    stock_map[code] = {
+                        "code": code,
+                        "name": s["name"],
+                        "net_buy_wan": 0.0,
+                        "buy_wan": 0.0,
+                        "sell_wan": 0.0,
+                    }
+                stock_map[code]["net_buy_wan"] += s.get("net_buy_wan", 0)
+                stock_map[code]["buy_wan"] += s.get("buy_wan", 0)
+                stock_map[code]["sell_wan"] += s.get("sell_wan", 0)
+        except Exception as e:
+            print(f"    ⚠️  [机构] 汇总 {ds} 失败: {e}")
+            continue
+
+    stocks = list(stock_map.values())
+    for s in stocks:
+        s["net_buy_wan"] = round(s["net_buy_wan"], 2)
+        s["buy_wan"] = round(s["buy_wan"], 2)
+        s["sell_wan"] = round(s["sell_wan"], 2)
+
+    return {"stocks": stocks, "date_count": valid_count}
+
+
+def aggregate_youzi_period(date_list: List[str]) -> Dict:
+    """
+    聚合一段时间的游资净买卖数据（龙虎榜营业部口径，剔除机构/北向，按股票聚合）
+    返回: {"stocks": [...], "date_count": int}
+    """
+    stock_map = {}
+    valid_count = 0
+    for ds in date_list:
+        print(f"    📅 [游资] 汇总 {ds} ...")
+        try:
+            youzi_data = get_youzi_stock_data(ds)
+            if not youzi_data["buy_sorted"] and not youzi_data["sell_sorted"]:
+                continue
+            valid_count += 1
+            all_stocks = youzi_data["buy_sorted"] + [
+                s for s in youzi_data["sell_sorted"]
+                if s["code"] not in {x["code"] for x in youzi_data["buy_sorted"]}
+            ]
+            for s in all_stocks:
+                code = s["code"]
+                if code not in stock_map:
+                    stock_map[code] = {
+                        "code": code,
+                        "name": s["name"],
+                        "net_buy_wan": 0.0,
+                        "buy_wan": 0.0,
+                        "sell_wan": 0.0,
+                    }
+                stock_map[code]["net_buy_wan"] += s.get("net_buy_wan", 0)
+                stock_map[code]["buy_wan"] += s.get("buy_wan", 0)
+                stock_map[code]["sell_wan"] += s.get("sell_wan", 0)
+        except Exception as e:
+            print(f"    ⚠️  [游资] 汇总 {ds} 失败: {e}")
+            continue
+
+    stocks = list(stock_map.values())
+    for s in stocks:
+        s["net_buy_wan"] = round(s["net_buy_wan"], 2)
+        s["buy_wan"] = round(s["buy_wan"], 2)
+        s["sell_wan"] = round(s["sell_wan"], 2)
+
+    return {"stocks": stocks, "date_count": valid_count}
+
+
+def get_youzi_active_data(date_str: str) -> Dict:
+    """
+    获取单日游资活跃榜（龙虎榜营业部买入明细，剔除机构/北向，按营业部+股票组合聚合）
+    返回: {"items": [{"dept", "stock_code", "stock_name", "buy_wan"}, ...]}
+    按买入金额降序排列。
+    """
+    filter_expr = f"(TRADE_DATE='{date_str}')"
+    buy_raw = fetch_eastmoney_api(
+        REPORT_BUY_DETAILS,
+        filter_expr=filter_expr,
+        sort_columns="TRADE_DATE",
+        sort_types="-1",
+        page_size=500, max_pages=5,
+    )
+
+    # 先获取股票名映射
+    daily_details = fetch_eastmoney_api(
+        REPORT_DAILY_DETAILS,
+        filter_expr=f"(TRADE_DATE='{date_str}')",
+        sort_columns="BILLBOARD_NET_AMT,TRADE_DATE,SECURITY_CODE",
+        sort_types="-1,-1,1",
+        page_size=200, max_pages=3,
+    )
+    name_map = {}
+    for item in daily_details:
+        code = item.get("SECURITY_CODE", "")
+        name = item.get("SECURITY_NAME_ABBR", "")
+        if code and name:
+            name_map[code] = name
+
+    dept_stock_map = {}
+    for item in buy_raw:
+        dept = item.get("OPERATEDEPT_NAME", "")
+        code = item.get("SECURITY_CODE", "")
+        if not dept or not code:
+            continue
+        # 剔除非营业部席位（黑名单+白名单双校验）
+        if not _is_real_business_department(dept):
+            continue
+        key = (dept, code)
+        if key not in dept_stock_map:
+            dept_stock_map[key] = {
+                "dept": dept,
+                "stock_code": code,
+                "stock_name": name_map.get(code, code),
+                "buy_wan": 0.0,
+            }
+        dept_stock_map[key]["buy_wan"] += _safe_num(item.get("BUY")) / 10000.0
+
+    items = list(dept_stock_map.values())
+    for it in items:
+        it["buy_wan"] = round(it["buy_wan"], 2)
+    items.sort(key=lambda x: x["buy_wan"], reverse=True)
+    return {"items": items}
+
+
+def aggregate_youzi_active_period(date_list: List[str]) -> Dict:
+    """
+    聚合一段时间的游资活跃榜（按营业部+股票组合累计买入额）
+    返回: {"items": [...], "date_count": int}
+    """
+    dept_stock_map = {}
+    valid_count = 0
+    for ds in date_list:
+        print(f"    📅 [游资活跃] 汇总 {ds} ...")
+        try:
+            daily = get_youzi_active_data(ds)
+            if not daily["items"]:
+                continue
+            valid_count += 1
+            for it in daily["items"]:
+                key = (it["dept"], it["stock_code"])
+                if key not in dept_stock_map:
+                    dept_stock_map[key] = {
+                        "dept": it["dept"],
+                        "stock_code": it["stock_code"],
+                        "stock_name": it["stock_name"],
+                        "buy_wan": 0.0,
+                    }
+                dept_stock_map[key]["buy_wan"] += it["buy_wan"]
+        except Exception as e:
+            print(f"    ⚠️  [游资活跃] 汇总 {ds} 失败: {e}")
+            continue
+
+    items = list(dept_stock_map.values())
+    for it in items:
+        it["buy_wan"] = round(it["buy_wan"], 2)
+    items.sort(key=lambda x: x["buy_wan"], reverse=True)
+    return {"items": items, "date_count": valid_count}
+
+
+# ========== 构建汇总条目 ==========
+
+def _simplify_dept_name(dept_name: str) -> str:
+    """简化营业部名称（去掉'证券营业部'等后缀，提取辨识度高的前缀）"""
+    import re as _re
+    name = dept_name
+    # 常见前缀简化
+    name = _re.sub(r'^中国银河证券', '银河', name)
+    name = _re.sub(r'^国泰君安证券', '国泰君安', name)
+    name = _re.sub(r'^中信建投证券', '中信建投', name)
+    name = _re.sub(r'^中信证券(?!股份)', '中信', name)
+    name = _re.sub(r'^华泰证券', '华泰', name)
+    name = _re.sub(r'^招商证券', '招商', name)
+    name = _re.sub(r'^东方财富证券', '东财', name)
+    name = _re.sub(r'^海通证券', '海通', name)
+    name = _re.sub(r'^广发证券', '广发', name)
+    name = _re.sub(r'^兴业证券', '兴业', name)
+    name = _re.sub(r'^申万宏源证券', '申万', name)
+    name = _re.sub(r'^光大证券', '光大', name)
+    name = _re.sub(r'^平安证券', '平安', name)
+    # 去掉 "证券营业部"、"证券股份有限公司"
+    name = _re.sub(r'证券股份有限公司', '', name)
+    name = _re.sub(r'证券有限公司', '', name)
+    name = _re.sub(r'证券营业部', '', name)
+    name = _re.sub(r'营业部', '', name)
+    return name.strip()
+
+
+def _build_jiyou_week_inst_items(top_list: List[Dict]) -> str:
+    """构建机构周净买入TOP5 week-stock-item HTML"""
+    if not top_list:
+        return (
+            '                            <div class="week-stock-item">\n'
+            '                                <span class="week-stock-rank">1</span>\n'
+            '                                <span class="week-stock-name">暂无数据</span>\n'
+            '                                <span class="week-stock-amount" style="color:#6e7681;">--</span>\n'
+            '                            </div>'
+        )
+    items = []
+    for i, s in enumerate(top_list, 1):
+        items.append(
+            '                            <div class="week-stock-item">\n'
+            f'                                <span class="week-stock-rank">{i}</span>\n'
+            f'                                <span class="week-stock-name">{s["name"]}</span>\n'
+            f'                                <span class="week-stock-amount" style="color:#f85149;">+{format_amount(s["net_buy_wan"])}</span>\n'
+            '                            </div>'
+        )
+    return "\n".join(items)
+
+
+def _build_jiyou_week_active_items(items: List[Dict]) -> str:
+    """构建游资活跃周TOP5 week-stock-item HTML（格式：股票名 营业部名 金额）"""
+    if not items:
+        return (
+            '                            <div class="week-stock-item">\n'
+            '                                <span class="week-stock-rank">1</span>\n'
+            '                                <span class="week-stock-name">暂无数据</span>\n'
+            '                                <span class="week-stock-amount" style="color:#6e7681;">--</span>\n'
+            '                            </div>'
+        )
+    out = []
+    for i, it in enumerate(items, 1):
+        dept_simple = _simplify_dept_name(it["dept"])
+        out.append(
+            '                            <div class="week-stock-item">\n'
+            f'                                <span class="week-stock-rank">{i}</span>\n'
+            f'                                <span class="week-stock-name">{it["stock_name"]} {dept_simple}</span>\n'
+            f'                                <span class="week-stock-amount" style="color:#f85149;">+{format_amount(it["buy_wan"])}</span>\n'
+            '                            </div>'
+        )
+    return "\n".join(out)
+
+
+def _build_jiyou_month_rank_items(top_list: List[Dict], buy: bool,
+                                   top_n: int = 10,
+                                   show_code: bool = True,
+                                   prefix_text: str = "") -> str:
+    """构建机游月度 rank-item HTML 列表"""
+    items = []
+    for i in range(top_n):
+        if i < len(top_list):
+            s = top_list[i]
+            rank_class = "top" if i < 3 else "other"
+            sign = "+" if buy else "-"
+            amount_class = "buy" if buy else "sell"
+            name = s["name"] if "name" in s else s.get("stock_name", "")
+            code = s.get("code", s.get("stock_code", ""))
+            amount = s.get("net_buy_wan", s.get("buy_wan", 0))
+            code_html = f'<span class="rank-code">{code}</span>' if show_code else ''
+            display_name = f"{prefix_text}{name}" if prefix_text else name
+            items.append(
+                f'                    <li class="rank-item">'
+                f'<span class="rank-num {rank_class}">{i+1}</span>'
+                f'<span class="rank-name">{display_name}</span>'
+                f'{code_html}'
+                f'<span class="rank-amount {amount_class}">{sign}{format_amount(amount)}</span>'
+                f'</li>'
+            )
+    return "\n".join(items)
+
+
+def _build_jiyou_month_active_items(items: List[Dict], top_n: int = 10) -> str:
+    """构建游资活跃月度TOP10 rank-item HTML（格式：营业部·股票）"""
+    out = []
+    for i in range(top_n):
+        if i < len(items):
+            it = items[i]
+            rank_class = "top" if i < 3 else "other"
+            dept_simple = _simplify_dept_name(it["dept"])
+            display_name = f"{dept_simple}·{it['stock_name']}"
+            out.append(
+                f'                    <li class="rank-item">'
+                f'<span class="rank-num {rank_class}">{i+1}</span>'
+                f'<span class="rank-name">{display_name}</span>'
+                f'<span class="rank-amount buy">+{format_amount(it["buy_wan"])}</span>'
+                f'</li>'
+            )
+    return "\n".join(out)
+
+
+# ========== 周汇总更新 ==========
+
+def update_jiyou_weekly_summary(html_path: str, target_date: str) -> bool:
+    """
+    更新机游共振日历当周汇总（只更新已有2个section的数据，不改版式）：
+    - 机构净买入TOP5：按股票聚合
+    - 游资活跃TOP5：按营业部+股票聚合
+    """
+    try:
+        with open(html_path, "r", encoding="utf-8") as f:
+            html = f.read()
+    except Exception as e:
+        print(f"❌ 读取HTML文件失败: {e}")
+        return False
+
+    dt = datetime.strptime(target_date, "%Y-%m-%d")
+    monday = dt - timedelta(days=dt.weekday())
+    sunday = monday + timedelta(days=6)
+    week_label = f"{monday.month}/{monday.day}-{sunday.month}/{sunday.day}"
+
+    # 定位当周 week-box
+    box_start, box_end, week_num = find_week_box_by_title(html, week_label)
+    if box_start < 0:
+        print(f"❌ 无法定位第?周 {week_label} 的周汇总区块")
+        return False
+
+    old_week_box = html[box_start:box_end]
+    print(f"📆 定位到第{week_num}周 {week_label} 的周汇总区块（{len(old_week_box)} 字节）")
+
+    # 获取当周数据
+    week_dates = get_week_trading_days(target_date)
+    print(f"   当周交易日: {week_dates}")
+    if not week_dates:
+        print("   ⚠️  当周无有效交易日，跳过周汇总更新")
+        return False
+
+    # 聚合机构净买入数据
+    inst_agg = aggregate_inst_period(week_dates)
+    inst_top = [s for s in sorted(inst_agg["stocks"], key=lambda x: x["net_buy_wan"], reverse=True) if s["net_buy_wan"] > 0][:5]
+
+    # 聚合游资活跃数据
+    active_agg = aggregate_youzi_active_period(week_dates)
+    active_top = active_agg["items"][:5]
+
+    print(f"   ✅ 机构周净买入TOP5: {len(inst_top)}只")
+    for i, s in enumerate(inst_top, 1):
+        print(f"     #{i}: {s['name']} +{format_amount(s['net_buy_wan'])}")
+    print(f"   ✅ 游资周活跃TOP5: {len(active_top)}条")
+    for i, it in enumerate(active_top, 1):
+        dept_simple = _simplify_dept_name(it["dept"])
+        print(f"     #{i}: {it['stock_name']} {dept_simple} +{format_amount(it['buy_wan'])}")
+
+    # 替换机构净买入TOP5 section的内容（保留section结构，只换item）
+    new_week_box = old_week_box
+
+    # 替换第一个 section（机构净买入TOP5）的 week-stock-item 列表
+    inst_section_pat = re.compile(
+        r'(<div class="week-section">\s*'
+        r'<div class="week-section-title">✅ 机构净买入TOP5</div>\s*)'
+        r'(.*?)'
+        r'(\s*</div>\s*(?=<div class="week-section">|</div>\s*</div>))',
+        re.DOTALL,
+    )
+    m_inst = inst_section_pat.search(new_week_box)
+    if m_inst:
+        new_items = _build_jiyou_week_inst_items(inst_top)
+        new_section = m_inst.group(1) + new_items + m_inst.group(3)
+        new_week_box = new_week_box[:m_inst.start()] + new_section + new_week_box[m_inst.end():]
+        print("   ✅ 机构周净买入TOP5已更新")
+    else:
+        print("   ⚠️  未找到机构净买入TOP5 section，跳过机构部分")
+
+    # 替换第二个 section（游资活跃TOP5）的 week-stock-item 列表
+    active_section_pat = re.compile(
+        r'(<div class="week-section">\s*'
+        r'<div class="week-section-title">🔥 游资活跃TOP5</div>\s*)'
+        r'(.*?)'
+        r'(\s*</div>\s*(?=<div class="week-section">|</div>\s*</div>))',
+        re.DOTALL,
+    )
+    m_active = active_section_pat.search(new_week_box)
+    if m_active:
+        new_items = _build_jiyou_week_active_items(active_top)
+        new_section = m_active.group(1) + new_items + m_active.group(3)
+        new_week_box = new_week_box[:m_active.start()] + new_section + new_week_box[m_active.end():]
+        print("   ✅ 游资周活跃TOP5已更新")
+    else:
+        print("   ⚠️  未找到游资活跃TOP5 section，跳过游资活跃部分")
+
+    # 写回
+    html = html[:box_start] + new_week_box + html[box_end:]
+
+    try:
+        with open(html_path, "w", encoding="utf-8") as f:
+            f.write(html)
+        print(f"✅ 机游周汇总已更新: 第{week_num}周 {week_label}")
+        return True
+    except Exception as e:
+        print(f"❌ 写入HTML文件失败: {e}")
+        return False
+
+
+# ========== 月度汇总更新 ==========
+
+def update_jiyou_monthly_summary(html_path: str, target_date: str) -> bool:
+    """
+    更新机游共振日历月度汇总（只更新已有2个box的数据，不改版式）：
+    - 机构净买入TOP10
+    - 游资活跃TOP10
+    """
+    try:
+        with open(html_path, "r", encoding="utf-8") as f:
+            html = f.read()
+    except Exception as e:
+        print(f"❌ 读取HTML文件失败: {e}")
+        return False
+
+    dt = datetime.strptime(target_date, "%Y-%m-%d")
+    month_num = dt.month
+
+    # 定位月度区块
+    sec_start, sec_end = find_month_section(html, month_num)
+    if sec_start < 0:
+        print(f"❌ 未找到月度汇总区块 summary-{month_num}")
+        return False
+
+    section_html = html[sec_start:sec_end]
+    print(f"📆 定位到月度汇总区块 summary-{month_num}（{len(section_html)} 字节）")
+
+    # 获取当月数据
+    month_dates = get_month_trading_days(target_date)
+    print(f"   当月交易日: {len(month_dates)}天")
+    if not month_dates:
+        print("   ⚠️  当月无有效交易日，跳过月度汇总更新")
+        return False
+
+    inst_agg = aggregate_inst_period(month_dates)
+    inst_top = [s for s in sorted(inst_agg["stocks"], key=lambda x: x["net_buy_wan"], reverse=True) if s["net_buy_wan"] > 0][:10]
+
+    active_agg = aggregate_youzi_active_period(month_dates)
+    active_top = active_agg["items"][:10]
+
+    print(f"   ✅ 机构月净买入TOP{len(inst_top)}")
+    print(f"   ✅ 游资月活跃TOP{len(active_top)}")
+
+    # 替换第一个 rank-list（机构净买入TOP10）
+    buy_ul_pattern = re.compile(
+        r'(<h3 class="buy">.*?</h3>\s*<ul class="rank-list">)(.*?)(</ul>)',
+        re.DOTALL,
+    )
+    buy_m = buy_ul_pattern.search(section_html)
+    if buy_m:
+        new_buy_items = _build_jiyou_month_rank_items(
+            inst_top, buy=True, top_n=10, show_code=True,
+        )
+        new_buy_ul = buy_m.group(1) + "\n" + new_buy_items + "\n                " + buy_m.group(3)
+        section_html = section_html[:buy_m.start()] + new_buy_ul + section_html[buy_m.end():]
+        print("   ✅ 机构月度买入TOP10已替换")
+
+    # 替换第二个 rank-list（游资活跃TOP10，h3 class="sell"）
+    sell_ul_pattern = re.compile(
+        r'(<h3 class="sell">.*?</h3>\s*<ul class="rank-list">)(.*?)(</ul>)',
+        re.DOTALL,
+    )
+    sell_m = sell_ul_pattern.search(section_html)
+    if sell_m:
+        new_sell_items = _build_jiyou_month_active_items(active_top, top_n=10)
+        new_sell_ul = sell_m.group(1) + "\n" + new_sell_items + "\n                " + sell_m.group(3)
+        section_html = section_html[:sell_m.start()] + new_sell_ul + section_html[sell_m.end():]
+        print("   ✅ 游资月度活跃TOP10已替换")
+
+    # 写回
+    html = html[:sec_start] + section_html + html[sec_end:]
+
+    try:
+        with open(html_path, "w", encoding="utf-8") as f:
+            f.write(html)
+        print(f"✅ 机游月度汇总已更新: {month_num}月")
         return True
     except Exception as e:
         print(f"❌ 写入HTML文件失败: {e}")

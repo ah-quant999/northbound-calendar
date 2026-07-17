@@ -21,7 +21,7 @@ import os
 import re
 import sys
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Dict, Optional
 
 import requests
@@ -504,6 +504,384 @@ def update_html(html_path: str, data: Dict) -> bool:
         with open(html_path, "w", encoding="utf-8") as f:
             f.write(html)
         print(f"✅ HTML文件已更新: {html_path}")
+        return True
+    except Exception as e:
+        print(f"❌ 写入HTML文件失败: {e}")
+        return False
+
+
+# ========== HTML 工具函数 ==========
+
+def find_matching_div(html: str, start_idx: int) -> int:
+    """
+    从 start_idx（某个 <div ...> 的起始位置）开始，找到匹配的 </div> 结束位置（该闭合标签之后的索引）。
+    通过层级计数实现，正确处理嵌套div。
+    返回匹配的 </div> 的 end 位置（即切片右端），未找到返回 -1。
+    """
+    # 确保 start_idx 在一个 <div 标签上
+    if not html[start_idx:start_idx+4].lower().startswith('<div'):
+        # 向前找最近的 <div
+        prev_div = html.rfind('<div', 0, start_idx + 1)
+        if prev_div < 0:
+            return -1
+        start_idx = prev_div
+
+    depth = 0
+    i = start_idx
+    n = len(html)
+    while i < n:
+        # 找 <div 或 </div>
+        next_open = html.find('<div', i)
+        next_close = html.find('</div>', i)
+        if next_close < 0:
+            return -1
+        if next_open >= 0 and next_open < next_close:
+            depth += 1
+            i = next_open + 4  # 跳过 '<div'
+        else:
+            depth -= 1
+            if depth == 0:
+                return next_close + 6  # 跳过 '</div>'
+            i = next_close + 6
+    return -1
+
+
+def find_week_box_by_title(html: str, week_label: str) -> tuple:
+    """
+    在 HTML 中根据周标题（如 "7/13-7/19"）找到所属 week-box 的起止位置和周号。
+    返回 (start, end, week_num)，未找到返回 (-1, -1, 0)。
+    """
+    # 找 week-title
+    title_pattern = re.compile(
+        r'<div class="week-title">\s*第(\d+)周\s*' + re.escape(week_label) + r'\s*</div>',
+        re.DOTALL,
+    )
+    m = title_pattern.search(html)
+    if not m:
+        return -1, -1, 0
+    week_num = int(m.group(1))
+    title_pos = m.start()
+    # 向前找最近的 <div class="week-box">
+    box_start = html.rfind('<div class="week-box">', 0, title_pos)
+    if box_start < 0:
+        return -1, -1, 0
+    # 向后找匹配的 </div>（week-box 的闭合）
+    box_end = find_matching_div(html, box_start)
+    if box_end < 0:
+        return -1, -1, 0
+    return box_start, box_end, week_num
+
+
+# ========== 周/月汇总 ==========
+
+def get_week_dates(date_str: str) -> List[str]:
+    """获取当周（周一至当天）所有北向交易日"""
+    dt = datetime.strptime(date_str, "%Y-%m-%d")
+    # 周一为weekday()==0
+    monday = dt - timedelta(days=dt.weekday())
+    dates = []
+    cur = monday
+    while cur <= dt:
+        ds = cur.strftime("%Y-%m-%d")
+        if is_northbound_open(ds):
+            dates.append(ds)
+        cur += timedelta(days=1)
+    return dates
+
+
+def get_month_dates(date_str: str) -> List[str]:
+    """获取当月（1日至当天）所有北向交易日"""
+    dt = datetime.strptime(date_str, "%Y-%m-%d")
+    first = dt.replace(day=1)
+    dates = []
+    cur = first
+    while cur <= dt:
+        ds = cur.strftime("%Y-%m-%d")
+        if is_northbound_open(ds):
+            dates.append(ds)
+        cur += timedelta(days=1)
+    return dates
+
+
+def aggregate_northbound_period(date_list: List[str]) -> Dict:
+    """
+    聚合一段时间内的北向资金数据（按股票代码累计买卖）
+    返回: {
+        "stocks": [{"code", "name", "net_wan", "buy_wan", "sell_wan"}, ...],
+        "total_net_wan": float,
+        "date_count": int,
+    }
+    """
+    stock_map = {}
+    name_map_global = {}
+    valid_count = 0
+
+    for ds in date_list:
+        print(f"    📅 汇总 {ds} ...")
+        try:
+            daily_name_map = get_stock_name_map(ds)
+            name_map_global.update(daily_name_map)
+            dept_rows = get_northbound_dept_data(ds)
+            if not dept_rows:
+                continue
+            agg = aggregate_northbound(dept_rows, daily_name_map)
+            valid_count += 1
+            for s in agg["stocks"]:
+                code = s["code"]
+                if code not in stock_map:
+                    stock_map[code] = {
+                        "code": code,
+                        "name": s["name"],
+                        "buy_wan": 0.0,
+                        "sell_wan": 0.0,
+                        "net_wan": 0.0,
+                    }
+                stock_map[code]["buy_wan"] += s["buy_wan"]
+                stock_map[code]["sell_wan"] += s["sell_wan"]
+                stock_map[code]["net_wan"] += s["net_wan"]
+        except Exception as e:
+            print(f"    ⚠️  汇总 {ds} 失败: {e}")
+            continue
+
+    stocks = list(stock_map.values())
+    for s in stocks:
+        s["buy_wan"] = round(s["buy_wan"], 2)
+        s["sell_wan"] = round(s["sell_wan"], 2)
+        s["net_wan"] = round(s["net_wan"], 2)
+
+    total_net_wan = round(sum(s["net_wan"] for s in stocks), 2)
+
+    return {
+        "stocks": stocks,
+        "total_net_wan": total_net_wan,
+        "date_count": valid_count,
+    }
+
+
+def get_top_buy_sell(period_agg: Dict, top_n: int = 5) -> Dict:
+    """从周期聚合结果中提取买入TOP5和卖出TOP5"""
+    stocks = period_agg["stocks"]
+    buy_sorted = sorted(stocks, key=lambda x: x["net_wan"], reverse=True)
+    sell_sorted = sorted(stocks, key=lambda x: x["net_wan"])
+
+    top_buy = [
+        {"name": s["name"], "code": s["code"], "amount": s["net_wan"]}
+        for s in buy_sorted[:top_n]
+        if s["net_wan"] > 0
+    ]
+    top_sell = [
+        {"name": s["name"], "code": s["code"], "amount": abs(s["net_wan"])}
+        for s in sell_sorted[:top_n]
+        if s["net_wan"] < 0
+    ]
+    return {"top_buy": top_buy, "top_sell": top_sell}
+
+
+def _build_week_stock_items(top_list: List[Dict], buy: bool) -> str:
+    """构建周汇总股票条目 HTML（week-stock-item 格式）"""
+    if not top_list:
+        color = "#6e7681"
+        sign = ""
+        return (
+            '                            <div class="week-stock-item">\n'
+            f'                                <span class="week-stock-rank">1</span>\n'
+            f'                                <span class="week-stock-name">暂无数据</span>\n'
+            f'                                <span class="week-stock-amount" style="color:{color};">--</span>\n'
+            '                            </div>'
+        )
+
+    color = "#f85149" if buy else "#3fb950"
+    sign = "+" if buy else "-"
+    items = []
+    for i, s in enumerate(top_list, 1):
+        items.append(
+            '                            <div class="week-stock-item">\n'
+            f'                                <span class="week-stock-rank">{i}</span>\n'
+            f'                                <span class="week-stock-name">{s["name"]}</span>\n'
+            f'                                <span class="week-stock-amount" style="color:{color};">{sign}{format_amount(s["amount"])}</span>\n'
+            '                            </div>'
+        )
+    return "\n".join(items)
+
+
+def _build_week_section_html(week_num: int, week_label: str,
+                             top_buy: List[Dict], top_sell: List[Dict]) -> str:
+    """构建单个周汇总 week-box 的 HTML（北向日历格式）"""
+    buy_items = _build_week_stock_items(top_buy, buy=True)
+    sell_items = _build_week_stock_items(top_sell, buy=False)
+    return f'''                <div class="week-box">
+                    <div class="week-title">第{week_num}周 {week_label}</div>
+                    <div class="week-stocks">
+                        <div class="week-section">
+                            <div class="week-section-title">✅ 买入TOP5</div>
+{buy_items}
+                        </div>
+                        <div class="week-section">
+                            <div class="week-section-title">❌ 卖出TOP5</div>
+{sell_items}
+                        </div>
+                    </div>
+                </div>'''
+
+
+def update_weekly_summary(html_path: str, target_date: str) -> bool:
+    """
+    更新目标日期所在周的周汇总TOP5（div配对方式，精确替换整个week-box）
+    """
+    try:
+        with open(html_path, "r", encoding="utf-8") as f:
+            html = f.read()
+    except Exception as e:
+        print(f"❌ 读取HTML文件失败: {e}")
+        return False
+
+    dt = datetime.strptime(target_date, "%Y-%m-%d")
+    monday = dt - timedelta(days=dt.weekday())
+    sunday = monday + timedelta(days=6)
+
+    week_label = f"{monday.month}/{monday.day}-{sunday.month}/{sunday.day}"
+    box_start, box_end, week_num = find_week_box_by_title(html, week_label)
+    if box_start < 0:
+        print(f"❌ 无法定位第?周 {week_label} 的周汇总区块")
+        return False
+
+    print(f"📆 定位到第{week_num}周 {week_label} 的周汇总区块（{box_end - box_start} 字节）")
+
+    # 获取当周数据
+    week_dates = get_week_dates(target_date)
+    print(f"   当周交易日: {week_dates}")
+    if not week_dates:
+        print("   ⚠️  当周无有效交易日，跳过周汇总更新")
+        return False
+
+    period_agg = aggregate_northbound_period(week_dates)
+    tops = get_top_buy_sell(period_agg, top_n=5)
+
+    print(f"   ✅ 周汇总：买入TOP5 {len(tops['top_buy'])}只，卖出TOP5 {len(tops['top_sell'])}只")
+    for i, s in enumerate(tops["top_buy"], 1):
+        print(f"     买入#{i}: {s['name']} +{format_amount(s['amount'])}")
+    for i, s in enumerate(tops["top_sell"], 1):
+        print(f"     卖出#{i}: {s['name']} -{format_amount(s['amount'])}")
+
+    # 构建新的 week-box HTML
+    new_week_box = _build_week_section_html(week_num, week_label, tops["top_buy"], tops["top_sell"])
+
+    # 替换
+    html = html[:box_start] + new_week_box + html[box_end:]
+
+    try:
+        with open(html_path, "w", encoding="utf-8") as f:
+            f.write(html)
+        print(f"✅ 周汇总已更新: 第{week_num}周 {week_label}")
+        return True
+    except Exception as e:
+        print(f"❌ 写入HTML文件失败: {e}")
+        return False
+
+
+def _build_month_rank_items(top_list: List[Dict], buy: bool, top_n: int = 10) -> str:
+    """构建月度汇总 rank-item HTML 列表（北向日历格式，TOP10）"""
+    items = []
+    for i in range(top_n):
+        if i < len(top_list):
+            s = top_list[i]
+            rank_class = "top" if i < 3 else "other"
+            sign = "+" if buy else "-"
+            amount_class = "buy" if buy else "sell"
+            items.append(
+                f'                    <li class="rank-item">'
+                f'<span class="rank-num {rank_class}">{i+1}</span>'
+                f'<span class="rank-name">{s["name"]}</span>'
+                f'<span class="rank-code">{s["code"]}</span>'
+                f'<span class="rank-amount {amount_class}">{sign}{format_amount(s["amount"])}</span>'
+                f'</li>'
+            )
+        else:
+            # 不足10条时不显示
+            pass
+    return "\n".join(items)
+
+
+def update_monthly_summary(html_path: str, target_date: str) -> bool:
+    """
+    更新目标日期所在月的月度汇总TOP10（正则替换，保持版式不变）
+    """
+    try:
+        with open(html_path, "r", encoding="utf-8") as f:
+            html = f.read()
+    except Exception as e:
+        print(f"❌ 读取HTML文件失败: {e}")
+        return False
+
+    dt = datetime.strptime(target_date, "%Y-%m-%d")
+    month_num = dt.month
+
+    # 定位 summary-{month} 区块
+    section_pattern = re.compile(
+        r'<div class="month-section[^"]*" id="summary-' + str(month_num) + r'">'
+        r'.*?'
+        r'(?:</div>\s*</div>\s*</div>|</div>\s*</div>\s*<div)',
+        re.DOTALL,
+    )
+    m = section_pattern.search(html)
+    if not m:
+        # 尝试更宽松匹配
+        section_pattern2 = re.compile(
+            r'id="summary-' + str(month_num) + r'"[^>]*>.*?<div class="monthly-summary">.*?</div>\s*</div>',
+            re.DOTALL,
+        )
+        m = section_pattern2.search(html)
+        if not m:
+            print(f"❌ 未找到月度汇总区块 summary-{month_num}")
+            return False
+
+    section_html = m.group(0)
+    print(f"📆 定位到月度汇总区块 summary-{month_num}")
+
+    # 获取当月数据
+    month_dates = get_month_dates(target_date)
+    print(f"   当月交易日: {len(month_dates)}天")
+    if not month_dates:
+        print("   ⚠️  当月无有效交易日，跳过月度汇总更新")
+        return False
+
+    period_agg = aggregate_northbound_period(month_dates)
+    tops = get_top_buy_sell(period_agg, top_n=10)
+
+    print(f"   ✅ 月度汇总：买入TOP{len(tops['top_buy'])}，卖出TOP{len(tops['top_sell'])}")
+
+    # 分别替换买入和卖出的 <ul class="rank-list">...</ul>
+    # 买入 (第一个 rank-list)
+    buy_ul_pattern = re.compile(
+        r'(<h3 class="buy">.*?</h3>\s*<ul class="rank-list">)(.*?)(</ul>)',
+        re.DOTALL,
+    )
+    buy_m = buy_ul_pattern.search(section_html)
+    if buy_m:
+        new_buy_items = _build_month_rank_items(tops["top_buy"], buy=True, top_n=10)
+        new_buy_ul = buy_m.group(1) + "\n" + new_buy_items + "\n                " + buy_m.group(3)
+        section_html = section_html[:buy_m.start()] + new_buy_ul + section_html[buy_m.end():]
+        print("   ✅ 月度买入TOP10已替换")
+
+    # 卖出 (第二个 rank-list)
+    sell_ul_pattern = re.compile(
+        r'(<h3 class="sell">.*?</h3>\s*<ul class="rank-list">)(.*?)(</ul>)',
+        re.DOTALL,
+    )
+    sell_m = sell_ul_pattern.search(section_html)
+    if sell_m:
+        new_sell_items = _build_month_rank_items(tops["top_sell"], buy=False, top_n=10)
+        new_sell_ul = sell_m.group(1) + "\n" + new_sell_items + "\n                " + sell_m.group(3)
+        section_html = section_html[:sell_m.start()] + new_sell_ul + section_html[sell_m.end():]
+        print("   ✅ 月度卖出TOP10已替换")
+
+    # 把更新后的 section 写回 html
+    html = html[:m.start()] + section_html + html[m.end():]
+
+    try:
+        with open(html_path, "w", encoding="utf-8") as f:
+            f.write(html)
+        print(f"✅ 月度汇总已更新: {month_num}月")
         return True
     except Exception as e:
         print(f"❌ 写入HTML文件失败: {e}")

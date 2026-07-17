@@ -29,6 +29,10 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
 from update_northbound_gha import is_northbound_open  # noqa: E402
+from update_northbound_gha import (
+    update_weekly_summary as northbound_update_weekly,
+    update_monthly_summary as northbound_update_monthly,
+)  # noqa: E402
 
 
 def log_info(msg: str) -> None:
@@ -166,7 +170,7 @@ def main():
     print(f"📋 待更新日期: {', '.join(update_dates)}")
 
     # 步骤1：逐个更新
-    log_info("步骤1/2：更新北向资金数据")
+    log_info("步骤1/4：更新北向资金每日数据")
     all_ok = True
     for ds in update_dates:
         print(f"\n--- 更新 {ds} ---")
@@ -177,8 +181,26 @@ def main():
         log_error("数据更新失败")
         sys.exit(1)
 
-    # 步骤2：同步 index.html
-    log_info("步骤2/2：同步 index.html")
+    # 步骤2：更新周汇总
+    log_info("步骤2/4：更新当周汇总TOP5")
+    try:
+        northbound_update_weekly(html_path, target_date)
+    except Exception as e:
+        log_error(f"周汇总更新异常: {e}")
+        import traceback
+        traceback.print_exc()
+
+    # 步骤3：更新月度汇总
+    log_info("步骤3/4：更新月度汇总TOP10")
+    try:
+        northbound_update_monthly(html_path, target_date)
+    except Exception as e:
+        log_error(f"月度汇总更新异常: {e}")
+        import traceback
+        traceback.print_exc()
+
+    # 步骤4：同步 index.html
+    log_info("步骤4/4：同步 index.html")
     shutil.copy2(html_path, index_path)
     print(f"✅ index.html 已同步: {index_path}")
 

@@ -31,6 +31,10 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
 from update_jiyou_resonance_gha import is_trading_day  # noqa: E402
+from update_jiyou_resonance_gha import (
+    update_jiyou_weekly_summary,
+    update_jiyou_monthly_summary,
+)  # noqa: E402
 
 
 def log_info(msg: str) -> None:
@@ -196,7 +200,7 @@ def main():
     print(f"📋 待更新日期: {', '.join(update_dates)}")
 
     # 步骤1：逐个更新
-    log_info("步骤1/4：更新数据")
+    log_info("步骤1/6：更新每日数据")
     all_ok = True
     for ds in update_dates:
         print(f"\n--- 更新 {ds} ---")
@@ -207,14 +211,32 @@ def main():
         log_error("数据更新失败")
         sys.exit(1)
 
-    # 步骤2：同步 index.html
-    log_info("步骤2/4：同步 index.html")
+    # 步骤2：更新当周汇总
+    log_info("步骤2/6：更新当周汇总TOP5")
+    try:
+        update_jiyou_weekly_summary(html_path, target_date)
+    except Exception as e:
+        log_error(f"周汇总更新异常: {e}")
+        import traceback
+        traceback.print_exc()
+
+    # 步骤3：更新月度汇总
+    log_info("步骤3/6：更新月度汇总TOP10")
+    try:
+        update_jiyou_monthly_summary(html_path, target_date)
+    except Exception as e:
+        log_error(f"月度汇总更新异常: {e}")
+        import traceback
+        traceback.print_exc()
+
+    # 步骤4：同步 index.html
+    log_info("步骤4/6：同步 index.html")
     shutil.copy2(html_path, index_path)
     print(f"✅ index.html 已同步: {index_path}")
 
-    # 步骤3：API 模式校验（校验当日 + 回刷日的数据正确性）
+    # 步骤5：API 模式校验（校验当日 + 回刷日的数据正确性）
     if not args.skip_validate:
-        log_info("步骤3/4：API 模式数据一致性校验")
+        log_info("步骤5/6：API 模式数据一致性校验")
         val_ok = True
         for ds in update_dates:
             if not is_trading_day(ds):
@@ -226,14 +248,14 @@ def main():
             log_error("API 模式校验失败，流水线中止")
             sys.exit(1)
 
-        # 步骤4：HTML 模式校验
-        log_info("步骤4/4：HTML 模式格式校验")
+        # 步骤6：HTML 模式校验
+        log_info("步骤6/6：HTML 模式格式校验")
         if not run_validate_html(html_path):
             log_error("HTML 模式校验失败，流水线中止")
             sys.exit(1)
     else:
-        log_info("步骤3/4：跳过API校验（--skip-validate）")
-        log_info("步骤4/4：跳过HTML校验（--skip-validate）")
+        log_info("步骤5/6：跳过API校验（--skip-validate）")
+        log_info("步骤6/6：跳过HTML校验（--skip-validate）")
 
     # 检查是否有变更
     size_after = os.path.getsize(html_path)
