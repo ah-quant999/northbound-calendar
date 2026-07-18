@@ -1072,7 +1072,6 @@ def generate_month_html(year, month, today_date=None):
     lines.append('            font-weight: 500;')
     lines.append('            white-space: nowrap;')
     lines.append('        }')
-    lines.append('        .category-tag.today { background: #d29922; color: #fff; }')
     lines.append('        .category-tag.policy { background: #ff8c42; color: #fff; }')
     lines.append('        .category-tag.cbank { background: #ffd700; color: #fff; }')
     lines.append('        .category-tag.cndata { background: #e8b830; color: #fff; }')
@@ -1142,10 +1141,6 @@ def generate_month_html(year, month, today_date=None):
     lines.append('            align-items: center;')
     lines.append('            justify-content: center;')
     lines.append('            border-radius: 50%;')
-    lines.append('        }')
-    lines.append('        .day-cell .day-number.today {')
-    lines.append('            background: #58a6ff;')
-    lines.append('            color: #fff;')
     lines.append('        }')
     lines.append('        .day-cell .day-number.other {')
     lines.append('            color: #6e7681;')
@@ -1448,7 +1443,6 @@ def generate_month_html(year, month, today_date=None):
     lines.append('')
     lines.append('    <!-- 分类标签导航 -->')
     lines.append('    <div class="category-nav">')
-    lines.append('        <span class="category-tag today">今天</span>')
     lines.append('        <span class="category-tag policy">重要政策</span>')
     lines.append('        <span class="category-tag cbank">央行/LPR</span>')
     lines.append('        <span class="category-tag cndata">中国数据</span>')
@@ -1497,7 +1491,6 @@ def generate_month_html(year, month, today_date=None):
 
             if is_current_month:
                 day_num = actual_day
-                is_today = (year == today_date.year and month == today_date.month and day_num == today_date.day)
                 day_events = events_by_day.get(day_num, [])
                 td_class_parts.append('clickable')
 
@@ -1510,8 +1503,7 @@ def generate_month_html(year, month, today_date=None):
 
                 lines.append('                    <div class="day-cell">')
                 lines.append('                        <div class="day-header">')
-                today_class = 'today' if is_today else ''
-                lines.append(f'                            <span class="day-number{" " + today_class if today_class else ""}">{day_num}</span>')
+                lines.append(f'                            <span class="day-number">{day_num}</span>')
                 lines.append('                        </div>')
 
                 if day_events:
