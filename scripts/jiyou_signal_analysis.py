@@ -1162,7 +1162,6 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
     <script>
     // ========== 数据 ==========
     // __SIGNAL_DATA_INJECT__
-    var signalData = { };
 
     // 所有有数据的日期列表（用于翻页）
     var availableDates = [];
