@@ -393,6 +393,59 @@
         }
 
         /* 底部 */
+        /* 深入分析入口 */
+        .deep-links {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin: 20px 0 16px;
+        }
+        @media (max-width: 768px) {
+            .deep-links { grid-template-columns: 1fr; }
+        }
+        .deep-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 18px;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: transform .15s, box-shadow .15s;
+            border: 1px solid #ff7a00;
+            background: #161b22;
+        }
+        .deep-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 122, 0, 0.2);
+        }
+        .deep-link.jiyou-link { border-color: #f85149; }
+        .deep-link.jiyou-link:hover { box-shadow: 0 4px 15px rgba(248, 81, 73, 0.2); }
+        .deep-link.nb-link { border-color: #3fb950; }
+        .deep-link.nb-link:hover { box-shadow: 0 4px 15px rgba(63, 185, 80, 0.2); }
+        .deep-link-icon {
+            font-size: 28px;
+            flex-shrink: 0;
+            width: 40px;
+            text-align: center;
+        }
+        .deep-link-text { flex: 1; }
+        .deep-link-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #f0f6fc;
+            margin-bottom: 4px;
+        }
+        .deep-link-desc {
+            font-size: 12px;
+            color: #8b949e;
+            line-height: 1.4;
+        }
+        .deep-link-arrow {
+            font-size: 20px;
+            color: #6e7681;
+            font-weight: 300;
+        }
+
         .footer {
             text-align: center;
             padding: 16px 0 8px;
@@ -413,7 +466,7 @@
         <h1>📊 每日市场洞察</h1>
         <div class="subtitle">短线+中长线双视角 · 机游共振 × 北向资金</div>
     </div>
-    <div class="update-time">数据日期：2026-07-17 · 更新时间：2026-07-19 22:16</div>
+    <div class="update-time">数据日期：2026-07-17 · 更新时间：2026-07-19 22:53</div>
 
     <!-- 图例 -->
     <div class="legend">
@@ -574,10 +627,28 @@
             </div>
     </div>
 
+    <!-- 深入分析入口 -->
+    <div class="deep-links">
+        <a href="jiyou-signal-analysis.html" class="deep-link jiyou-link">
+            <div class="deep-link-icon">⚡</div>
+            <div class="deep-link-text">
+                <div class="deep-link-title">机游信号详细分析</div>
+                <div class="deep-link-desc">单日信号 + 连续性追踪 · 4类基础信号 + 5类进阶信号</div>
+            </div>
+            <div class="deep-link-arrow">→</div>
+        </a>
+        <a href="northbound-analysis.html" class="deep-link nb-link">
+            <div class="deep-link-icon">📈</div>
+            <div class="deep-link-text">
+                <div class="deep-link-title">北向资金详细分析</div>
+                <div class="deep-link-desc">行业趋势 + 连续加仓 + 北向机构共振 · 中线价值视角</div>
+            </div>
+            <div class="deep-link-arrow">→</div>
+        </a>
+    </div>
+
     <div class="footer">
-        数据来源：龙虎榜机游信号 &amp; 北向席位资金 &nbsp;|&nbsp;
-        <a href="jiyou-signal-analysis.html">机游信号分析</a> &nbsp;·&nbsp;
-        <a href="northbound-analysis.html">北向资金分析</a>
+        数据来源：龙虎榜机游信号 &amp; 北向席位资金
     </div>
 </div>
 </body>
