@@ -555,7 +555,70 @@
         overflow-wrap: break-word;
     }
 
-
+    /* ===== 每日信号精选 ===== */
+    .daily-signals-section {
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px solid #30363d;
+    }
+    .daily-signals-section .signals-header {
+        font-size: 17px;
+        color: #fff;
+        font-weight: 600;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .daily-signals-section .signals-header::before {
+        content: "🎯";
+    }
+    .signals-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+    .signal-group {
+        background: #0d1117;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 10px 12px;
+    }
+    .signal-group .signal-group-title {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+    .signal-group .signal-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 0;
+        font-size: 13px;
+        gap: 8px;
+    }
+    .signal-group .signal-name {
+        color: #c9d1d9;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .signal-group .signal-meta {
+        color: #8b949e;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+    .signal-group-empty {
+        color: #6e7681;
+        font-size: 13px;
+        padding: 4px 0;
+    }
+    @media (max-width: 768px) {
+        .signals-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 
     </style>
 </head>
@@ -1717,6 +1780,44 @@
             var empty = dayCell.querySelector('.empty-content');
             var emptyText = empty ? empty.textContent.trim() : '暂无数据';
             html = '<div style="color:#6e7681;font-size:16px;">' + emptyText + '</div>';
+        }
+
+        // ===== 每日信号精选 =====
+        var signalsEl = dayCell.querySelector('.daily-signals');
+        if (signalsEl) {
+            var signalSections = signalsEl.querySelectorAll('.signal-section');
+            if (signalSections.length > 0) {
+                var sigHtml = '<div class="daily-signals-section">';
+                sigHtml += '<div class="signals-header">每日信号精选</div>';
+                sigHtml += '<div class="signals-grid">';
+                for (var k = 0; k < signalSections.length; k++) {
+                    var sec = signalSections[k];
+                    var secTitle = sec.querySelector('.signal-section-title');
+                    var secItems = sec.querySelectorAll('.signal-item');
+                    var titleText = secTitle ? secTitle.textContent.trim() : '';
+                    var titleColor = secTitle ? secTitle.style.color : '';
+                    sigHtml += '<div class="signal-group">';
+                    sigHtml += '<div class="signal-group-title" style="color:' + titleColor + ';">' + titleText + '</div>';
+                    if (secItems.length === 0) {
+                        sigHtml += '<div class="signal-group-empty">暂无</div>';
+                    } else {
+                        for (var m = 0; m < secItems.length; m++) {
+                            var sItem = secItems[m];
+                            var sName = sItem.querySelector('.signal-name');
+                            var sMeta = sItem.querySelector('.signal-meta');
+                            var sNameText = sName ? sName.textContent.trim() : '';
+                            var sMetaText = sMeta ? sMeta.textContent.trim() : '';
+                            sigHtml += '<div class="signal-item">';
+                            sigHtml += '<span class="signal-name">' + sNameText + '</span>';
+                            sigHtml += '<span class="signal-meta">' + sMetaText + '</span>';
+                            sigHtml += '</div>';
+                        }
+                    }
+                    sigHtml += '</div>';
+                }
+                sigHtml += '</div></div>';
+                html += sigHtml;
+            }
         }
 
         panel.innerHTML = '<div class="detail-header"><span class="detail-title">' + dateStr + ' 当日详情</span><span class="detail-close" onclick="closeDayDetail()">✕ 关闭</span></div>' + html;

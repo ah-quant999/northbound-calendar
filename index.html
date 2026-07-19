@@ -612,6 +612,74 @@
         color: #3fb950 !important;
     }
     /* 只有机游共振独立区块的金额才是黄色 */
+    #day-detail-panel .detail-section-title.resonance-title ~ .detail-item .detail-name {
+        color: #ffd700 !important;
+    }
+
+    /* ===== 每日信号精选 ===== */
+    .daily-signals-section {
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px solid #30363d;
+    }
+    .daily-signals-section .signals-header {
+        font-size: 17px;
+        color: #fff;
+        font-weight: 600;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .daily-signals-section .signals-header::before {
+        content: "🎯";
+    }
+    .signals-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+    .signal-group {
+        background: #0d1117;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 10px 12px;
+    }
+    .signal-group .signal-group-title {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+    .signal-group .signal-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 0;
+        font-size: 13px;
+        gap: 8px;
+    }
+    .signal-group .signal-name {
+        color: #c9d1d9;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .signal-group .signal-meta {
+        color: #8b949e;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+    .signal-group-empty {
+        color: #6e7681;
+        font-size: 13px;
+        padding: 4px 0;
+    }
+    @media (max-width: 768px) {
+        .signals-grid {
+            grid-template-columns: 1fr;
+        }
+    }
     .day-cell .resonance-title + .stock-row .stock-item .stock-name,
     .day-cell .resonance-title + .stock-row .stock-item .stock-amount,
     .day-cell .resonance-title + .stock-row .stock-item .stock-icon {
@@ -631,7 +699,7 @@
                 <span class="nav-current" id="nav-year">2026年 7月</span>
                 <span class="nav-link month-btn" onclick="switchMonth(8)" id="nav-next">8月 →</span>
             </div>
-            <div class="subtitle">龙虎榜机构席位 + 游资席位数据 | 每日更新时间：17:35 | 本次更新时间：2026-07-18 00:55</div>
+            <div class="subtitle">龙虎榜机构席位 + 游资席位数据 | 每日更新时间：17:35 | 本次更新时间：2026-07-19 13:01</div>
         </div>
 
         <div class="legend">
@@ -1373,6 +1441,57 @@
                             <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">大恒科技</span><span class="stock-amount down">-6282万</span></span>
                         </div>
                     </div>
+                    <div class="daily-signals" style="display:none;" data-signals="1">
+                        <div class="signal-section signal-sell">
+                            <div class="signal-section-title" style="color:#3fb950;">② 机游共振卖出</div>
+                            <div class="signal-item">
+                                <span class="signal-name">实朴检测</span>
+                                <span class="signal-meta">机构-2095万 / 游资-2074万 占比5.95%</span>
+                            </div>
+                        </div>
+                        <div class="signal-section signal-mix1">
+                            <div class="signal-section-title" style="color:#d29922;">③ 机构出货 游资接盘</div>
+                            <div class="signal-item">
+                                <span class="signal-name">鼎通科技</span>
+                                <span class="signal-meta">机构-3.46亿 / 游资+2.70亿 占比15.44%</span>
+                            </div>
+                            <div class="signal-item">
+                                <span class="signal-name">星网锐捷</span>
+                                <span class="signal-meta">机构-1.33亿 / 游资+5.77亿 占比9.63%</span>
+                            </div>
+                            <div class="signal-item">
+                                <span class="signal-name">开润股份</span>
+                                <span class="signal-meta">机构-1.20亿 / 游资+6447万 占比25.88%</span>
+                            </div>
+                            <div class="signal-item">
+                                <span class="signal-name">圣晖集成</span>
+                                <span class="signal-meta">机构-1.18亿 / 游资+6065万 占比10.22%</span>
+                            </div>
+                            <div class="signal-item">
+                                <span class="signal-name">九安医疗</span>
+                                <span class="signal-meta">机构-8619万 / 游资+2.92亿 占比8.12%</span>
+                            </div>
+                            <div class="signal-item">
+                                <span class="signal-name">菲沃泰</span>
+                                <span class="signal-meta">机构-6300万 / 游资+1899万 占比13.76%</span>
+                            </div>
+                            <div class="signal-item">
+                                <span class="signal-name">百诚医药</span>
+                                <span class="signal-meta">机构-2228万 / 游资+1747万 占比5.67%</span>
+                            </div>
+                        </div>
+                        <div class="signal-section signal-mix2">
+                            <div class="signal-section-title" style="color:#a371f7;">④ 机构接盘 游资出货</div>
+                            <div class="signal-item">
+                                <span class="signal-name">联讯仪器</span>
+                                <span class="signal-meta">机构+2.44亿 / 游资-5.73亿 占比14.45%</span>
+                            </div>
+                            <div class="signal-item">
+                                <span class="signal-name">贤丰控股</span>
+                                <span class="signal-meta">机构+1.19亿 / 游资-5679万 占比5.02%</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                     </td>
                     <td class="weekend" onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number">18</span></div><div class="empty-content"><span class="amount holiday">休市</span></div></div></td>
@@ -1560,7 +1679,7 @@
                     <div class="week-stocks">
                         <div class="week-section">
                             <div class="week-section-title">✅ 机构净买入TOP5</div>
-                                                                                    <div class="week-stock-item">
+                                                                                                                <div class="week-stock-item">
                                 <span class="week-stock-rank">1</span>
                                 <span class="week-stock-name">拓荆科技</span>
                                 <span class="week-stock-amount" style="color:#f85149;">+23.24亿</span>
@@ -1588,7 +1707,7 @@
                         </div>
                         <div class="week-section">
                             <div class="week-section-title">🔥 游资活跃TOP5</div>
-                                                                                    <div class="week-stock-item">
+                                                                                                                <div class="week-stock-item">
                                 <span class="week-stock-rank">1</span>
                                 <span class="week-stock-name">澜起科技 中信上海分公司</span>
                                 <span class="week-stock-amount" style="color:#f85149;">+8.36亿</span>
@@ -1724,7 +1843,7 @@
             机游共振日历 · 纯东财API数据交叉版（游资按股票维度）<br>
             数据来源：东方财富官方龙虎榜API（机构买卖 + 个股明细，100%官方数据） / 证券时报·数据宝 / 东方财富Choice / 金融界<br>
             口径：龙虎榜机构专用席位净买入 + 知名游资营业部净买入 | 仅供参考，不构成投资建议<br>
-            生成日期：2026-07-18 12:00
+            生成日期：2026-07-19 12:00
         </div>
 
         <div class="data-source">
@@ -1951,6 +2070,44 @@
             var empty = dayCell.querySelector('.empty-content');
             var emptyText = empty ? empty.textContent.trim() : '暂无数据';
             html = '<div style="color:#6e7681;font-size:16px;">' + emptyText + '</div>';
+        }
+
+        // ===== 每日信号精选 =====
+        var signalsEl = dayCell.querySelector('.daily-signals');
+        if (signalsEl) {
+            var signalSections = signalsEl.querySelectorAll('.signal-section');
+            if (signalSections.length > 0) {
+                var sigHtml = '<div class="daily-signals-section">';
+                sigHtml += '<div class="signals-header">每日信号精选</div>';
+                sigHtml += '<div class="signals-grid">';
+                for (var k = 0; k < signalSections.length; k++) {
+                    var sec = signalSections[k];
+                    var secTitle = sec.querySelector('.signal-section-title');
+                    var secItems = sec.querySelectorAll('.signal-item');
+                    var titleText = secTitle ? secTitle.textContent.trim() : '';
+                    var titleColor = secTitle ? secTitle.style.color : '';
+                    sigHtml += '<div class="signal-group">';
+                    sigHtml += '<div class="signal-group-title" style="color:' + titleColor + ';">' + titleText + '</div>';
+                    if (secItems.length === 0) {
+                        sigHtml += '<div class="signal-group-empty">暂无</div>';
+                    } else {
+                        for (var m = 0; m < secItems.length; m++) {
+                            var sItem = secItems[m];
+                            var sName = sItem.querySelector('.signal-name');
+                            var sMeta = sItem.querySelector('.signal-meta');
+                            var sNameText = sName ? sName.textContent.trim() : '';
+                            var sMetaText = sMeta ? sMeta.textContent.trim() : '';
+                            sigHtml += '<div class="signal-item">';
+                            sigHtml += '<span class="signal-name">' + sNameText + '</span>';
+                            sigHtml += '<span class="signal-meta">' + sMetaText + '</span>';
+                            sigHtml += '</div>';
+                        }
+                    }
+                    sigHtml += '</div>';
+                }
+                sigHtml += '</div></div>';
+                html += sigHtml;
+            }
         }
 
         panel.innerHTML = '<div class="detail-header"><span class="detail-title">' + dateStr + ' 当日详情</span><span class="detail-close" onclick="closeDayDetail()">✕ 关闭</span></div>' + html;

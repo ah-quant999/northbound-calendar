@@ -90,6 +90,11 @@ def _is_real_business_department(dept_name: str) -> bool:
 RESONANCE_YOUZI_TOP_N = 20
 YOUZI_DISPLAY_TOP_N = 5
 
+# 每日信号精选阈值
+SIGNAL_INST_ABS_THRESHOLD = 2000.0   # 机构净买卖绝对值 ≥ 2000万
+SIGNAL_YOUZI_ABS_THRESHOLD = 1500.0  # 游资净买卖绝对值 ≥ 1500万
+SIGNAL_NET_BUY_RATIO_THRESHOLD = 0.05  # 净买占当日成交额 > 5%
+
 # A股2026法定假日
 A_STOCK_HOLIDAYS_2026 = {
     "2026-01-01", "2026-01-02", "2026-01-03",
@@ -211,12 +216,17 @@ def get_institution_data(date_str: str) -> Dict[str, List[Dict]]:
                 "code": code, "name": name,
                 "net_buy": 0.0, "buy_amt": 0.0, "sell_amt": 0.0,
                 "buy_count": 0, "sell_count": 0,
+                "accum_amount": 0.0,
             }
         stock_map[code]["net_buy"] += net_buy
         stock_map[code]["buy_amt"] += buy_amt
         stock_map[code]["sell_amt"] += sell_amt
         stock_map[code]["buy_count"] = max(stock_map[code]["buy_count"], buy_times)
         stock_map[code]["sell_count"] = max(stock_map[code]["sell_count"], sell_times)
+        # 总成交额（同一股票可能多条记录，取最大值或累加，这里取最大值）
+        accum = _safe_num(item.get("ACCUM_AMOUNT"))
+        if accum > stock_map[code]["accum_amount"]:
+            stock_map[code]["accum_amount"] = accum
 
     stocks = list(stock_map.values())
     for s in stocks:
@@ -365,7 +375,169 @@ def compute_resonance(inst_top5: List[Dict], youzi_data: Dict) -> List[Dict]:
     return resonance
 
 
-# ========== 构建单日数据 ==========
+# ========== 每日信号精选 ==========
+
+def compute_daily_signals(inst_data: Dict, youzi_data: Dict) -> Dict:
+    """
+    计算每日信号精选（4类信号）
+
+    阈值：
+      - 机构净买卖绝对值 ≥ 2000万
+      - 游资净买卖绝对值 ≥ 1500万
+      - 净买占当日成交额 > 5%（有数据时启用）
+
+    4类信号（两边都达标的才入选）：
+      ① 机游共振买入：机构净买>0 且 游资净买>0
+      ② 机游共振卖出：机构净卖>0 且 游资净卖>0
+      ③ 机构出货游资接盘：机构净卖>0 且 游资净买>0
+      ④ 机构接盘游资出货：机构净买>0 且 游资净卖>0
+
+    返回: {
+        "signal_resonance_buy": [...],
+        "signal_resonance_sell": [...],
+        "signal_inst_sell_youzi_buy": [...],
+        "signal_inst_buy_youzi_sell": [...],
+    }
+    每项元素: {"name":..., "code":..., "inst_net_wan":..., "youzi_net_wan":..., "net_ratio": float|None}
+    """
+    # 构建机构 map（含总成交额，用于计算占比）
+    inst_map = {}
+    all_inst_stocks = inst_data["buy_sorted"] + [
+        s for s in inst_data["sell_sorted"]
+        if s["code"] not in {x["code"] for x in inst_data["buy_sorted"]}
+    ]
+    for s in all_inst_stocks:
+        inst_map[s["code"]] = s  # 包含 net_buy_wan, accum_amount 等
+
+    # 构建游资 map
+    youzi_map = {}
+    all_youzi_stocks = youzi_data["buy_sorted"] + [
+        s for s in youzi_data["sell_sorted"]
+        if s["code"] not in {x["code"] for x in youzi_data["buy_sorted"]}
+    ]
+    for s in all_youzi_stocks:
+        youzi_map[s["code"]] = s
+
+    # 找交集（两边都有数据的股票）
+    common_codes = set(inst_map.keys()) & set(youzi_map.keys())
+
+    signal_resonance_buy = []      # 机游共振买入
+    signal_resonance_sell = []     # 机游共振卖出
+    signal_inst_sell_youzi_buy = []  # 机构出货游资接盘
+    signal_inst_buy_youzi_sell = []  # 机构接盘游资出货
+
+    for code in common_codes:
+        inst = inst_map[code]
+        youzi = youzi_map[code]
+        inst_net = inst.get("net_buy_wan", 0.0)
+        youzi_net = youzi.get("net_buy_wan", 0.0)
+
+        # 绝对值阈值检查
+        if abs(inst_net) < SIGNAL_INST_ABS_THRESHOLD:
+            continue
+        if abs(youzi_net) < SIGNAL_YOUZI_ABS_THRESHOLD:
+            continue
+
+        # 计算净买占比（用较大的那一方的总成交额更准确，
+        # 但机构 API 里已有 ACCUM_AMOUNT，直接用机构的即可）
+        accum_amount = inst.get("accum_amount", 0.0)  # 元
+        net_ratio = None
+        if accum_amount and accum_amount > 0:
+            # 净买卖金额（绝对值之和或取较大值？用两者净买中较大者计算占比）
+            # 这里定义"净买占比"为 max(|机构净买|, |游资净买|) / 当日总成交额
+            max_abs_net = max(abs(inst_net), abs(youzi_net))
+            net_ratio = (max_abs_net * 10000.0) / accum_amount
+            # 占比阈值过滤（> 5%）
+            if net_ratio <= SIGNAL_NET_BUY_RATIO_THRESHOLD:
+                continue
+
+        item = {
+            "name": inst.get("name", youzi.get("name", code)),
+            "code": code,
+            "inst_net_wan": round(inst_net, 2),
+            "youzi_net_wan": round(youzi_net, 2),
+            "net_ratio": round(net_ratio * 100, 2) if net_ratio is not None else None,
+        }
+
+        if inst_net > 0 and youzi_net > 0:
+            signal_resonance_buy.append(item)
+        elif inst_net < 0 and youzi_net < 0:
+            signal_resonance_sell.append(item)
+        elif inst_net < 0 and youzi_net > 0:
+            signal_inst_sell_youzi_buy.append(item)
+        elif inst_net > 0 and youzi_net < 0:
+            signal_inst_buy_youzi_sell.append(item)
+
+    # 按机构净买金额排序
+    signal_resonance_buy.sort(key=lambda x: x["inst_net_wan"], reverse=True)
+    signal_resonance_sell.sort(key=lambda x: x["inst_net_wan"])
+    signal_inst_sell_youzi_buy.sort(key=lambda x: x["inst_net_wan"])
+    signal_inst_buy_youzi_sell.sort(key=lambda x: x["inst_net_wan"], reverse=True)
+
+    result = {
+        "signal_resonance_buy": signal_resonance_buy,
+        "signal_resonance_sell": signal_resonance_sell,
+        "signal_inst_sell_youzi_buy": signal_inst_sell_youzi_buy,
+        "signal_inst_buy_youzi_sell": signal_inst_buy_youzi_sell,
+    }
+
+    print(f"    🎯 每日信号精选:")
+    print(f"      ① 机游共振买入: {len(signal_resonance_buy)} 只")
+    print(f"      ② 机游共振卖出: {len(signal_resonance_sell)} 只")
+    print(f"      ③ 机构出货游资接盘: {len(signal_inst_sell_youzi_buy)} 只")
+    print(f"      ④ 机构接盘游资出货: {len(signal_inst_buy_youzi_sell)} 只")
+
+    return result
+
+
+def build_signals_html(signals: Dict) -> str:
+    """
+    构建每日信号精选的隐藏 HTML 区块。
+    放在 day-cell 内，日历格子中不显示，详情弹窗中渲染。
+    使用 signal-group 包裹，内含 4 个 signal-section。
+    """
+    has_any = any(signals[k] for k in signals)
+    if not has_any:
+        return ''
+
+    sections = []
+    signal_defs = [
+        ("signal_resonance_buy", "① 机游共振买入", "signal-buy", "#f85149"),
+        ("signal_resonance_sell", "② 机游共振卖出", "signal-sell", "#3fb950"),
+        ("signal_inst_sell_youzi_buy", "③ 机构出货 游资接盘", "signal-mix1", "#d29922"),
+        ("signal_inst_buy_youzi_sell", "④ 机构接盘 游资出货", "signal-mix2", "#a371f7"),
+    ]
+
+    for key, title, cls, color in signal_defs:
+        items = signals.get(key, [])
+        if not items:
+            continue
+        item_lines = []
+        for it in items:
+            inst_str = f"+{format_amount(it['inst_net_wan'])}" if it['inst_net_wan'] > 0 else format_amount(it['inst_net_wan'])
+            youzi_str = f"+{format_amount(it['youzi_net_wan'])}" if it['youzi_net_wan'] > 0 else format_amount(it['youzi_net_wan'])
+            ratio_str = f" 占比{it['net_ratio']}%" if it['net_ratio'] is not None else ""
+            item_lines.append(
+                f'                            <div class="signal-item">\n'
+                f'                                <span class="signal-name">{it["name"]}</span>\n'
+                f'                                <span class="signal-meta">机构{inst_str} / 游资{youzi_str}{ratio_str}</span>\n'
+                f'                            </div>'
+            )
+        sections.append(
+            f'                        <div class="signal-section {cls}">\n'
+            f'                            <div class="signal-section-title" style="color:{color};">{title}</div>\n'
+            + "\n".join(item_lines) + "\n"
+            + f'                        </div>'
+        )
+
+    if not sections:
+        return ''
+
+    return (
+        '                    <div class="daily-signals" style="display:none;" data-signals="1">\n'
+        + "\n".join(sections) + "\n"
+        + '                    </div>'
+    )
 
 def build_daily_data(date_str: str) -> Dict:
     """构建单日完整数据（返回dict，不依赖pydantic）"""
@@ -400,6 +572,9 @@ def build_daily_data(date_str: str) -> Dict:
     ]
     resonance = compute_resonance(inst_data["buy_sorted"][:5], youzi_data)
 
+    # 每日信号精选
+    daily_signals = compute_daily_signals(inst_data, youzi_data)
+
     return {
         "date": date_str,
         "institution_top5": inst_top5,
@@ -407,6 +582,7 @@ def build_daily_data(date_str: str) -> Dict:
         "resonance": resonance,
         "youzi_buy_top5": youzi_buy_top5,
         "youzi_sell_top5": youzi_sell_top5,
+        "daily_signals": daily_signals,
         "data_source": "东方财富龙虎榜官方API",
     }
 
@@ -534,6 +710,12 @@ def build_day_cell_html(data: Dict) -> str:
         lines.append('                        </div>')
 
     lines.append('                    </div>')
+
+    # 6. 每日信号精选（隐藏区块，仅详情弹窗中渲染）
+    signals_html = build_signals_html(data.get("daily_signals", {}))
+    if signals_html:
+        lines.append(signals_html)
+
     lines.append('                </div>')
     return "\n".join(lines)
 
@@ -1265,6 +1447,12 @@ def main():
         print(f"   游资净买入TOP5: {len(daily_data['youzi_buy_top5'])} 只")
         print(f"   游资净卖出TOP5: {len(daily_data['youzi_sell_top5'])} 只")
         print(f"   机游共振: {len(daily_data['resonance'])} 个")
+        # 信号统计
+        sig = daily_data.get("daily_signals", {})
+        print(f"   信号精选-买入: {len(sig.get('signal_resonance_buy', []))} 只")
+        print(f"   信号精选-卖出: {len(sig.get('signal_resonance_sell', []))} 只")
+        print(f"   信号精选-机构出货游资接盘: {len(sig.get('signal_inst_sell_youzi_buy', []))} 只")
+        print(f"   信号精选-机构接盘游资出货: {len(sig.get('signal_inst_buy_youzi_sell', []))} 只")
 
         if args.dry_run:
             print("\n🔍 [DRY-RUN] 只抓取不写入，任务成功")
