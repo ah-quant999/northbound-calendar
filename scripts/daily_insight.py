@@ -928,10 +928,10 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(255, 122, 0, 0.2);
         }}
-        .deep-link.jiyou-link {{ border-color: #f85149; }}
-        .deep-link.jiyou-link:hover {{ box-shadow: 0 4px 15px rgba(248, 81, 73, 0.2); }}
-        .deep-link.nb-link {{ border-color: #3fb950; }}
-        .deep-link.nb-link:hover {{ box-shadow: 0 4px 15px rgba(63, 185, 80, 0.2); }}
+        .deep-link.jiyou-link {{ border-color: #e888a0; }}
+        .deep-link.jiyou-link:hover {{ box-shadow: 0 4px 15px rgba(232, 136, 160, 0.25); }}
+        .deep-link.nb-link {{ border-color: #6cb6ff; }}
+        .deep-link.nb-link:hover {{ box-shadow: 0 4px 15px rgba(108, 182, 255, 0.25); }}
         .deep-link-icon {{
             font-size: 28px;
             flex-shrink: 0;
