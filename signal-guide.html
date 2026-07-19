@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>信号说明知识库</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #0d1117;
+            min-height: 100vh;
+            padding: 20px;
+            color: #c9d1d9;
+            line-height: 1.7;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            gap: 30px;
+        }
+
+        /* 侧边目录 */
+        .sidebar {
+            width: 220px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .sidebar-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #e8a0b0;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #30363d;
+        }
+        .toc-list {
+            list-style: none;
+        }
+        .toc-list li {
+            margin-bottom: 6px;
+        }
+        .toc-list a {
+            color: #8b949e;
+            text-decoration: none;
+            font-size: 13px;
+            display: block;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .toc-list a:hover {
+            color: #c9d1d9;
+            background: #21262d;
+        }
+        .toc-list a.active {
+            color: #e8a0b0;
+            background: rgba(232, 160, 176, 0.1);
+            font-weight: 500;
+        }
+        .toc-list .sub {
+            padding-left: 16px;
+            font-size: 12px;
+        }
+        .toc-list .sub a {
+            font-size: 12px;
+            padding: 4px 10px;
+        }
+
+        /* 主内容 */
+        .main-content {
+            flex: 1;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 30px 40px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #8b949e;
+        }
+        .breadcrumb a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        .breadcrumb .current {
+            color: #e8a0b0;
+            font-weight: 600;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #e8a0b0;
+            margin-bottom: 10px;
+        }
+        .page-desc {
+            color: #8b949e;
+            font-size: 14px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #30363d;
+        }
+
+        h2 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #f0f6fc;
+            margin: 40px 0 16px;
+            padding-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        h2:first-of-type {
+            margin-top: 0;
+            padding-top: 0;
+        }
+        h2 .icon {
+            font-size: 24px;
+        }
+
+        h3 {
+            font-size: 17px;
+            font-weight: 600;
+            color: #d2a8ff;
+            margin: 24px 0 12px;
+        }
+
+        h4 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #79c0ff;
+            margin: 18px 0 10px;
+        }
+
+        p {
+            margin-bottom: 14px;
+            font-size: 14px;
+            color: #c9d1d9;
+        }
+
+        ul, ol {
+            margin-bottom: 14px;
+            padding-left: 24px;
+        }
+        li {
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .highlight-box {
+            background: #0d1117;
+            border-left: 4px solid #e8a0b0;
+            border-radius: 0 8px 8px 0;
+            padding: 16px 20px;
+            margin: 16px 0;
+        }
+        .highlight-box.blue {
+            border-left-color: #58a6ff;
+        }
+        .highlight-box.green {
+            border-left-color: #3fb950;
+        }
+        .highlight-box.yellow {
+            border-left-color: #d29922;
+        }
+        .highlight-box.purple {
+            border-left-color: #a371f7;
+        }
+        .highlight-box-title {
+            font-weight: 600;
+            color: #e8a0b0;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+        .highlight-box.blue .highlight-box-title { color: #58a6ff; }
+        .highlight-box.green .highlight-box-title { color: #3fb950; }
+        .highlight-box.yellow .highlight-box-title { color: #d29922; }
+        .highlight-box.purple .highlight-box-title { color: #a371f7; }
+
+        .signal-card {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 18px 20px;
+            margin: 14px 0;
+        }
+        .signal-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .signal-card-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #f0f6fc;
+        }
+        .signal-card-tag {
+            font-size: 11px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+        .tag-bullish { background: rgba(248, 81, 73, 0.15); color: #f85149; }
+        .tag-bearish { background: rgba(63, 185, 80, 0.15); color: #3fb950; }
+        .tag-neutral { background: rgba(210, 153, 34, 0.15); color: #d29922; }
+        .signal-card-desc {
+            color: #8b949e;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+        .signal-card-criteria {
+            font-size: 13px;
+            color: #c9d1d9;
+        }
+        .signal-card-criteria strong {
+            color: #79c0ff;
+            font-weight: 500;
+        }
+
+        .signal-diagram {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 16px 0;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #8b949e;
+        }
+        .diagram-row {
+            margin: 8px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 14px 0;
+            font-size: 13px;
+        }
+        th, td {
+            padding: 10px 14px;
+            border: 1px solid #30363d;
+            text-align: left;
+        }
+        th {
+            background: #0d1117;
+            color: #8b949e;
+            font-weight: 500;
+        }
+        td {
+            color: #c9d1d9;
+        }
+
+        .fund-types-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 14px;
+            margin: 16px 0;
+        }
+        .fund-type-card {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 16px;
+        }
+        .fund-type-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        .fund-type-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #f0f6fc;
+            margin-bottom: 8px;
+        }
+        .fund-type-desc {
+            font-size: 12px;
+            color: #8b949e;
+            line-height: 1.6;
+        }
+        .fund-type-tags {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .fund-type-tag {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: #21262d;
+            color: #8b949e;
+        }
+
+        .warning-box {
+            background: rgba(248, 81, 73, 0.1);
+            border: 1px solid rgba(248, 81, 73, 0.3);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 16px 0;
+        }
+        .warning-title {
+            color: #f85149;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                position: static;
+            }
+            .main-content {
+                padding: 20px;
+            }
+            .fund-types-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #161b22;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #484f58;
+        }
+
+        .back-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #e8a0b0;
+            color: #0d1117;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(232, 160, 176, 0.3);
+            display: none;
+            z-index: 100;
+            transition: all 0.2s;
+        }
+        .back-top:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 侧边目录 -->
+        <div class="sidebar">
+            <div class="sidebar-title">📑 目录导航</div>
+            <ul class="toc-list">
+                <li><a href="#sec1" class="toc-link">一、资金性质详解</a>
+                    <ul class="toc-list sub">
+                        <li><a href="#sec1-1" class="toc-link">机构资金</a></li>
+                        <li><a href="#sec1-2" class="toc-link">游资资金</a></li>
+                        <li><a href="#sec1-3" class="toc-link">北向资金</a></li>
+                        <li><a href="#sec1-4" class="toc-link">三类资金对比</a></li>
+                    </ul>
+                </li>
+                <li><a href="#sec2" class="toc-link">二、信号分类与判断标准</a>
+                    <ul class="toc-list sub">
+                        <li><a href="#sec2-1" class="toc-link">4类基础信号</a></li>
+                        <li><a href="#sec2-2" class="toc-link">5类细分信号</a></li>
+                        <li><a href="#sec2-3" class="toc-link">信号强度分级</a></li>
+                    </ul>
+                </li>
+                <li><a href="#sec3" class="toc-link">三、阈值说明</a>
+                    <ul class="toc-list sub">
+                        <li><a href="#sec3-1" class="toc-link">金额阈值</a></li>
+                        <li><a href="#sec3-2" class="toc-link">净买占比阈值</a></li>
+                    </ul>
+                </li>
+                <li><a href="#sec4" class="toc-link">四、实战指南</a>
+                    <ul class="toc-list sub">
+                        <li><a href="#sec4-1" class="toc-link">信号使用流程</a></li>
+                        <li><a href="#sec4-2" class="toc-link">不同市场环境下的权重</a></li>
+                        <li><a href="#sec4-3" class="toc-link">风险提示</a></li>
+                    </ul>
+                </li>
+                <li><a href="#sec5" class="toc-link">五、数据来源说明</a>
+                    <ul class="toc-list sub">
+                        <li><a href="#sec5-1" class="toc-link">东方财富龙虎榜API</a></li>
+                        <li><a href="#sec5-2" class="toc-link">腾讯gtimg行情接口</a></li>
+                        <li><a href="#sec5-3" class="toc-link">数据局限性</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 主内容 -->
+        <div class="main-content">
+            <div class="breadcrumb">
+                <a href="jiyou-signal-analysis.html">机游信号分析</a>
+                <span>›</span>
+                <span class="current">信号说明</span>
+            </div>
+
+            <h1>📖 信号分析方法论</h1>
+            <div class="page-desc">
+                本文档详细阐述机游信号分析系统的设计原理、判断标准和使用方法。所有信号均基于龙虎榜公开数据计算得出，仅供参考，不构成投资建议。
+            </div>
+
+            <!-- 第一章 -->
+            <h2 id="sec1"><span class="icon">🏦</span> 一、资金性质详解</h2>
+
+            <p>龙虎榜数据揭示了A股市场中三类核心资金的动向：机构资金、游资资金和北向资金。理解这三类资金的性质差异和行为特征，是正确解读信号的前提。</p>
+
+            <div class="fund-types-grid">
+                <div class="fund-type-card">
+                    <div class="fund-type-icon">🏢</div>
+                    <div class="fund-type-title">机构资金</div>
+                    <div class="fund-type-desc">公募基金、保险、社保、QFII等专业机构投资者，以基本面研究驱动，注重长期价值投资。</div>
+                    <div class="fund-type-tags">
+                        <span class="fund-type-tag">基本面驱动</span>
+                        <span class="fund-type-tag">长期持有</span>
+                        <span class="fund-type-tag">价值投资</span>
+                        <span class="fund-type-tag">体量大</span>
+                    </div>
+                </div>
+                <div class="fund-type-card">
+                    <div class="fund-type-icon">⚡</div>
+                    <div class="fund-type-title">游资资金</div>
+                    <div class="fund-type-desc">知名敢死队、热钱、短线资金，以情绪和题材驱动，快进快出，爆发力强。</div>
+                    <div class="fund-type-tags">
+                        <span class="fund-type-tag">情绪驱动</span>
+                        <span class="fund-type-tag">短线交易</span>
+                        <span class="fund-type-tag">题材炒作</span>
+                        <span class="fund-type-tag">高波动</span>
+                    </div>
+                </div>
+                <div class="fund-type-card">
+                    <div class="fund-type-icon">🌊</div>
+                    <div class="fund-type-title">北向资金</div>
+                    <div class="fund-type-desc">通过沪股通、深股通流入的境外资金，被称为"聪明钱"，兼顾价值与成长。</div>
+                    <div class="fund-type-tags">
+                        <span class="fund-type-tag">全球视野</span>
+                        <span class="fund-type-tag">中长线</span>
+                        <span class="fund-type-tag">核心资产</span>
+                        <span class="fund-type-tag">风向标</span>
+                    </div>
+                </div>
+            </div>
+
+            <h3 id="sec1-1">🏢 机构资金特点</h3>
+            <p><strong>资金来源：</strong>公募基金、私募基金、保险资金、社保基金、企业年金、QFII/RQFII、券商自营等。</p>
+            <p><strong>投资风格：</strong></p>
+            <ul>
+                <li><strong>基本面驱动：</strong>决策基于公司基本面研究（盈利预测、估值模型、行业景气度等），注重安全边际</li>
+                <li><strong>中长期持有周期长：</strong>持仓周期通常为数月至数年，不以短期波动为主要决策依据</li>
+                <li><strong>分散投资：</strong>单只股票持仓有比例限制，不会重仓股通常为行业龙头或优质标的</li>
+                <li><strong>建仓方式：</strong>喜欢在下跌中逐步建仓，上涨中逐步减仓，逆向操作特征明显</li>
+            </ul>
+
+            <div class="highlight-box blue">
+                <div class="highlight-box-title">💡 机构资金对股价的影响</div>
+                <p>机构资金体量大，买卖对股价影响深远。机构净买入通常意味着专业投资者看好公司中长期价值，往往伴随业绩增长预期。但机构买入≠立即上涨——机构建仓周期长，短期内可能因为吸筹导致股价横盘或下跌。机构净卖出则需高度警惕，尤其是基本面可能出现恶化信号。</p>
+            </div>
+
+            <h3 id="sec1-2">⚡ 游资资金特点</h3>
+            <p><strong>资金来源：</strong>江浙沪粤等地的知名游资席位（章盟主、赵老哥、作手新一、炒股养家、溧阳路、上塘路、拉萨天团等）。</p>
+            <p><strong>投资风格：</strong></p>
+            <ul>
+                <li><strong>情绪/题材驱动：</strong>追逐市场热点、政策催化、事件驱动，不看基本面估值</li>
+                <li><strong>超短线交易：</strong>持仓周期通常为1-5天，打板、接力、低吸等手法多样</li>
+                <li><strong>集中火力：</strong>单只股票动辄上亿资金投入，追求短期暴利</li>
+                <li><strong>涨跌凶猛：</strong>拉涨停毫不手软，砸跌停也毫不犹豫</li>
+            </ul>
+
+            <div class="highlight-box yellow">
+                <div class="highlight-box-title">⚠️ 游资资金的双刃剑</div>
+                <p>游资是把双刃剑：游资介入的股票短期爆发力强，但退潮时下跌也极快。游资净买入≠后续上涨，很多时候游资是一日游行情，第二天就出货。追高买入很容易被套在山顶。关键是要看清游资的"梯队"和"接力"情况。</p>
+            </div>
+
+            <h3 id="sec1-3">🌊 北向资金特点</h3>
+            <p><strong>资金来源：</strong>通过沪股通和深股通渠道进入A股的香港及境外资金。</p>
+            <p><strong>投资风格：</strong></p>
+            <ul>
+                <li><strong>价值+成长：</strong>偏好行业龙头、消费白马、科技成长，注重ROE、现金流质量</li>
+                <li><strong>全球配置视角：</strong>在全球资产配置框架下评估A股的性价比</li>
+                <li><strong>中长线持有：</strong>调仓频率低于游资，高于机构</li>
+                <li><strong>聪明钱效应：</strong>北向资金流向常被视为市场风向标，持续流入往往预示中期行情</li>
+            </ul>
+
+            <div class="highlight-box green">
+                <div class="highlight-box-title">📊 北向资金的参考意义</div>
+                <p>北向资金被称为"聪明钱"不是没有道理的。历史数据显示，北向资金持续净流入的板块和个股，中期表现往往优于大盘。但要注意：北向资金也会犯错误，短期波动也很大，不能盲目跟风。</p>
+            </div>
+
+            <h3 id="sec1-4">📋 三类资金对比</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>维度</th>
+                        <th>机构资金</th>
+                        <th>游资资金</th>
+                        <th>北向资金</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>驱动因素</strong></td>
+                        <td>基本面/价值</td>
+                        <td>情绪/题材</td>
+                        <td>价值+成长</td>
+                    </tr>
+                    <tr>
+                        <td><strong>持仓周期</strong></td>
+                        <td>数月~数年</td>
+                        <td>1~5天</td>
+                        <td>数周~数月</td>
+                    </tr>
+                    <tr>
+                        <td><strong>操作风格</strong></td>
+                        <td>逆向、分批</td>
+                        <td>凌厉、集中</td>
+                        <td>稳健、持续</td>
+                    </tr>
+                    <tr>
+                        <td><strong>对股价影响</strong></td>
+                        <td>中长期趋势</td>
+                        <td>短期爆发</td>
+                        <td>中期趋势</td>
+                    </tr>
+                    <tr>
+                        <td><strong>信号可靠度</strong></td>
+                        <td>高（需验证基本面）</td>
+                        <td>中低（波动大）</td>
+                        <td>中高（中期维度）</td>
+                    </tr>
+                    <tr>
+                        <td><strong>典型席位特征</strong></td>
+                        <td>机构专用</td>
+                        <td>知名营业部</td>
+                        <td>沪/深股通专用</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- 第二章 -->
+            <h2 id="sec2"><span class="icon">🎯</span> 二、信号分类与判断标准</h2>
+
+            <p>本系统将龙虎榜资金动向归纳为<strong>4类基础信号</strong>和<strong>5类细分信号</strong>，从不同维度刻画资金博弈格局。</p>
+
+            <h3 id="sec2-1">📊 4类基础信号</h3>
+
+            <div class="signal-card">
+                <div class="signal-card-header">
+                    <span class="signal-card-name">① 机游共振买入</span>
+                    <span class="signal-card-tag tag-bullish">强烈看涨</span>
+                </div>
+                <div class="signal-card-desc">机构资金和游资资金同时净买入，代表价值与题材共振，是最强的看涨信号。</div>
+                <div class="signal-card-criteria">
+                    <strong>判断条件：</strong>机构净买额 ≥ 1000万 且 游资净买额 ≥ 1000万<br>
+                    <strong>市场含义：</strong>基本面资金和技术面资金同时看好，既有长期价值支撑，又有短期资金推动，容易形成趋势性上涨行情。<br>
+                    <strong>操作建议：</strong>重点关注，可以纳入自选，结合行业景气度和估值水平综合判断介入时机。
+                </div>
+            </div>
+
+            <div class="signal-diagram">
+                <div class="diagram-row">机构净买 ➕ 游资净买 ➕ 净买占比 &gt; 5%</div>
+                <div class="diagram-row">⬇️</div>
+                <div class="diagram-row" style="color:#f85149;font-weight:600;">机游共振买入 → 强烈看涨信号</div>
+            </div>
+
+            <div class="signal-card">
+                <div class="signal-card-header">
+                    <span class="signal-card-name">② 机游共振卖出</span>
+                    <span class="signal-card-tag tag-bearish">强烈看跌</span>
+                </div>
+                <div class="signal-card-desc">机构资金和游资资金同时净卖出，代表中长期资金和短期资金一致看空。</div>
+                <div class="signal-card-criteria">
+                    <strong>判断条件：</strong>机构净卖额 ≥ 1000万 且 游资净卖额 ≥ 1000万<br>
+                    <strong>市场含义：</strong>机构出逃+游资砸盘，多杀多行情，短期内难有起色。需要警惕基本面恶化或重大利空。<br>
+                    <strong>操作建议：</strong>回避为主，持有的考虑减仓，切勿抄底。
+                </div>
+            </div>
+
+            <div class="signal-card">
+                <div class="signal-card-header">
+                    <span class="signal-card-name">③ 机构出货 游资接盘</span>
+                    <span class="signal-card-tag tag-neutral">多空分歧</span>
+                </div>
+                <div class="signal-card-desc">机构净卖出但游资净买入，机构出货游资接盘，典型的"机构卖游资买"格局。</div>
+                <div class="signal-card-criteria">
+                    <strong>判断条件：</strong>机构净卖 ≥ 1000万 且 游资净买 ≥ 1000万<br>
+                    <strong>市场含义：</strong>机构逢高减仓，但游资认为还有炒作空间。短期可能因游资推动继续上涨，但中长期压力较大，行情持续性存疑。<br>
+                    <strong>操作建议：</strong>短线选手可参与但需快进快出，中长线投资者回避。
+                </div>
+            </div>
+
+            <div class="signal-card">
+                <div class="signal-card-header">
+                    <span class="signal-card-name">④ 机构接盘 游资出货</span>
+                    <span class="signal-card-tag tag-neutral">多空分歧</span>
+                </div>
+                <div class="signal-card-desc">机构净买入但游资净卖出，机构接盘游资出货，"机构买游资卖"格局。</div>
+                <div class="signal-card-criteria">
+                    <strong>判断条件：</strong>机构净买 ≥ 1000万 且 游资净卖 ≥ 1000万<br>
+                    <strong>市场含义：</strong>游资获利了结离场，但机构愿意接盘。短期可能调整，但中期可能有机构托底。如果是下跌中的机构接盘，可能是机构吸筹信号。<br>
+                    <strong>操作建议：</strong>关注中期机会，但短期需等待企稳信号，不急于介入。
+                </div>
+            </div>
+
+            <h3 id="sec2-2">⚡ 5类细分信号</h3>
+
+            <h4>🏢 机构独食（机构独买）</h4>
+            <div class="highlight-box blue">
+                <p><strong>定义：</strong>机构净买 ≥ 5000万，且游资净买卖绝对值 &lt; 1500万</p>
+                <p><strong>含义：</strong>只有机构在买入，游资没有参与。说明是机构的独立判断，不依赖题材炒作，纯粹的基本面驱动。这类股票往往走慢牛行情，不会暴涨但持续性好。</p>
+                <p><strong>典型场景：</strong>机构调研后集体建仓、业绩超预期、行业景气度向上的优质标的。</p>
+            </div>
+
+            <h4>⚡ 游资独食（游资独买）</h4>
+            <div class="highlight-box yellow">
+                <p><strong>定义：</strong>游资净买 ≥ 5000万，且机构净卖 &gt; 0（机构在卖出）</p>
+                <p><strong>含义：</strong>游资独自拉升，机构趁机出货。纯题材炒作，没有基本面支撑，行情来得快去得也快。</p>
+                <p><strong>典型场景：</strong>突发利好消息刺激、概念炒作、热点板块轮动中的游资主导行情。风险极高，普通投资者不宜追高。</p>
+            </div>
+
+            <h4>🚀 机构抢筹</h4>
+            <div class="highlight-box">
+                <p><strong>定义：</strong>机构净买 ≥ 1亿 且 净买占比 &gt; 10% 且 当日涨停（涨幅 ≥ 9.8%）</p>
+                <p><strong>含义：</strong>机构不计成本抢筹，且金额巨大、占比极高、直接拉涨停。这是非常强烈的看多信号，说明机构对该股极为看好。</p>
+                <p><strong>典型场景：</strong>重大利好公告后机构抢筹、行业政策重大利好龙头股、业绩大超预期等。这种信号可靠性高，但追高需谨慎。</p>
+            </div>
+
+            <h4>📉 机构派发</h4>
+            <div class="highlight-box green">
+                <p><strong>定义：</strong>机构净卖 ≥ 1亿 且 量比 &gt; 1.5 且 当日下跌</p>
+                <p><strong>含义：</strong>机构放量出货，金额巨大且伴随放量下跌。这是非常危险的信号，机构在不计成本出逃。</p>
+                <p><strong>典型场景：</strong>基本面恶化、业绩爆雷、监管利空、机构调仓换股。遇到这种信号必须高度警惕，切勿抄底。</p>
+            </div>
+
+            <h4>🔻 低吸信号</h4>
+            <div class="highlight-box purple">
+                <p><strong>定义：</strong>机构净买 &gt; 0 且 游资净买 &gt; 0 且 当日收阴线（跌幅 &gt; 0）</p>
+                <p><strong>含义：</strong>机游共振净买入，但股价当天是下跌的。说明资金在暗中吸筹，主力借下跌吃货。如果后续能企稳，往往有不错的上涨空间。</p>
+                <p><strong>典型场景：</strong>大盘调整时优质股被错杀、主力洗盘吸筹、利空出尽前的潜伏。这是一个逆向投资的思路，但要结合大环境判断。</p>
+            </div>
+
+            <h3 id="sec2-3">📈 信号强度分级</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>强度等级</th>
+                        <th>信号组合</th>
+                        <th>可靠度</th>
+                        <th>预期收益周期</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="color:#f85149;font-weight:600;">★★★★★</td>
+                        <td>机游共振买入 + 机构抢筹</td>
+                        <td>高</td>
+                        <td>短中期</td>
+                    </tr>
+                    <tr>
+                        <td style="color:#da3633;font-weight:600;">★★★★</td>
+                        <td>机游共振买入</td>
+                        <td>较高</td>
+                        <td>中期</td>
+                    </tr>
+                    <tr>
+                        <td style="color:#d29922;font-weight:600;">★★★</td>
+                        <td>机构独食 / 低吸信号</td>
+                        <td>中等</td>
+                        <td>中长线</td>
+                    </tr>
+                    <tr>
+                        <td style="color:#a371f7;font-weight:600;">★★</td>
+                        <td>机构接盘游资出货</td>
+                        <td>较低</td>
+                        <td>中长期</td>
+                    </tr>
+                    <tr>
+                        <td style="color:#8b949e;font-weight:600;">★</td>
+                        <td>游资独食 / 机构出货游资接盘</td>
+                        <td>低</td>
+                        <td>超短线</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- 第三章 -->
+            <h2 id="sec3"><span class="icon">📏</span> 三、阈值说明</h2>
+
+            <h3 id="sec3-1">💰 金额阈值</h3>
+            <p>本系统采用的核心金额阈值如下：</p>
+            <ul>
+                <li><strong>机构净买≥2000万：</strong>机构单日净买入达到2000万元以上，才算有意义的机构买入行为。低于这个金额可能只是零散交易，不具备信号价值。</li>
+                <li><strong>游资净买≥1500万：</strong>游资单日净买入达到1500万元以上，才算游资实质性介入。游资资金量普遍小于机构，因此阈值稍低。</li>
+                <li><strong>机构独食≥5000万：</strong>机构独立买入5000万以上，才算"独食"级别的机构重仓买入，体现机构的强烈看好。</li>
+                <li><strong>机构抢筹≥1亿：</strong>1亿元是A股龙虎榜机构买入的"大资金门槛，能达到这个量级说明机构关注度极高。</li>
+            </ul>
+
+            <div class="highlight-box">
+                <div class="highlight-box-title">💡 阈值设定的依据</div>
+                <p>2000万/1500万的阈值是基于A股龙虎榜数据的统计得出的。龙虎榜每日上榜股票中，机构净买超过2000万的个股约占机构上榜个股的30%左右，游资净买超过1500万的约占游资上榜个股的25%左右。这个比例既能筛选出有意义的资金动向，又不会太过稀少失去参考价值。</p>
+                <p>阈值并非一成不变，会根据市场整体成交额水平动态调整思路。在成交额显著放量的牛市中，可以适当提高阈值标准；在缩量行情中，可以适当降低。</p>
+            </div>
+
+            <h3 id="sec3-2">📊 净买占比阈值（&gt;5%）</h3>
+            <p><strong>定义：</strong>净买占比 = （机构或游资净买额 / 当日成交额 × 100%</p>
+            <p><strong>5%的意义：</strong></p>
+            <ul>
+                <li>净买占比 &gt; 5% 说明该资金对当日股价有<strong>显著影响</strong>，不是边缘化的买卖</li>
+                <li>占比越高，说明资金介入程度越深，后续走势受该资金行为影响越大</li>
+                <li>占比低（&lt;3%）即使绝对金额大，也可能只是多空双方中的一方，参考意义有限</li>
+            </ul>
+
+            <div class="highlight-box blue">
+                <div class="highlight-box-title">📐 为什么用净买占比而非绝对金额</div>
+                <p>绝对金额有局限性：大盘股每天成交几十亿，几千万只是九牛一毛；小盘股成交几个亿，几千万就能拉涨停。净买占比消除了市值和成交量的影响，更能反映资金对股价的真实影响力。</p>
+                <p>但也要注意：占比极高（&gt;30%）的股票往往流动性差，大资金进出困难，容易出现"买得进卖不出"的问题。</p>
+            </div>
+
+            <!-- 第四章 -->
+            <h2 id="sec4"><span class="icon">🎮</span> 四、实战指南</h2>
+
+            <h3 id="sec4-1">📋 信号使用流程</h3>
+            <ol>
+                <li><strong>第一步：看整体环境</strong>
+                    <p>先判断当前市场处于什么阶段（牛市/熊市/震荡市），不同环境下信号的有效性差异很大。</p>
+                </li>
+                <li><strong>第二步：筛选高等级信号</strong>
+                    <p>优先关注★★★★以上的信号（机游共振买入、机构抢筹），这些信号可靠度高。</p>
+                </li>
+                <li><strong>第三步：结合行业景气度</strong>
+                    <p>同一信号出现在景气度向上的行业，成功率远高于下行行业。行业β的力量远大于个股α。</p>
+                </li>
+                <li><strong>第四步：看个股基本面</strong>
+                    <p>对筛选出的股票进行基本面验证（估值、业绩、成长性等），排除雷区。</p>
+                </li>
+                <li><strong>第五步：等待介入时机</strong>
+                    <p>信号出现≠立即买入，等待回调企稳、回踩支撑等更优买点。</p>
+                </li>
+                <li><strong>第六步：制定止损止盈</strong>
+                    <p>任何交易都要有明确的止损止盈计划，严格执行纪律。</p>
+                </li>
+            </ol>
+
+            <h3 id="sec4-2">📈 不同市场环境下的信号权重</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>市场环境</th>
+                        <th>机构信号权重</th>
+                        <th>游资信号权重</th>
+                        <th>北向信号权重</th>
+                        <th>操作策略</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>牛市</strong></td>
+                        <td>★★★</td>
+                        <td>★★★★★</td>
+                        <td>★★★</td>
+                        <td>积极参与游资主导的题材行情，但注意节奏</td>
+                    </tr>
+                    <tr>
+                        <td><strong>震荡市</strong></td>
+                        <td>★★★★★</td>
+                        <td>★★</td>
+                        <td>★★★★</td>
+                        <td>精选机构加仓的优质标的，低吸为主</td>
+                    </tr>
+                    <tr>
+                        <td><strong>熊市/下跌市</strong></td>
+                        <td>★★★★</td>
+                        <td>★</td>
+                        <td>★★★</td>
+                        <td>防御为主，关注机构逆势加仓的抗跌股</td>
+                    </tr>
+                    <tr>
+                        <td><strong>反弹行情</strong></td>
+                        <td>★★★</td>
+                        <td>★★★★</td>
+                        <td>★★★★</td>
+                        <td>北向和机构先行指标参考意义大</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 id="sec4-3">⚠️ 风险提示</h3>
+            <div class="warning-box">
+                <div class="warning-title">🚨 重要风险提示</div>
+                <p><strong>1. 龙虎榜数据有滞后性：</strong>龙虎榜盘后公布，你看到的时候交易已经发生。第二天买入可能正好给别人抬轿子。</p>
+                <p><strong>2. 信号≠必涨：</strong>任何信号都有失败概率，市场环境、行业变化、突发事件都可能改变走势。</p>
+                <p><strong>3. 游资一日游：</strong>很多游资是打板第二天就走，追高买入很容易被套。</p>
+                <p><strong>4. 机构也会犯错：</strong>机构不是神，也会看错，也会止损割肉。</p>
+                <p><strong>5. 数据不全：</strong>龙虎榜只披露上榜股票的数据，没上榜不代表没有资金运作。</p>
+                <p><strong>6. 谨防诱多诱空：</strong>主力资金可能利用龙虎榜做骗线，制造假象诱骗散户。</p>
+            </div>
+
+            <div class="highlight-box green">
+                <div class="highlight-box-title">✅ 正确使用心态</div>
+                <p>龙虎榜信号是辅助工具，不是圣杯。它帮你缩小研究范围，提供观察视角，最终决策还要靠自己的综合判断。把信号当线索，不当答案；当参考，不当指令。投资有风险，入市需谨慎。</p>
+            </div>
+
+            <!-- 第五章 -->
+            <h2 id="sec5"><span class="icon">📡</span> 五、数据来源说明</h2>
+
+            <h3 id="sec5-1">🏛️ 东方财富龙虎榜API</h3>
+            <p><strong>数据来源：</strong>东方财富网龙虎榜数据中心官方数据接口</p>
+            <p><strong>包含数据：</strong></p>
+            <ul>
+                <li>每日龙虎榜上榜股票名单（涨跌幅、换手率、成交额等）</li>
+                <li>买入营业部明细（营业部名称、买入金额）</li>
+                <li>卖出营业部明细（营业部名称、卖出金额）</li>
+                <li>机构专用席位买卖数据</li>
+                <li>沪股通/深股通专用席位买卖数据</li>
+            </ul>
+            <p><strong>更新时间：</strong>每个交易日收盘后约16:30-17:00陆续更新，17:30左右基本完整。</p>
+
+            <h3 id="sec5-2">📈 腾讯gtimg行情接口</h3>
+            <p><strong>数据来源：</strong>腾讯财经行情数据接口（qt.gtimg.cn）</p>
+            <p><strong>补充数据：</strong></p>
+            <ul>
+                <li>实时/最新股价、涨跌幅</li>
+                <li>成交量、成交额</li>
+                <li>换手率、量比</li>
+                <li>市盈率、市净率</li>
+                <li>总市值、流通市值</li>
+            </ul>
+            <p><strong>用途：</strong>计算净买占比、量比等辅助指标，丰富信号维度。</p>
+
+            <h3 id="sec5-3">⚠️ 数据局限性</h3>
+            <ul>
+                <li><strong>只覆盖上榜股票：</strong>龙虎榜每日仅披露满足条件的股票（日涨跌幅±7%、换手率20%等），大量股票不在榜单上。</li>
+                <li><strong>T+1披露：</strong>盘后才能看到数据，第二天操作有滞后。</li>
+                <li><strong>只披露前五：</strong>买卖前五名，不代表全部机构/游资动向。</li>
+                <li><strong>席位识别有误差：</strong>知名游资席位是基于历史经验匹配的，可能有误差（同一营业部可能有多路资金）。</li>
+                <li><strong>北向席位口径：</strong>北向资金是龙虎榜上的沪股通/深股通专用席位数据，与每日北向资金净流入额口径不同（后者是全口径）。</li>
+                <li><strong>不构成投资建议：</strong>所有数据和分析仅供学习研究，不构成任何投资建议。</li>
+            </ul>
+
+            <div style="margin-top:40px;padding-top:20px;border-top:1px solid #30363d;text-align:center;color:#6e7681;font-size:12px;">
+                <p>本页面内容由AI生成，仅供学习参考，不构成投资建议。</p>
+                <p>投资有风险，入市需谨慎。</p>
+            </div>
+        </div>
+    </div>
+
+    <button class="back-top" id="backTop" onclick="scrollToTop()" title="回到顶部">↑</button>
+
+    <script>
+    // 目录高亮
+    var sections = document.querySelectorAll('h2[id], h3[id]');
+    var tocLinks = document.querySelectorAll('.toc-link');
+
+    function updateToc() {
+        var scrollPos = window.scrollY + 100;
+        var current = '';
+        sections.forEach(function(sec) {
+            if (sec.offsetTop <= scrollPos) {
+                current = sec.id;
+            }
+        });
+        tocLinks.forEach(function(link) {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === '#' + current) {
+                link.classList.add('active');
+            }
+        });
+    }
+
+    window.addEventListener('scroll', function() {
+        updateToc();
+        // 回到顶部按钮
+        var backTop = document.getElementById('backTop');
+        if (window.scrollY > 300) {
+            backTop.style.display = 'block';
+        } else {
+            backTop.style.display = 'none';
+        }
+    });
+
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 平滑滚动
+    document.querySelectorAll('.toc-link').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            var targetId = this.getAttribute('href').substring(1);
+            var target = document.getElementById(targetId);
+            if (target) {
+                window.scrollTo({
+                    top: target.offsetTop - 20,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+    </script>
+</body>
+</html>

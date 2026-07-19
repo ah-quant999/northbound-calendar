@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>北向资金分析</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #0d1117;
+            min-height: 100vh;
+            padding: 20px;
+            color: #c9d1d9;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #161b22;
+            border-radius: 12px;
+            border: 1px solid #30363d;
+            padding: 30px;
+        }
+        .header {
+            text-align: center;
+            padding: 15px 0 20px;
+            border-bottom: 1px solid #30363d;
+            margin-bottom: 25px;
+        }
+        .header h1 {
+            font-size: 26px;
+            font-weight: 600;
+            color: #58a6ff;
+            margin-bottom: 6px;
+        }
+        .header .subtitle {
+            color: #8b949e;
+            font-size: 13px;
+        }
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            color: #8b949e;
+        }
+        .breadcrumb a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        .breadcrumb .current {
+            color: #58a6ff;
+            font-weight: 600;
+        }
+        .update-time {
+            text-align: center;
+            color: #6e7681;
+            font-size: 12px;
+            margin-bottom: 25px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #f0f6fc;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-sub {
+            font-size: 12px;
+            font-weight: normal;
+            color: #6e7681;
+            margin-left: 8px;
+        }
+
+        /* 周期切换 */
+        .period-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .period-label {
+            font-size: 13px;
+            color: #8b949e;
+        }
+        .period-btn {
+            background: #21262d;
+            border: 1px solid #30363d;
+            color: #8b949e;
+            padding: 5px 14px;
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .period-btn:hover {
+            background: #30363d;
+            color: #c9d1d9;
+        }
+        .period-btn.active {
+            background: rgba(88, 166, 255, 0.15);
+            border-color: #58a6ff;
+            color: #58a6ff;
+            font-weight: 500;
+        }
+
+        /* 行业板块 */
+        .industry-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+        .industry-box {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 14px 16px;
+        }
+        .industry-box-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #58a6ff;
+        }
+        .industry-item {
+            display: flex;
+            align-items: center;
+            padding: 5px 0;
+            font-size: 13px;
+            border-bottom: 1px solid #21262d;
+        }
+        .industry-item:last-child { border-bottom: none; }
+        .industry-name {
+            width: 110px;
+            flex-shrink: 0;
+            color: #c9d1d9;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .industry-bar {
+            flex: 1;
+            height: 18px;
+            background: #21262d;
+            border-radius: 3px;
+            margin: 0 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        .industry-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+        .industry-bar-fill.buy { background: linear-gradient(90deg, #58a6ff, #1f6feb); }
+        .industry-bar-fill.sell { background: linear-gradient(90deg, #238636, #2ea043); }
+        .industry-amount {
+            width: 80px;
+            text-align: right;
+            flex-shrink: 0;
+            font-size: 12px;
+        }
+        .up { color: #f85149; }
+        .down { color: #3fb950; }
+        .empty {
+            color: #6e7681;
+            font-size: 13px;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        /* 排名表格 */
+        .rank-table-wrap {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .rank-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .rank-table th {
+            background: #161b22;
+            color: #8b949e;
+            font-weight: 500;
+            font-size: 12px;
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #30363d;
+        }
+        .rank-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #21262d;
+            color: #c9d1d9;
+        }
+        .rank-table tr:last-child td {
+            border-bottom: none;
+        }
+        .rank-table tr:hover td {
+            background: #161b22;
+        }
+        .rank-num {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            border-radius: 50%;
+            background: #21262d;
+            color: #8b949e;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .rank-num.top1 { background: linear-gradient(135deg, #f0b429, #d4a017); color: #0d1117; }
+        .rank-num.top2 { background: linear-gradient(135deg, #a0aec0, #718096); color: #0d1117; }
+        .rank-num.top3 { background: linear-gradient(135deg, #c05621, #9c4221); color: #0d1117; }
+        .stock-code {
+            color: #6e7681;
+            font-size: 11px;
+            margin-left: 4px;
+            font-weight: normal;
+        }
+
+        /* 双栏表格区域 */
+        .dual-table-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+        .dual-table-box {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .dual-table-title {
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #f0f6fc;
+            border-bottom: 1px solid #21262d;
+        }
+        .dual-table-title.buy { color: #58a6ff; }
+        .dual-table-title.sell { color: #3fb950; }
+        .dual-table-box .rank-table {
+            font-size: 12px;
+        }
+        .dual-table-box .rank-table th,
+        .dual-table-box .rank-table td {
+            padding: 8px 12px;
+        }
+
+        /* 热度指数 */
+        .heat-index-wrap {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .heat-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .heat-stat-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        .heat-stat-label {
+            font-size: 12px;
+            color: #8b949e;
+            margin-bottom: 8px;
+        }
+        .heat-stat-value {
+            font-size: 22px;
+            font-weight: 600;
+            color: #f0f6fc;
+        }
+        .heat-stat-value.up { color: #58a6ff; }
+        .heat-stat-value.down { color: #3fb950; }
+        .heat-daily-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .heat-daily-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #21262d;
+            font-size: 13px;
+        }
+        .heat-daily-item:last-child {
+            border-bottom: none;
+        }
+        .heat-daily-date {
+            color: #8b949e;
+            width: 100px;
+            flex-shrink: 0;
+        }
+        .heat-daily-metrics {
+            display: flex;
+            gap: 20px;
+            flex: 1;
+            justify-content: flex-end;
+        }
+        .heat-daily-metrics span {
+            font-size: 12px;
+            min-width: 90px;
+            text-align: right;
+        }
+
+        /* 滚动条 */
+        .heat-daily-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .heat-daily-list::-webkit-scrollbar-track {
+            background: #161b22;
+        }
+        .heat-daily-list::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 3px;
+        }
+
+        @media (max-width: 768px) {
+            .industry-grid, .dual-table-grid {
+                grid-template-columns: 1fr;
+            }
+            .container {
+                padding: 15px;
+            }
+            body {
+                padding: 10px;
+            }
+            .heat-stats {
+                grid-template-columns: 1fr;
+            }
+            .rank-table th, .rank-table td {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="breadcrumb">
+                <a href="北向资金日历.html">北向资金日历</a>
+                <span>›</span>
+                <span class="current">深度分析</span>
+            </div>
+            <h1>🌊 北向资金深度分析</h1>
+            <div class="subtitle">基于龙虎榜北向席位数据的趋势与共振分析</div>
+        </div>
+
+        <div class="update-time" id="update-time">--</div>
+
+        <!-- 周期切换 -->
+        <div class="period-toggle">
+            <span class="period-label">统计周期：</span>
+            <button class="period-btn active" onclick="switchPeriod('week')" id="period-week">近7日</button>
+            <button class="period-btn" onclick="switchPeriod('month')" id="period-month">近30日</button>
+        </div>
+
+        <!-- ① 行业配置趋势 -->
+        <div class="section">
+            <div class="section-title">🏭 行业配置趋势</div>
+            <div class="industry-grid" id="nb-industry-grid">
+                <!-- JS动态渲染 -->
+            </div>
+        </div>
+
+        <!-- ② 北向连续加仓个股 -->
+        <div class="section">
+            <div class="section-title">📈 北向连续加仓榜 <span class="section-sub">连续2天及以上北向净买入≥1000万</span></div>
+            <div class="rank-table-wrap" id="nb-continuous">
+                <!-- JS动态渲染 -->
+            </div>
+        </div>
+
+        <!-- ③ 北向+机构共振 -->
+        <div class="section">
+            <div class="section-title">🤝 北向+机构共振 <span class="section-sub">同时被北向与机构净买入</span></div>
+            <div class="rank-table-wrap" id="nb-inst-resonance">
+                <!-- JS动态渲染 -->
+            </div>
+        </div>
+
+        <!-- ④ 北向持仓变化榜 -->
+        <div class="section">
+            <div class="section-title">📊 北向持仓变化榜</div>
+            <div class="dual-table-grid" id="nb-holding-change">
+                <!-- JS动态渲染 -->
+            </div>
+        </div>
+
+        <!-- ⑤ 北向热度指数 -->
+        <div class="section">
+            <div class="section-title">🌡️ 北向热度指数</div>
+            <div class="heat-index-wrap" id="nb-heat-index">
+                <!-- JS动态渲染 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // ========== 数据 ==========
+    // __NB_DATA_INJECT__
+    nbAnalysis = {"week":{"industry_trend":{"top_buy":[{"industry":"未分类","net_buy_wan":2648894.27}],"top_sell":[],"has_industry_data":false},"continuous_buy":[{"code":"603538","name":"美诺华","streak_days":4,"total_net_wan":115140.06,"change_pct":-9.99},{"code":"600288","name":"大恒科技","streak_days":4,"total_net_wan":36258.68,"change_pct":-9.99},{"code":"600353","name":"旭光电子","streak_days":3,"total_net_wan":57236.44,"change_pct":-9.99},{"code":"600403","name":"大有能源","streak_days":3,"total_net_wan":10638.36,"change_pct":-8.57},{"code":"002185","name":"华天科技","streak_days":2,"total_net_wan":135790.35,"change_pct":-10.0},{"code":"600172","name":"黄河旋风","streak_days":2,"total_net_wan":121878.86,"change_pct":-7.69},{"code":"688333","name":"铂力特","streak_days":2,"total_net_wan":48681.18,"change_pct":-11.32},{"code":"002317","name":"众生药业","streak_days":2,"total_net_wan":35636.7,"change_pct":-5.44},{"code":"603127","name":"昭衍新药","streak_days":2,"total_net_wan":26146.06,"change_pct":-9.99},{"code":"688710","name":"益诺思","streak_days":2,"total_net_wan":20430.13,"change_pct":-14.59},{"code":"688166","name":"博瑞医药","streak_days":2,"total_net_wan":19929.87,"change_pct":-9.46},{"code":"603757","name":"大元泵业","streak_days":2,"total_net_wan":17955.95,"change_pct":-3.96},{"code":"002739","name":"儒意电影","streak_days":2,"total_net_wan":12781.11,"change_pct":-2.23},{"code":"002552","name":"宝鼎科技","streak_days":2,"total_net_wan":11910.42,"change_pct":-9.99},{"code":"600227","name":"赤天化","streak_days":2,"total_net_wan":11520.85,"change_pct":10.07},{"code":"601608","name":"中信重工","streak_days":2,"total_net_wan":9519.7,"change_pct":-6.25},{"code":"603313","name":"梦百合","streak_days":2,"total_net_wan":9132.19,"change_pct":-6.49},{"code":"300065","name":"海兰信","streak_days":2,"total_net_wan":8987.77,"change_pct":-8.26},{"code":"600162","name":"香江控股","streak_days":2,"total_net_wan":7843.68,"change_pct":10.07},{"code":"600129","name":"太极集团","streak_days":2,"total_net_wan":6166.85,"change_pct":-8.0}],"resonance":[{"code":"688432","name":"有研硅","nb_net_wan":78083.59,"inst_net_wan":869141.84,"resonance_strength":947225.43},{"code":"688072","name":"拓荆科技","nb_net_wan":60498.9,"inst_net_wan":464797.3,"resonance_strength":525296.2},{"code":"002156","name":"通富微电","nb_net_wan":89473.65,"inst_net_wan":132168.89,"resonance_strength":221642.54},{"code":"000938","name":"紫光股份","nb_net_wan":151360.81,"inst_net_wan":57103.8,"resonance_strength":208464.61},{"code":"002558","name":"巨人网络","nb_net_wan":69592.86,"inst_net_wan":127492.37,"resonance_strength":197085.23},{"code":"002463","name":"沪电股份","nb_net_wan":63944.96,"inst_net_wan":119463.28,"resonance_strength":183408.24},{"code":"688249","name":"晶合集成","nb_net_wan":34422.04,"inst_net_wan":146882.97,"resonance_strength":181305.01},{"code":"603538","name":"美诺华","nb_net_wan":105422.48,"inst_net_wan":65967.34,"resonance_strength":171389.82},{"code":"000636","name":"风华高科","nb_net_wan":77129.09,"inst_net_wan":82474.96,"resonance_strength":159604.05},{"code":"002202","name":"金风科技","nb_net_wan":42791.86,"inst_net_wan":69930.82,"resonance_strength":112722.68},{"code":"000977","name":"浪潮信息","nb_net_wan":78889.97,"inst_net_wan":24037.76,"resonance_strength":102927.73},{"code":"688048","name":"长光华芯","nb_net_wan":21887.67,"inst_net_wan":60214.06,"resonance_strength":82101.73},{"code":"000887","name":"中鼎股份","nb_net_wan":47083.92,"inst_net_wan":23843.44,"resonance_strength":70927.36},{"code":"002841","name":"视源股份","nb_net_wan":36601.66,"inst_net_wan":26681.51,"resonance_strength":63283.17},{"code":"688319","name":"欧林生物","nb_net_wan":2312.91,"inst_net_wan":55271.47,"resonance_strength":57584.38},{"code":"300236","name":"上海新阳","nb_net_wan":19716.86,"inst_net_wan":37577.99,"resonance_strength":57294.85},{"code":"002281","name":"光迅科技","nb_net_wan":1232.63,"inst_net_wan":55126.95,"resonance_strength":56359.58},{"code":"600186","name":"莲花控股","nb_net_wan":25716.71,"inst_net_wan":24068.94,"resonance_strength":49785.65},{"code":"002851","name":"麦格米特","nb_net_wan":4299.82,"inst_net_wan":42130.45,"resonance_strength":46430.27},{"code":"300231","name":"银信科技","nb_net_wan":6095.13,"inst_net_wan":36848.39,"resonance_strength":42943.52}],"holding_change":{"top_buy":[{"code":"603986","name":"兆易创新","net_wan":264464.35},{"code":"688008","name":"澜起科技","net_wan":160822.36},{"code":"000938","name":"紫光股份","net_wan":151360.81},{"code":"600172","name":"黄河旋风","net_wan":121878.86},{"code":"603538","name":"美诺华","net_wan":105422.47999999998},{"code":"600667","name":"太极实业","net_wan":102517.03},{"code":"002156","name":"通富微电","net_wan":89473.65},{"code":"000977","name":"浪潮信息","net_wan":78889.97},{"code":"688432","name":"有研硅","net_wan":78083.59},{"code":"000636","name":"风华高科","net_wan":77129.09}],"top_sell":[{"code":"002432","name":"九安医疗","net_sell_wan":39878.12},{"code":"000021","name":"深科技","net_sell_wan":35148.02},{"code":"002821","name":"凯莱英","net_sell_wan":32778.14},{"code":"688146","name":"中船特气","net_sell_wan":23344.77},{"code":"002497","name":"雅化集团","net_sell_wan":22615.78},{"code":"002980","name":"华盛昌","net_sell_wan":20242.53},{"code":"600879","name":"航天电子","net_sell_wan":17262.7},{"code":"002396","name":"星网锐捷","net_sell_wan":16633.59},{"code":"300475","name":"香农芯创","net_sell_wan":13618.53},{"code":"002208","name":"合肥城建","net_sell_wan":12653.78}]},"heat_index":{"daily":[{"date":"2026-07-09","stock_count":42,"buy_count":31,"sell_count":11,"total_net_wan":668027.16},{"date":"2026-07-10","stock_count":46,"buy_count":38,"sell_count":8,"total_net_wan":835757.38},{"date":"2026-07-13","stock_count":44,"buy_count":30,"sell_count":14,"total_net_wan":292556.5},{"date":"2026-07-14","stock_count":36,"buy_count":22,"sell_count":14,"total_net_wan":210493.07},{"date":"2026-07-15","stock_count":46,"buy_count":31,"sell_count":15,"total_net_wan":101911.74},{"date":"2026-07-16","stock_count":43,"buy_count":28,"sell_count":15,"total_net_wan":302287.97},{"date":"2026-07-17","stock_count":40,"buy_count":25,"sell_count":15,"total_net_wan":237860.45}],"avg_stocks":42.4,"avg_net_wan":378413.47}},"month":{"industry_trend":{"top_buy":[{"industry":"未分类","net_buy_wan":5212143.09}],"top_sell":[],"has_industry_data":false},"continuous_buy":[{"code":"603538","name":"美诺华","streak_days":8,"total_net_wan":163091.25,"change_pct":-9.99},{"code":"600288","name":"大恒科技","streak_days":7,"total_net_wan":85296.55,"change_pct":-9.99},{"code":"600172","name":"黄河旋风","streak_days":6,"total_net_wan":197961.73,"change_pct":-7.69},{"code":"002185","name":"华天科技","streak_days":3,"total_net_wan":200265.6,"change_pct":-10.0},{"code":"600378","name":"昊华科技","streak_days":3,"total_net_wan":164285.43,"change_pct":-3.7},{"code":"688432","name":"有研硅","streak_days":3,"total_net_wan":143404.7,"change_pct":5.19},{"code":"603078","name":"江化微","streak_days":3,"total_net_wan":112720.75,"change_pct":-4.99},{"code":"600353","name":"旭光电子","streak_days":3,"total_net_wan":57236.44,"change_pct":-9.99},{"code":"601678","name":"滨化股份","streak_days":3,"total_net_wan":42998.13,"change_pct":2.37},{"code":"603466","name":"风语筑","streak_days":3,"total_net_wan":34715.58,"change_pct":-5.43},{"code":"603757","name":"大元泵业","streak_days":3,"total_net_wan":22407.72,"change_pct":-3.96},{"code":"603313","name":"梦百合","streak_days":3,"total_net_wan":11022.73,"change_pct":-6.49},{"code":"600403","name":"大有能源","streak_days":3,"total_net_wan":10638.36,"change_pct":-8.57},{"code":"002384","name":"东山精密","streak_days":2,"total_net_wan":166158.5,"change_pct":-10.0},{"code":"600397","name":"江钨装备","streak_days":2,"total_net_wan":112834.15,"change_pct":-5.66},{"code":"000977","name":"浪潮信息","streak_days":2,"total_net_wan":88077.32,"change_pct":-8.94},{"code":"600105","name":"永鼎股份","streak_days":2,"total_net_wan":82581.66,"change_pct":-9.99},{"code":"688017","name":"绿的谐波","streak_days":2,"total_net_wan":73268.77,"change_pct":-13.87},{"code":"000962","name":"东方钽业","streak_days":2,"total_net_wan":57608.84,"change_pct":-7.42},{"code":"600707","name":"彩虹股份","streak_days":2,"total_net_wan":54205.87,"change_pct":-4.81}],"resonance":[{"code":"688432","name":"有研硅","nb_net_wan":143404.7,"inst_net_wan":869141.84,"resonance_strength":1012546.54},{"code":"688072","name":"拓荆科技","nb_net_wan":60498.9,"inst_net_wan":464797.3,"resonance_strength":525296.2},{"code":"000725","name":"京东方A","nb_net_wan":49638.41,"inst_net_wan":291549.35,"resonance_strength":341187.76},{"code":"603538","name":"美诺华","nb_net_wan":152066.09,"inst_net_wan":99767.91,"resonance_strength":251834.0},{"code":"002156","name":"通富微电","nb_net_wan":89473.65,"inst_net_wan":132168.89,"resonance_strength":221642.54},{"code":"002558","name":"巨人网络","nb_net_wan":69592.86,"inst_net_wan":127492.37,"resonance_strength":197085.23},{"code":"688249","name":"晶合集成","nb_net_wan":34422.04,"inst_net_wan":146882.97,"resonance_strength":181305.01},{"code":"000938","name":"紫光股份","nb_net_wan":150678.54,"inst_net_wan":12725.2,"resonance_strength":163403.74},{"code":"000636","name":"风华高科","nb_net_wan":77129.09,"inst_net_wan":82474.96,"resonance_strength":159604.05},{"code":"002245","name":"蔚蓝锂芯","nb_net_wan":40997.56,"inst_net_wan":111877.04,"resonance_strength":152874.6},{"code":"603078","name":"江化微","nb_net_wan":112720.75,"inst_net_wan":12636.89,"resonance_strength":125357.64},{"code":"002202","name":"金风科技","nb_net_wan":42791.86,"inst_net_wan":69930.82,"resonance_strength":112722.68},{"code":"688578","name":"艾力斯","nb_net_wan":23990.1,"inst_net_wan":88170.09,"resonance_strength":112160.19},{"code":"000977","name":"浪潮信息","nb_net_wan":88077.32,"inst_net_wan":13895.47,"resonance_strength":101972.79},{"code":"688266","name":"泽璟制药","nb_net_wan":12538.48,"inst_net_wan":87264.34,"resonance_strength":99802.82},{"code":"002326","name":"永太科技","nb_net_wan":53378.96,"inst_net_wan":43564.94,"resonance_strength":96943.9},{"code":"002463","name":"沪电股份","nb_net_wan":34477.18,"inst_net_wan":61623.15,"resonance_strength":96100.33},{"code":"002636","name":"金安国纪","nb_net_wan":36194.13,"inst_net_wan":59105.73,"resonance_strength":95299.86},{"code":"300821","name":"东岳硅材","nb_net_wan":19109.04,"inst_net_wan":64089.92,"resonance_strength":83198.96},{"code":"688048","name":"长光华芯","nb_net_wan":21887.67,"inst_net_wan":60214.06,"resonance_strength":82101.73}],"holding_change":{"top_buy":[{"code":"603986","name":"兆易创新","net_wan":264464.35},{"code":"600172","name":"黄河旋风","net_wan":197961.73000000004},{"code":"600378","name":"昊华科技","net_wan":164285.43},{"code":"688008","name":"澜起科技","net_wan":160822.36},{"code":"603538","name":"美诺华","net_wan":152066.09},{"code":"000938","name":"紫光股份","net_wan":150678.54},{"code":"688432","name":"有研硅","net_wan":143404.7},{"code":"600397","name":"江钨装备","net_wan":112834.15},{"code":"603078","name":"江化微","net_wan":112720.75},{"code":"002384","name":"东山精密","net_wan":109873.31999999999}],"top_sell":[{"code":"000988","name":"华工科技","net_sell_wan":76094.58},{"code":"002497","name":"雅化集团","net_sell_wan":40036.17},{"code":"002432","name":"九安医疗","net_sell_wan":39878.12},{"code":"300487","name":"蓝晓科技","net_sell_wan":37694.64},{"code":"002821","name":"凯莱英","net_sell_wan":32778.14},{"code":"002371","name":"北方华创","net_sell_wan":28102.86},{"code":"002422","name":"科伦药业","net_sell_wan":24823.49},{"code":"688146","name":"中船特气","net_sell_wan":23344.77},{"code":"002396","name":"星网锐捷","net_sell_wan":21961.93},{"code":"000592","name":"平潭发展","net_sell_wan":21030.4}]},"heat_index":{"daily":[{"date":"2026-07-02","stock_count":60,"buy_count":50,"sell_count":10,"total_net_wan":749539.81},{"date":"2026-07-03","stock_count":67,"buy_count":49,"sell_count":18,"total_net_wan":539242.83},{"date":"2026-07-06","stock_count":47,"buy_count":38,"sell_count":9,"total_net_wan":605721.43},{"date":"2026-07-07","stock_count":40,"buy_count":28,"sell_count":12,"total_net_wan":338906.57},{"date":"2026-07-08","stock_count":45,"buy_count":36,"sell_count":9,"total_net_wan":329838.18},{"date":"2026-07-09","stock_count":42,"buy_count":31,"sell_count":11,"total_net_wan":668027.16},{"date":"2026-07-10","stock_count":46,"buy_count":38,"sell_count":8,"total_net_wan":835757.38},{"date":"2026-07-13","stock_count":44,"buy_count":30,"sell_count":14,"total_net_wan":292556.5},{"date":"2026-07-14","stock_count":36,"buy_count":22,"sell_count":14,"total_net_wan":210493.07},{"date":"2026-07-15","stock_count":46,"buy_count":31,"sell_count":15,"total_net_wan":101911.74},{"date":"2026-07-16","stock_count":43,"buy_count":28,"sell_count":15,"total_net_wan":302287.97},{"date":"2026-07-17","stock_count":40,"buy_count":25,"sell_count":15,"total_net_wan":237860.45}],"avg_stocks":46.3,"avg_net_wan":434345.26}}};
+    nbDailyData = {"2026-07-02":{"date":"2026-07-02","stocks":[{"code":"000021","name":"深科技","buy":395275357.37,"sell":157589104.56,"net":237686252.81,"buy_wan":39527.54,"sell_wan":15758.91,"net_wan":23768.63},{"code":"000536","name":"华映科技","buy":48193403.11,"sell":16541102.0,"net":31652301.11,"buy_wan":4819.34,"sell_wan":1654.11,"net_wan":3165.23},{"code":"000601","name":"韶能股份","buy":43453492.0,"sell":28646141.99,"net":14807350.01,"buy_wan":4345.35,"sell_wan":2864.61,"net_wan":1480.74},{"code":"000700","name":"模塑科技","buy":248975867.44,"sell":187763613.64,"net":61212253.8,"buy_wan":24897.59,"sell_wan":18776.36,"net_wan":6121.23},{"code":"000725","name":"京东方A","buy":3248682290.6,"sell":2752298162.76,"net":496384127.84,"buy_wan":324868.23,"sell_wan":275229.82,"net_wan":49638.41},{"code":"000988","name":"华工科技","buy":284020826.72,"sell":1219660291.92,"net":-935639465.2,"buy_wan":28402.08,"sell_wan":121966.03,"net_wan":-93563.95},{"code":"001313","name":"粤海饲料","buy":23398468.0,"sell":9461190.0,"net":13937278.0,"buy_wan":2339.85,"sell_wan":946.12,"net_wan":1393.73},{"code":"002167","name":"东方锆业","buy":851352576.82,"sell":302652933.4,"net":548699643.42,"buy_wan":85135.26,"sell_wan":30265.29,"net_wan":54869.96},{"code":"002273","name":"水晶光电","buy":1002665577.0,"sell":902279698.63,"net":100385878.37,"buy_wan":100266.56,"sell_wan":90227.97,"net_wan":10038.59},{"code":"002326","name":"永太科技","buy":629183105.8,"sell":95393498.44,"net":533789607.36,"buy_wan":62918.31,"sell_wan":9539.35,"net_wan":53378.96},{"code":"002371","name":"北方华创","buy":1276145884.74,"sell":1557174494.18,"net":-281028609.44,"buy_wan":127614.59,"sell_wan":155717.45,"net_wan":-28102.86},{"code":"002384","name":"东山精密","buy":681461789.3,"sell":917851226.22,"net":-236389436.92,"buy_wan":68146.18,"sell_wan":91785.12,"net_wan":-23638.94},{"code":"002396","name":"星网锐捷","buy":147717713.52,"sell":84840589.9,"net":62877123.62,"buy_wan":14771.77,"sell_wan":8484.06,"net_wan":6287.71},{"code":"002407","name":"多氟多","buy":1443801381.97,"sell":869731895.99,"net":574069485.98,"buy_wan":144380.14,"sell_wan":86973.19,"net_wan":57406.95},{"code":"002463","name":"沪电股份","buy":565124807.41,"sell":859802559.0,"net":-294677751.59,"buy_wan":56512.48,"sell_wan":85980.26,"net_wan":-29467.78},{"code":"002522","name":"浙江众成","buy":38586882.21,"sell":29162080.88,"net":9424801.33,"buy_wan":3858.69,"sell_wan":2916.21,"net_wan":942.48},{"code":"002559","name":"亚威股份","buy":130145095.24,"sell":57727517.2,"net":72417578.04,"buy_wan":13014.51,"sell_wan":5772.75,"net_wan":7241.76},{"code":"002580","name":"圣阳股份","buy":149133138.85,"sell":62062427.5,"net":87070711.35,"buy_wan":14913.31,"sell_wan":6206.24,"net_wan":8707.07},{"code":"002635","name":"安洁科技","buy":288659241.2,"sell":89685421.52,"net":198973819.68,"buy_wan":28865.92,"sell_wan":8968.54,"net_wan":19897.38},{"code":"002653","name":"海思科","buy":74353443.4,"sell":94912628.53,"net":-20559185.13,"buy_wan":7435.34,"sell_wan":9491.26,"net_wan":-2055.92},{"code":"002738","name":"中矿资源","buy":823701561.38,"sell":818829795.35,"net":4871766.03,"buy_wan":82370.16,"sell_wan":81882.98,"net_wan":487.18},{"code":"002747","name":"埃斯顿","buy":636990552.81,"sell":395458435.84,"net":241532116.97,"buy_wan":63699.06,"sell_wan":39545.84,"net_wan":24153.21},{"code":"002842","name":"翔鹭钨业","buy":200118937.0,"sell":61228097.0,"net":138890840.0,"buy_wan":20011.89,"sell_wan":6122.81,"net_wan":13889.08},{"code":"002971","name":"和远气体","buy":32714443.0,"sell":5412792.0,"net":27301651.0,"buy_wan":3271.44,"sell_wan":541.28,"net_wan":2730.17},{"code":"002979","name":"雷赛智能","buy":83436170.0,"sell":67461469.5,"net":15974700.5,"buy_wan":8343.62,"sell_wan":6746.15,"net_wan":1597.47},{"code":"300071","name":"福石控股","buy":32651868.0,"sell":31540012.0,"net":1111856.0,"buy_wan":3265.19,"sell_wan":3154.0,"net_wan":111.19},{"code":"300740","name":"水羊股份","buy":60297432.83,"sell":48553323.24,"net":11744109.59,"buy_wan":6029.74,"sell_wan":4855.33,"net_wan":1174.41},{"code":"300765","name":"石药创新","buy":112798278.86,"sell":146850939.79,"net":-34052660.93,"buy_wan":11279.83,"sell_wan":14685.09,"net_wan":-3405.27},{"code":"301092","name":"争光股份","buy":83533849.58,"sell":23704552.0,"net":59829297.58,"buy_wan":8353.38,"sell_wan":2370.46,"net_wan":5982.93},{"code":"301611","name":"珂玛科技","buy":488224538.85,"sell":109501107.08,"net":378723431.77,"buy_wan":48822.45,"sell_wan":10950.11,"net_wan":37872.34},{"code":"301696","name":"三瑞智能","buy":132121447.81,"sell":146056217.48,"net":-13934769.67,"buy_wan":13212.14,"sell_wan":14605.62,"net_wan":-1393.48},{"code":"600105","name":"永鼎股份","buy":278223878.14,"sell":0.0,"net":278223878.14,"buy_wan":27822.39,"sell_wan":0.0,"net_wan":27822.39},{"code":"600237","name":"铜峰电子","buy":12955212.0,"sell":0.0,"net":12955212.0,"buy_wan":1295.52,"sell_wan":0.0,"net_wan":1295.52},{"code":"600366","name":"宁波韵升","buy":193892058.38,"sell":0.0,"net":193892058.38,"buy_wan":19389.21,"sell_wan":0.0,"net_wan":19389.21},{"code":"600378","name":"昊华科技","buy":734521553.43,"sell":0.0,"net":734521553.43,"buy_wan":73452.16,"sell_wan":0.0,"net_wan":73452.16},{"code":"600396","name":"华电辽能","buy":74369696.0,"sell":0.0,"net":74369696.0,"buy_wan":7436.97,"sell_wan":0.0,"net_wan":7436.97},{"code":"600490","name":"鹏欣资源","buy":48774501.7,"sell":0.0,"net":48774501.7,"buy_wan":4877.45,"sell_wan":0.0,"net_wan":4877.45},{"code":"601678","name":"滨化股份","buy":122379442.01,"sell":0.0,"net":122379442.01,"buy_wan":12237.94,"sell_wan":0.0,"net_wan":12237.94},{"code":"603078","name":"江化微","buy":661659158.54,"sell":0.0,"net":661659158.54,"buy_wan":66165.92,"sell_wan":0.0,"net_wan":66165.92},{"code":"603203","name":"快克智能","buy":162836164.31,"sell":0.0,"net":162836164.31,"buy_wan":16283.62,"sell_wan":0.0,"net_wan":16283.62},{"code":"603270","name":"金帝股份","buy":10452843.25,"sell":0.0,"net":10452843.25,"buy_wan":1045.28,"sell_wan":0.0,"net_wan":1045.28},{"code":"603416","name":"信捷电气","buy":55244193.36,"sell":0.0,"net":55244193.36,"buy_wan":5524.42,"sell_wan":0.0,"net_wan":5524.42},{"code":"603505","name":"金石资源","buy":138238136.62,"sell":0.0,"net":138238136.62,"buy_wan":13823.81,"sell_wan":0.0,"net_wan":13823.81},{"code":"603650","name":"彤程新材","buy":447745416.47,"sell":0.0,"net":447745416.47,"buy_wan":44774.54,"sell_wan":0.0,"net_wan":44774.54},{"code":"603823","name":"百合花","buy":143571423.96,"sell":0.0,"net":143571423.96,"buy_wan":14357.14,"sell_wan":0.0,"net_wan":14357.14},{"code":"605006","name":"山东玻纤","buy":42572568.21,"sell":0.0,"net":42572568.21,"buy_wan":4257.26,"sell_wan":0.0,"net_wan":4257.26},{"code":"605020","name":"永和股份","buy":163483138.03,"sell":0.0,"net":163483138.03,"buy_wan":16348.31,"sell_wan":0.0,"net_wan":16348.31},{"code":"605178","name":"时空科技","buy":131281840.2,"sell":0.0,"net":131281840.2,"buy_wan":13128.18,"sell_wan":0.0,"net_wan":13128.18},{"code":"688020","name":"方邦股份","buy":122206230.38,"sell":0.0,"net":122206230.38,"buy_wan":12220.62,"sell_wan":0.0,"net_wan":12220.62},{"code":"688068","name":"热景生物","buy":123419942.92,"sell":0.0,"net":123419942.92,"buy_wan":12341.99,"sell_wan":0.0,"net_wan":12341.99},{"code":"688160","name":"步科股份","buy":65302381.89,"sell":0.0,"net":65302381.89,"buy_wan":6530.24,"sell_wan":0.0,"net_wan":6530.24},{"code":"688221","name":"前沿生物","buy":34325940.59,"sell":0.0,"net":34325940.59,"buy_wan":3432.59,"sell_wan":0.0,"net_wan":3432.59},{"code":"688247","name":"宣泰医药","buy":6976346.67,"sell":0.0,"net":6976346.67,"buy_wan":697.63,"sell_wan":0.0,"net_wan":697.63},{"code":"688305","name":"科德数控","buy":141095629.19,"sell":0.0,"net":141095629.19,"buy_wan":14109.56,"sell_wan":0.0,"net_wan":14109.56},{"code":"688361","name":"中科飞测","buy":619599257.19,"sell":0.0,"net":619599257.19,"buy_wan":61959.93,"sell_wan":0.0,"net_wan":61959.93},{"code":"688409","name":"富创精密","buy":444093490.32,"sell":0.0,"net":444093490.32,"buy_wan":44409.35,"sell_wan":0.0,"net_wan":44409.35},{"code":"688432","name":"有研硅","buy":469705372.72,"sell":0.0,"net":469705372.72,"buy_wan":46970.54,"sell_wan":0.0,"net_wan":46970.54},{"code":"002458","name":"益生股份","buy":20649573.57,"sell":34642314.62,"net":-13992741.05,"buy_wan":2064.96,"sell_wan":3464.23,"net_wan":-1399.27},{"code":"603538","name":"美诺华","buy":0.0,"sell":13075839.0,"net":-13075839.0,"buy_wan":0.0,"sell_wan":1307.58,"net_wan":-1307.58},{"code":"605488","name":"福莱新材","buy":0.0,"sell":33545221.6,"net":-33545221.6,"buy_wan":0.0,"sell_wan":3354.52,"net_wan":-3354.52}],"total_net_wan":749539.81,"hk_holiday":false},"2026-07-03":{"date":"2026-07-03","stocks":[{"code":"000506","name":"招金黄金","buy":43286174.16,"sell":63581247.88,"net":-20295073.72,"buy_wan":4328.62,"sell_wan":6358.12,"net_wan":-2029.51},{"code":"000566","name":"海南海药","buy":53232096.11,"sell":22681009.7,"net":30551086.41,"buy_wan":5323.21,"sell_wan":2268.1,"net_wan":3055.11},{"code":"000592","name":"平潭发展","buy":28667524.0,"sell":238971559.87,"net":-210304035.87,"buy_wan":2866.75,"sell_wan":23897.16,"net_wan":-21030.4},{"code":"000975","name":"山金国际","buy":150153876.28,"sell":208823615.58,"net":-58669739.3,"buy_wan":15015.39,"sell_wan":20882.36,"net_wan":-5866.97},{"code":"002020","name":"京新药业","buy":30895518.4,"sell":53218281.7,"net":-22322763.3,"buy_wan":3089.55,"sell_wan":5321.83,"net_wan":-2232.28},{"code":"002056","name":"横店东磁","buy":418644212.58,"sell":250278150.44,"net":168366062.14,"buy_wan":41864.42,"sell_wan":25027.82,"net_wan":16836.61},{"code":"002106","name":"莱宝高科","buy":47368081.0,"sell":13848814.48,"net":33519266.52,"buy_wan":4736.81,"sell_wan":1384.88,"net_wan":3351.93},{"code":"002235","name":"安妮股份","buy":76244358.82,"sell":50077722.0,"net":26166636.82,"buy_wan":7624.44,"sell_wan":5007.77,"net_wan":2616.66},{"code":"002294","name":"信立泰","buy":304866711.32,"sell":322359362.27,"net":-17492650.95,"buy_wan":30486.67,"sell_wan":32235.94,"net_wan":-1749.27},{"code":"002353","name":"杰瑞股份","buy":324600157.56,"sell":254188156.26,"net":70412001.3,"buy_wan":32460.02,"sell_wan":25418.82,"net_wan":7041.2},{"code":"002354","name":"天娱数科","buy":483947092.7,"sell":139769703.88,"net":344177388.82,"buy_wan":48394.71,"sell_wan":13976.97,"net_wan":34417.74},{"code":"002384","name":"东山精密","buy":1956256079.12,"sell":840114827.7,"net":1116141251.42,"buy_wan":195625.61,"sell_wan":84011.48,"net_wan":111614.13},{"code":"002407","name":"多氟多","buy":422093132.69,"sell":915082023.34,"net":-492988890.65,"buy_wan":42209.31,"sell_wan":91508.2,"net_wan":-49298.89},{"code":"002422","name":"科伦药业","buy":142930646.33,"sell":391165537.47,"net":-248234891.14,"buy_wan":14293.06,"sell_wan":39116.55,"net_wan":-24823.49},{"code":"002472","name":"双环传动","buy":452075573.37,"sell":202840335.67,"net":249235237.7,"buy_wan":45207.56,"sell_wan":20284.03,"net_wan":24923.52},{"code":"002536","name":"飞龙股份","buy":247471821.93,"sell":115380989.41,"net":132090832.52,"buy_wan":24747.18,"sell_wan":11538.1,"net_wan":13209.08},{"code":"002559","name":"亚威股份","buy":128744125.26,"sell":135144324.02,"net":-6400198.76,"buy_wan":12874.41,"sell_wan":13514.43,"net_wan":-640.02},{"code":"002584","name":"西陇科学","buy":83894583.0,"sell":23207313.0,"net":60687270.0,"buy_wan":8389.46,"sell_wan":2320.73,"net_wan":6068.73},{"code":"002747","name":"埃斯顿","buy":298671654.68,"sell":425333001.05,"net":-126661346.37,"buy_wan":29867.17,"sell_wan":42533.3,"net_wan":-12666.13},{"code":"002772","name":"众兴菌业","buy":38808943.87,"sell":57006318.8,"net":-18197374.93,"buy_wan":3880.89,"sell_wan":5700.63,"net_wan":-1819.74},{"code":"002842","name":"翔鹭钨业","buy":287645478.24,"sell":296993700.0,"net":-9348221.76,"buy_wan":28764.55,"sell_wan":29699.37,"net_wan":-934.82},{"code":"002850","name":"科达利","buy":421514512.46,"sell":346902855.36,"net":74611657.1,"buy_wan":42151.45,"sell_wan":34690.29,"net_wan":7461.17},{"code":"002868","name":"绿康生化","buy":9276471.0,"sell":7569609.7,"net":1706861.3,"buy_wan":927.65,"sell_wan":756.96,"net_wan":170.69},{"code":"300018","name":"中元股份","buy":66275216.12,"sell":15144318.36,"net":51130897.76,"buy_wan":6627.52,"sell_wan":1514.43,"net_wan":5113.09},{"code":"300129","name":"泰胜风能","buy":56635950.46,"sell":36376121.11,"net":20259829.35,"buy_wan":5663.6,"sell_wan":3637.61,"net_wan":2025.98},{"code":"300139","name":"晓程科技","buy":131112333.71,"sell":105647383.5,"net":25464950.21,"buy_wan":13111.23,"sell_wan":10564.74,"net_wan":2546.5},{"code":"300487","name":"蓝晓科技","buy":302048373.8,"sell":678994740.88,"net":-376946367.08,"buy_wan":30204.84,"sell_wan":67899.47,"net_wan":-37694.64},{"code":"300580","name":"贝斯特","buy":240819637.10000002,"sell":139917645.23,"net":100901991.87,"buy_wan":24081.96,"sell_wan":13991.76,"net_wan":10090.2},{"code":"300607","name":"拓斯达","buy":503134794.64,"sell":623217015.09,"net":-120082220.45,"buy_wan":50313.48,"sell_wan":62321.7,"net_wan":-12008.22},{"code":"300695","name":"兆丰股份","buy":18830153.0,"sell":38894106.5,"net":-20063953.5,"buy_wan":1883.02,"sell_wan":3889.41,"net_wan":-2006.4},{"code":"300718","name":"长盛轴承","buy":278303276.88,"sell":75918307.5,"net":202384969.38,"buy_wan":27830.33,"sell_wan":7591.83,"net_wan":20238.5},{"code":"301379","name":"天山电子","buy":46233799.65,"sell":46702589.19,"net":-468789.54,"buy_wan":4623.38,"sell_wan":4670.26,"net_wan":-46.88},{"code":"301529","name":"福赛科技","buy":156417920.58,"sell":240898282.75,"net":-84480362.17,"buy_wan":15641.79,"sell_wan":24089.83,"net_wan":-8448.04},{"code":"301596","name":"瑞迪智驱","buy":58616784.2,"sell":28269693.32,"net":30347090.88,"buy_wan":5861.68,"sell_wan":2826.97,"net_wan":3034.71},{"code":"301696","name":"三瑞智能","buy":22425201.0,"sell":56703334.63,"net":-34278133.63,"buy_wan":2242.52,"sell_wan":5670.33,"net_wan":-3427.81},{"code":"600172","name":"黄河旋风","buy":237768847.06,"sell":0.0,"net":237768847.06,"buy_wan":23776.88,"sell_wan":0.0,"net_wan":23776.88},{"code":"600378","name":"昊华科技","buy":389776879.61,"sell":0.0,"net":389776879.61,"buy_wan":38977.69,"sell_wan":0.0,"net_wan":38977.69},{"code":"600397","name":"江钨装备","buy":315588610.6,"sell":0.0,"net":315588610.6,"buy_wan":31558.86,"sell_wan":0.0,"net_wan":31558.86},{"code":"600530","name":"交大昂立","buy":6774249.0,"sell":0.0,"net":6774249.0,"buy_wan":677.42,"sell_wan":0.0,"net_wan":677.42},{"code":"600545","name":"卓郎智能","buy":77225444.88,"sell":0.0,"net":77225444.88,"buy_wan":7722.54,"sell_wan":0.0,"net_wan":7722.54},{"code":"600552","name":"凯盛科技","buy":270232478.46,"sell":0.0,"net":270232478.46,"buy_wan":27023.25,"sell_wan":0.0,"net_wan":27023.25},{"code":"600707","name":"彩虹股份","buy":131163837.54,"sell":0.0,"net":131163837.54,"buy_wan":13116.38,"sell_wan":0.0,"net_wan":13116.38},{"code":"600988","name":"赤峰黄金","buy":80821387.02,"sell":0.0,"net":80821387.02,"buy_wan":8082.14,"sell_wan":0.0,"net_wan":8082.14},{"code":"601678","name":"滨化股份","buy":59369312.6,"sell":0.0,"net":59369312.6,"buy_wan":5936.93,"sell_wan":0.0,"net_wan":5936.93},{"code":"603078","name":"江化微","buy":251796123.8,"sell":0.0,"net":251796123.8,"buy_wan":25179.61,"sell_wan":0.0,"net_wan":25179.61},{"code":"603135","name":"中重科技","buy":81238833.76,"sell":0.0,"net":81238833.76,"buy_wan":8123.88,"sell_wan":0.0,"net_wan":8123.88},{"code":"603178","name":"圣龙股份","buy":6337500.0,"sell":0.0,"net":6337500.0,"buy_wan":633.75,"sell_wan":0.0,"net_wan":633.75},{"code":"603270","name":"金帝股份","buy":7697894.0,"sell":0.0,"net":7697894.0,"buy_wan":769.79,"sell_wan":0.0,"net_wan":769.79},{"code":"603286","name":"日盈电子","buy":28342167.6,"sell":0.0,"net":28342167.6,"buy_wan":2834.22,"sell_wan":0.0,"net_wan":2834.22},{"code":"603338","name":"浙江鼎力","buy":145651527.64,"sell":0.0,"net":145651527.64,"buy_wan":14565.15,"sell_wan":0.0,"net_wan":14565.15},{"code":"603379","name":"三美股份","buy":202022619.23,"sell":0.0,"net":202022619.23,"buy_wan":20202.26,"sell_wan":0.0,"net_wan":20202.26},{"code":"603466","name":"风语筑","buy":188735636.41,"sell":0.0,"net":188735636.41,"buy_wan":18873.56,"sell_wan":0.0,"net_wan":18873.56},{"code":"603538","name":"美诺华","buy":182752526.35,"sell":0.0,"net":182752526.35,"buy_wan":18275.25,"sell_wan":0.0,"net_wan":18275.25},{"code":"603638","name":"艾迪精密","buy":130677991.97,"sell":0.0,"net":130677991.97,"buy_wan":13067.8,"sell_wan":0.0,"net_wan":13067.8},{"code":"605020","name":"永和股份","buy":101083557.59,"sell":0.0,"net":101083557.59,"buy_wan":10108.36,"sell_wan":0.0,"net_wan":10108.36},{"code":"605178","name":"时空科技","buy":80390761.8,"sell":0.0,"net":80390761.8,"buy_wan":8039.08,"sell_wan":0.0,"net_wan":8039.08},{"code":"605358","name":"立昂微","buy":113078841.48,"sell":0.0,"net":113078841.48,"buy_wan":11307.88,"sell_wan":0.0,"net_wan":11307.88},{"code":"688017","name":"绿的谐波","buy":471901002.19,"sell":0.0,"net":471901002.19,"buy_wan":47190.1,"sell_wan":0.0,"net_wan":47190.1},{"code":"688106","name":"金宏气体","buy":285285414.86,"sell":0.0,"net":285285414.86,"buy_wan":28528.54,"sell_wan":0.0,"net_wan":28528.54},{"code":"688192","name":"迪哲医药","buy":81744979.72,"sell":0.0,"net":81744979.72,"buy_wan":8174.5,"sell_wan":0.0,"net_wan":8174.5},{"code":"688266","name":"泽璟制药","buy":125384833.29,"sell":0.0,"net":125384833.29,"buy_wan":12538.48,"sell_wan":0.0,"net_wan":12538.48},{"code":"688311","name":"盟升电子","buy":32718471.84,"sell":0.0,"net":32718471.84,"buy_wan":3271.85,"sell_wan":0.0,"net_wan":3271.85},{"code":"688382","name":"益方生物","buy":87505393.49,"sell":0.0,"net":87505393.49,"buy_wan":8750.54,"sell_wan":0.0,"net_wan":8750.54},{"code":"688513","name":"苑东生物","buy":45006784.8,"sell":0.0,"net":45006784.8,"buy_wan":4500.68,"sell_wan":0.0,"net_wan":4500.68},{"code":"688523","name":"航天环宇","buy":65266444.58,"sell":0.0,"net":65266444.58,"buy_wan":6526.64,"sell_wan":0.0,"net_wan":6526.64},{"code":"688578","name":"艾力斯","buy":239900977.82,"sell":0.0,"net":239900977.82,"buy_wan":23990.1,"sell_wan":0.0,"net_wan":23990.1},{"code":"603327","name":"福蓉科技","buy":0.0,"sell":1733196.0,"net":-1733196.0,"buy_wan":0.0,"sell_wan":173.32,"net_wan":-173.32}],"total_net_wan":539242.83,"hk_holiday":false},"2026-07-06":{"date":"2026-07-06","stocks":[{"code":"000066","name":"中国长城","buy":398440531.26,"sell":170934684.04,"net":227505847.22,"buy_wan":39844.05,"sell_wan":17093.47,"net_wan":22750.58},{"code":"000301","name":"东方盛虹","buy":23171039.76,"sell":93945160.21,"net":-70774120.45,"buy_wan":2317.1,"sell_wan":9394.52,"net_wan":-7077.41},{"code":"000566","name":"海南海药","buy":227625310.95999998,"sell":197948886.96000004,"net":29676424.000000004,"buy_wan":22762.53,"sell_wan":19794.89,"net_wan":2967.64},{"code":"000657","name":"中钨高新","buy":668163055.23,"sell":333227997.32,"net":334935057.91,"buy_wan":66816.31,"sell_wan":33322.8,"net_wan":33493.51},{"code":"000938","name":"紫光股份","buy":502622420.17,"sell":509445106.21,"net":-6822686.04,"buy_wan":50262.24,"sell_wan":50944.51,"net_wan":-682.27},{"code":"000962","name":"东方钽业","buy":279970756.86,"sell":145974047.72,"net":133996709.14,"buy_wan":27997.08,"sell_wan":14597.4,"net_wan":13399.67},{"code":"002025","name":"航天电器","buy":97886936.31,"sell":66371387.96,"net":31515548.35,"buy_wan":9788.69,"sell_wan":6637.14,"net_wan":3151.55},{"code":"002080","name":"中材科技","buy":398820589.49,"sell":305306859.72,"net":93513729.77,"buy_wan":39882.06,"sell_wan":30530.69,"net_wan":9351.37},{"code":"002106","name":"莱宝高科","buy":123413768.99,"sell":107464667.36,"net":15949101.63,"buy_wan":12341.38,"sell_wan":10746.47,"net_wan":1594.91},{"code":"002119","name":"康强电子","buy":235759552.97,"sell":294238960.34,"net":-58479407.37,"buy_wan":23575.96,"sell_wan":29423.9,"net_wan":-5847.94},{"code":"002245","name":"蔚蓝锂芯","buy":1322106689.14,"sell":824332046.82,"net":497774642.32,"buy_wan":132210.67,"sell_wan":82433.2,"net_wan":49777.46},{"code":"002354","name":"天娱数科","buy":414283094.5,"sell":634993532.96,"net":-220710438.46,"buy_wan":41428.31,"sell_wan":63499.35,"net_wan":-22071.04},{"code":"002636","name":"金安国纪","buy":718225157.26,"sell":535585596.21,"net":182639561.05,"buy_wan":71822.52,"sell_wan":53558.56,"net_wan":18263.96},{"code":"002747","name":"埃斯顿","buy":707736606.16,"sell":456134970.86,"net":251601635.3,"buy_wan":70773.66,"sell_wan":45613.5,"net_wan":25160.16},{"code":"002931","name":"锋龙股份","buy":362245501.77,"sell":370327444.56,"net":-8081942.79,"buy_wan":36224.55,"sell_wan":37032.74,"net_wan":-808.19},{"code":"002979","name":"雷赛智能","buy":366819793.39,"sell":471295344.16,"net":-104475550.77,"buy_wan":36681.98,"sell_wan":47129.53,"net_wan":-10447.56},{"code":"300061","name":"旗天科技","buy":27073285.35,"sell":8175772.0,"net":18897513.35,"buy_wan":2707.33,"sell_wan":817.58,"net_wan":1889.75},{"code":"300607","name":"拓斯达","buy":204918044.38,"sell":247990593.87,"net":-43072549.49,"buy_wan":20491.8,"sell_wan":24799.06,"net_wan":-4307.25},{"code":"300684","name":"中石科技","buy":827845554.26,"sell":636619217.21,"net":191226337.05,"buy_wan":82784.56,"sell_wan":63661.92,"net_wan":19122.63},{"code":"301191","name":"菲菱科思","buy":156342289.55,"sell":99978723.23,"net":56363566.32,"buy_wan":15634.23,"sell_wan":9997.87,"net_wan":5636.36},{"code":"301317","name":"鑫磊股份","buy":44539444.7,"sell":45672822.0,"net":-1133377.3,"buy_wan":4453.94,"sell_wan":4567.28,"net_wan":-113.34},{"code":"301379","name":"天山电子","buy":341638112.19,"sell":124585635.58,"net":217052476.61,"buy_wan":34163.81,"sell_wan":12458.56,"net_wan":21705.25},{"code":"600105","name":"永鼎股份","buy":547592657.69,"sell":0.0,"net":547592657.69,"buy_wan":54759.27,"sell_wan":0.0,"net_wan":54759.27},{"code":"600172","name":"黄河旋风","buy":205647447.62,"sell":0.0,"net":205647447.62,"buy_wan":20564.74,"sell_wan":0.0,"net_wan":20564.74},{"code":"600184","name":"光电股份","buy":113483479.12,"sell":0.0,"net":113483479.12,"buy_wan":11348.35,"sell_wan":0.0,"net_wan":11348.35},{"code":"600288","name":"大恒科技","buy":26957686.0,"sell":0.0,"net":26957686.0,"buy_wan":2695.77,"sell_wan":0.0,"net_wan":2695.77},{"code":"600367","name":"红星发展","buy":519384208.5,"sell":0.0,"net":519384208.5,"buy_wan":51938.42,"sell_wan":0.0,"net_wan":51938.42},{"code":"600397","name":"江钨装备","buy":812752913.6,"sell":0.0,"net":812752913.6,"buy_wan":81275.29,"sell_wan":0.0,"net_wan":81275.29},{"code":"600449","name":"宁夏建材","buy":24610484.09,"sell":0.0,"net":24610484.09,"buy_wan":2461.05,"sell_wan":0.0,"net_wan":2461.05},{"code":"600707","name":"彩虹股份","buy":410894905.68,"sell":0.0,"net":410894905.68,"buy_wan":41089.49,"sell_wan":0.0,"net_wan":41089.49},{"code":"600769","name":"祥龙电业","buy":27378947.0,"sell":0.0,"net":27378947.0,"buy_wan":2737.89,"sell_wan":0.0,"net_wan":2737.89},{"code":"601177","name":"杭齿前进","buy":21959456.2,"sell":0.0,"net":21959456.2,"buy_wan":2195.95,"sell_wan":0.0,"net_wan":2195.95},{"code":"603078","name":"江化微","buy":213752223.87,"sell":0.0,"net":213752223.87,"buy_wan":21375.22,"sell_wan":0.0,"net_wan":21375.22},{"code":"603211","name":"晋拓股份","buy":30290739.0,"sell":0.0,"net":30290739.0,"buy_wan":3029.07,"sell_wan":0.0,"net_wan":3029.07},{"code":"603270","name":"金帝股份","buy":39200033.27,"sell":0.0,"net":39200033.27,"buy_wan":3920.0,"sell_wan":0.0,"net_wan":3920.0},{"code":"603466","name":"风语筑","buy":98988770.13,"sell":0.0,"net":98988770.13,"buy_wan":9898.88,"sell_wan":0.0,"net_wan":9898.88},{"code":"603538","name":"美诺华","buy":97307621.4,"sell":0.0,"net":97307621.4,"buy_wan":9730.76,"sell_wan":0.0,"net_wan":9730.76},{"code":"603618","name":"杭电股份","buy":51696607.4,"sell":0.0,"net":51696607.4,"buy_wan":5169.66,"sell_wan":0.0,"net_wan":5169.66},{"code":"603815","name":"交建股份","buy":12587538.0,"sell":0.0,"net":12587538.0,"buy_wan":1258.75,"sell_wan":0.0,"net_wan":1258.75},{"code":"603978","name":"深圳新星","buy":34937214.0,"sell":0.0,"net":34937214.0,"buy_wan":3493.72,"sell_wan":0.0,"net_wan":3493.72},{"code":"605358","name":"立昂微","buy":408224165.28,"sell":0.0,"net":408224165.28,"buy_wan":40822.42,"sell_wan":0.0,"net_wan":40822.42},{"code":"688039","name":"当虹科技","buy":20536923.51,"sell":0.0,"net":20536923.51,"buy_wan":2053.69,"sell_wan":0.0,"net_wan":2053.69},{"code":"688103","name":"国力电子","buy":186567638.36,"sell":0.0,"net":186567638.36,"buy_wan":18656.76,"sell_wan":0.0,"net_wan":18656.76},{"code":"688206","name":"概伦电子","buy":84522072.62,"sell":0.0,"net":84522072.62,"buy_wan":8452.21,"sell_wan":0.0,"net_wan":8452.21},{"code":"688257","name":"新锐股份","buy":252331215.69,"sell":0.0,"net":252331215.69,"buy_wan":25233.12,"sell_wan":0.0,"net_wan":25233.12},{"code":"688507","name":"索辰科技","buy":87351827.35,"sell":0.0,"net":87351827.35,"buy_wan":8735.18,"sell_wan":0.0,"net_wan":8735.18},{"code":"002396","name":"星网锐捷","buy":23712085.16,"sell":64552422.22,"net":-40840337.06,"buy_wan":2371.21,"sell_wan":6455.24,"net_wan":-4084.03}],"total_net_wan":605721.43,"hk_holiday":false},"2026-07-07":{"date":"2026-07-07","stocks":[{"code":"000301","name":"东方盛虹","buy":20755326.0,"sell":25831109.6,"net":-5075783.6,"buy_wan":2075.53,"sell_wan":2583.11,"net_wan":-507.58},{"code":"000593","name":"德龙汇能","buy":121819048.86,"sell":144698236.52,"net":-22879187.66,"buy_wan":12181.9,"sell_wan":14469.82,"net_wan":-2287.92},{"code":"000949","name":"新乡化纤","buy":36987741.1,"sell":20862645.2,"net":16125095.9,"buy_wan":3698.77,"sell_wan":2086.26,"net_wan":1612.51},{"code":"000962","name":"东方钽业","buy":828808276.71,"sell":386716602.24,"net":442091674.47,"buy_wan":82880.83,"sell_wan":38671.66,"net_wan":44209.17},{"code":"000973","name":"佛塑科技","buy":53053837.45,"sell":29922802.37,"net":23131035.08,"buy_wan":5305.38,"sell_wan":2992.28,"net_wan":2313.1},{"code":"001311","name":"多利科技","buy":27534524.36,"sell":40849123.02,"net":-13314598.66,"buy_wan":2753.45,"sell_wan":4084.91,"net_wan":-1331.46},{"code":"002129","name":"TCL中环","buy":179537108.65,"sell":191691794.13,"net":-12154685.48,"buy_wan":17953.71,"sell_wan":19169.18,"net_wan":-1215.47},{"code":"002137","name":"实益达","buy":87433860.0,"sell":52866384.0,"net":34567476.0,"buy_wan":8743.39,"sell_wan":5286.64,"net_wan":3456.75},{"code":"002185","name":"华天科技","buy":922502928.37,"sell":277750470.07,"net":644752458.3,"buy_wan":92250.29,"sell_wan":27775.05,"net_wan":64475.25},{"code":"002354","name":"天娱数科","buy":197328966.79,"sell":252050959.15,"net":-54721992.36,"buy_wan":19732.9,"sell_wan":25205.1,"net_wan":-5472.2},{"code":"002585","name":"双星新材","buy":50260840.7,"sell":12521186.0,"net":37739654.7,"buy_wan":5026.08,"sell_wan":1252.12,"net_wan":3773.97},{"code":"002607","name":"中公教育","buy":26118129.0,"sell":26520210.44,"net":-402081.44,"buy_wan":2611.81,"sell_wan":2652.02,"net_wan":-40.21},{"code":"002747","name":"埃斯顿","buy":1417963208.08,"sell":1592722264.86,"net":-174759056.78,"buy_wan":141796.32,"sell_wan":159272.23,"net_wan":-17475.91},{"code":"002841","name":"视源股份","buy":107671845.2,"sell":127696568.68,"net":-20024723.48,"buy_wan":10767.18,"sell_wan":12769.66,"net_wan":-2002.47},{"code":"002842","name":"翔鹭钨业","buy":370345519.44,"sell":336857016.0,"net":33488503.44,"buy_wan":37034.55,"sell_wan":33685.7,"net_wan":3348.85},{"code":"002931","name":"锋龙股份","buy":126858925.0,"sell":53602042.0,"net":73256883.0,"buy_wan":12685.89,"sell_wan":5360.2,"net_wan":7325.69},{"code":"002989","name":"中天精装","buy":23891152.0,"sell":23804519.0,"net":86633.0,"buy_wan":2389.12,"sell_wan":2380.45,"net_wan":8.66},{"code":"003009","name":"中天火箭","buy":13468110.68,"sell":5196675.0,"net":8271435.68,"buy_wan":1346.81,"sell_wan":519.67,"net_wan":827.14},{"code":"300745","name":"欣锐科技","buy":224336443.24,"sell":228033600.1,"net":-3697156.86,"buy_wan":22433.64,"sell_wan":22803.36,"net_wan":-369.72},{"code":"301516","name":"中远通","buy":96167371.55000001,"sell":165068797.89999998,"net":-68901426.35,"buy_wan":9616.74,"sell_wan":16506.88,"net_wan":-6890.14},{"code":"600094","name":"大名城","buy":10078758.6,"sell":0.0,"net":10078758.6,"buy_wan":1007.88,"sell_wan":0.0,"net_wan":1007.88},{"code":"600172","name":"黄河旋风","buy":137368741.98,"sell":0.0,"net":137368741.98,"buy_wan":13736.87,"sell_wan":0.0,"net_wan":13736.87},{"code":"600246","name":"万通发展","buy":415077473.87,"sell":0.0,"net":415077473.87,"buy_wan":41507.75,"sell_wan":0.0,"net_wan":41507.75},{"code":"600288","name":"大恒科技","buy":152745176.78,"sell":0.0,"net":152745176.78,"buy_wan":15274.52,"sell_wan":0.0,"net_wan":15274.52},{"code":"600376","name":"首开股份","buy":25953395.0,"sell":0.0,"net":25953395.0,"buy_wan":2595.34,"sell_wan":0.0,"net_wan":2595.34},{"code":"600843","name":"上工申贝","buy":2381067.9,"sell":0.0,"net":2381067.9,"buy_wan":238.11,"sell_wan":0.0,"net_wan":238.11},{"code":"601678","name":"滨化股份","buy":248232641.1,"sell":0.0,"net":248232641.1,"buy_wan":24823.26,"sell_wan":0.0,"net_wan":24823.26},{"code":"603211","name":"晋拓股份","buy":91609867.0,"sell":0.0,"net":91609867.0,"buy_wan":9160.99,"sell_wan":0.0,"net_wan":9160.99},{"code":"603538","name":"美诺华","buy":91705514.73,"sell":0.0,"net":91705514.73,"buy_wan":9170.55,"sell_wan":0.0,"net_wan":9170.55},{"code":"603757","name":"大元泵业","buy":44517650.0,"sell":0.0,"net":44517650.0,"buy_wan":4451.77,"sell_wan":0.0,"net_wan":4451.77},{"code":"603778","name":"国晟科技","buy":170341196.0,"sell":0.0,"net":170341196.0,"buy_wan":17034.12,"sell_wan":0.0,"net_wan":17034.12},{"code":"603823","name":"百合花","buy":324862370.8,"sell":0.0,"net":324862370.8,"buy_wan":32486.24,"sell_wan":0.0,"net_wan":32486.24},{"code":"603861","name":"白云电器","buy":107025896.35,"sell":0.0,"net":107025896.35,"buy_wan":10702.59,"sell_wan":0.0,"net_wan":10702.59},{"code":"603978","name":"深圳新星","buy":123099655.12,"sell":0.0,"net":123099655.12,"buy_wan":12309.97,"sell_wan":0.0,"net_wan":12309.97},{"code":"688261","name":"东微半导","buy":123071245.8,"sell":0.0,"net":123071245.8,"buy_wan":12307.12,"sell_wan":0.0,"net_wan":12307.12},{"code":"688432","name":"有研硅","buy":183505659.27,"sell":0.0,"net":183505659.27,"buy_wan":18350.57,"sell_wan":0.0,"net_wan":18350.57},{"code":"688584","name":"上海合晶","buy":91246981.37,"sell":0.0,"net":91246981.37,"buy_wan":9124.7,"sell_wan":0.0,"net_wan":9124.7},{"code":"688605","name":"先锋精科","buy":124102175.28,"sell":0.0,"net":124102175.28,"buy_wan":12410.22,"sell_wan":0.0,"net_wan":12410.22},{"code":"301251","name":"威尔高","buy":0.0,"sell":5244541.0,"net":-5244541.0,"buy_wan":0.0,"sell_wan":524.45,"net_wan":-524.45},{"code":"603178","name":"圣龙股份","buy":0.0,"sell":10195639.95,"net":-10195639.95,"buy_wan":0.0,"sell_wan":1019.56,"net_wan":-1019.56}],"total_net_wan":338906.57,"hk_holiday":false},"2026-07-08":{"date":"2026-07-08","stocks":[{"code":"000566","name":"海南海药","buy":35658362.51,"sell":47184964.91,"net":-11526602.4,"buy_wan":3565.84,"sell_wan":4718.5,"net_wan":-1152.66},{"code":"000973","name":"佛塑科技","buy":75287818.0,"sell":58450817.47,"net":16837000.53,"buy_wan":7528.78,"sell_wan":5845.08,"net_wan":1683.7},{"code":"000977","name":"浪潮信息","buy":1748912762.34,"sell":1657039231.1599998,"net":91873531.18,"buy_wan":174891.28,"sell_wan":165703.92,"net_wan":9187.35},{"code":"002137","name":"实益达","buy":69455797.0,"sell":51047963.5,"net":18407833.5,"buy_wan":6945.58,"sell_wan":5104.8,"net_wan":1840.78},{"code":"002268","name":"电科网安","buy":36612089.05,"sell":28269255.56,"net":8342833.49,"buy_wan":3661.21,"sell_wan":2826.93,"net_wan":834.28},{"code":"002396","name":"星网锐捷","buy":68380162.77,"sell":143700351.62,"net":-75320188.85,"buy_wan":6838.02,"sell_wan":14370.04,"net_wan":-7532.02},{"code":"002428","name":"云南锗业","buy":96637570.41,"sell":139972297.48,"net":-43334727.07,"buy_wan":9663.76,"sell_wan":13997.23,"net_wan":-4333.47},{"code":"002466","name":"天齐锂业","buy":62431692.78,"sell":126803161.25,"net":-64371468.47,"buy_wan":6243.17,"sell_wan":12680.32,"net_wan":-6437.15},{"code":"002497","name":"雅化集团","buy":124563048.96,"sell":298766979.99,"net":-174203931.03,"buy_wan":12456.3,"sell_wan":29876.7,"net_wan":-17420.39},{"code":"002709","name":"天赐材料","buy":119512628.47,"sell":44834947.0,"net":74677681.47,"buy_wan":11951.26,"sell_wan":4483.49,"net_wan":7467.77},{"code":"002812","name":"恩捷股份","buy":145022817.51,"sell":239846971.63,"net":-94824154.12,"buy_wan":14502.28,"sell_wan":23984.7,"net_wan":-9482.42},{"code":"002841","name":"视源股份","buy":73877159.46,"sell":22764405.45,"net":51112754.01,"buy_wan":7387.72,"sell_wan":2276.44,"net_wan":5111.28},{"code":"002951","name":"金时科技","buy":166710054.0,"sell":32228948.0,"net":134481106.0,"buy_wan":16671.01,"sell_wan":3222.89,"net_wan":13448.11},{"code":"300017","name":"网宿科技","buy":252128928.31,"sell":115641969.94,"net":136486958.37,"buy_wan":25212.89,"sell_wan":11564.2,"net_wan":13648.7},{"code":"300164","name":"通源石油","buy":95046329.0,"sell":118247922.95,"net":-23201593.95,"buy_wan":9504.63,"sell_wan":11824.79,"net_wan":-2320.16},{"code":"300369","name":"绿盟科技","buy":29356895.76,"sell":28232109.8,"net":1124785.96,"buy_wan":2935.69,"sell_wan":2823.21,"net_wan":112.48},{"code":"300390","name":"天华新能","buy":86606838.1,"sell":168203400.48,"net":-81596562.38,"buy_wan":8660.68,"sell_wan":16820.34,"net_wan":-8159.66},{"code":"300454","name":"深信服","buy":260220352.75,"sell":72819245.2,"net":187401107.55,"buy_wan":26022.04,"sell_wan":7281.92,"net_wan":18740.11},{"code":"300821","name":"东岳硅材","buy":815288525.75,"sell":553132482.91,"net":262156042.84,"buy_wan":81528.85,"sell_wan":55313.25,"net_wan":26215.6},{"code":"301251","name":"威尔高","buy":304073718.18,"sell":150018300.12,"net":154055418.06,"buy_wan":30407.37,"sell_wan":15001.83,"net_wan":15405.54},{"code":"301282","name":"金禄电子","buy":8677420.0,"sell":18341932.36,"net":-9664512.36,"buy_wan":867.74,"sell_wan":1834.19,"net_wan":-966.45},{"code":"301516","name":"中远通","buy":39033658.98,"sell":32480358.0,"net":6553300.98,"buy_wan":3903.37,"sell_wan":3248.04,"net_wan":655.33},{"code":"600094","name":"大名城","buy":10249866.6,"sell":0.0,"net":10249866.6,"buy_wan":1024.99,"sell_wan":0.0,"net_wan":1024.99},{"code":"600172","name":"黄河旋风","buy":180043779.78,"sell":0.0,"net":180043779.78,"buy_wan":18004.38,"sell_wan":0.0,"net_wan":18004.38},{"code":"600288","name":"大恒科技","buy":310675754.82,"sell":0.0,"net":310675754.82,"buy_wan":31067.58,"sell_wan":0.0,"net_wan":31067.58},{"code":"600350","name":"山东高速","buy":7356932.52,"sell":0.0,"net":7356932.52,"buy_wan":735.69,"sell_wan":0.0,"net_wan":735.69},{"code":"600458","name":"时代新材","buy":99397383.0,"sell":0.0,"net":99397383.0,"buy_wan":9939.74,"sell_wan":0.0,"net_wan":9939.74},{"code":"600562","name":"国睿科技","buy":30141918.8,"sell":0.0,"net":30141918.8,"buy_wan":3014.19,"sell_wan":0.0,"net_wan":3014.19},{"code":"603118","name":"共进股份","buy":60286882.94,"sell":0.0,"net":60286882.94,"buy_wan":6028.69,"sell_wan":0.0,"net_wan":6028.69},{"code":"603166","name":"福达股份","buy":66534612.0,"sell":0.0,"net":66534612.0,"buy_wan":6653.46,"sell_wan":0.0,"net_wan":6653.46},{"code":"603178","name":"圣龙股份","buy":11531559.0,"sell":0.0,"net":11531559.0,"buy_wan":1153.16,"sell_wan":0.0,"net_wan":1153.16},{"code":"603313","name":"梦百合","buy":18905382.99,"sell":0.0,"net":18905382.99,"buy_wan":1890.54,"sell_wan":0.0,"net_wan":1890.54},{"code":"603538","name":"美诺华","buy":107746307.72,"sell":0.0,"net":107746307.72,"buy_wan":10774.63,"sell_wan":0.0,"net_wan":10774.63},{"code":"603610","name":"麒盛科技","buy":65968193.0,"sell":0.0,"net":65968193.0,"buy_wan":6596.82,"sell_wan":0.0,"net_wan":6596.82},{"code":"603618","name":"杭电股份","buy":390774087.0,"sell":0.0,"net":390774087.0,"buy_wan":39077.41,"sell_wan":0.0,"net_wan":39077.41},{"code":"603667","name":"五洲新春","buy":187883980.0,"sell":0.0,"net":187883980.0,"buy_wan":18788.4,"sell_wan":0.0,"net_wan":18788.4},{"code":"603678","name":"火炬电子","buy":211880048.95,"sell":0.0,"net":211880048.95,"buy_wan":21188.0,"sell_wan":0.0,"net_wan":21188.0},{"code":"603815","name":"交建股份","buy":43963778.08,"sell":0.0,"net":43963778.08,"buy_wan":4396.38,"sell_wan":0.0,"net_wan":4396.38},{"code":"603826","name":"坤彩科技","buy":28849484.2,"sell":0.0,"net":28849484.2,"buy_wan":2884.95,"sell_wan":0.0,"net_wan":2884.95},{"code":"603861","name":"白云电器","buy":56004462.0,"sell":0.0,"net":56004462.0,"buy_wan":5600.45,"sell_wan":0.0,"net_wan":5600.45},{"code":"605580","name":"恒盛能源","buy":6916359.2,"sell":0.0,"net":6916359.2,"buy_wan":691.64,"sell_wan":0.0,"net_wan":691.64},{"code":"605598","name":"上海港湾","buy":62851931.01,"sell":0.0,"net":62851931.01,"buy_wan":6285.19,"sell_wan":0.0,"net_wan":6285.19},{"code":"688017","name":"绿的谐波","buy":260786716.98,"sell":0.0,"net":260786716.98,"buy_wan":26078.67,"sell_wan":0.0,"net_wan":26078.67},{"code":"688508","name":"芯朋微","buy":215294702.83,"sell":0.0,"net":215294702.83,"buy_wan":21529.47,"sell_wan":0.0,"net_wan":21529.47},{"code":"688691","name":"灿芯股份","buy":298871047.06,"sell":0.0,"net":298871047.06,"buy_wan":29887.1,"sell_wan":0.0,"net_wan":29887.1}],"total_net_wan":329838.18,"hk_holiday":false},"2026-07-09":{"date":"2026-07-09","stocks":[{"code":"000566","name":"海南海药","buy":121670122.34,"sell":80251957.91,"net":41418164.43,"buy_wan":12167.01,"sell_wan":8025.2,"net_wan":4141.82},{"code":"000628","name":"高新发展","buy":20587410.25,"sell":20267853.93,"net":319556.32,"buy_wan":2058.74,"sell_wan":2026.79,"net_wan":31.96},{"code":"000977","name":"浪潮信息","buy":1552476924.99,"sell":763577194.27,"net":788899730.72,"buy_wan":155247.69,"sell_wan":76357.72,"net_wan":78889.97},{"code":"002057","name":"中钢天源","buy":50846280.34,"sell":69331578.0,"net":-18485297.66,"buy_wan":5084.63,"sell_wan":6933.16,"net_wan":-1848.53},{"code":"002137","name":"实益达","buy":63489756.0,"sell":70096423.44,"net":-6606667.44,"buy_wan":6348.98,"sell_wan":7009.64,"net_wan":-660.67},{"code":"002156","name":"通富微电","buy":1378732763.17,"sell":483996265.51,"net":894736497.66,"buy_wan":137873.28,"sell_wan":48399.63,"net_wan":89473.65},{"code":"002185","name":"华天科技","buy":3006580048.04,"sell":2041945422.32,"net":964634625.72,"buy_wan":300658.0,"sell_wan":204194.54,"net_wan":96463.46},{"code":"002192","name":"融捷股份","buy":93897602.62,"sell":29290865.68,"net":64606736.94,"buy_wan":9389.76,"sell_wan":2929.09,"net_wan":6460.67},{"code":"002281","name":"光迅科技","buy":744349249.06,"sell":732022954.66,"net":12326294.4,"buy_wan":74434.92,"sell_wan":73202.3,"net_wan":1232.63},{"code":"002384","name":"东山精密","buy":1440415762.66,"sell":894972017.95,"net":545443744.71,"buy_wan":144041.58,"sell_wan":89497.2,"net_wan":54544.37},{"code":"002490","name":"山东墨龙","buy":25445242.0,"sell":50489562.76,"net":-25044320.76,"buy_wan":2544.52,"sell_wan":5048.96,"net_wan":-2504.43},{"code":"002657","name":"中科金财","buy":83673498.2,"sell":60870446.22,"net":22803051.98,"buy_wan":8367.35,"sell_wan":6087.04,"net_wan":2280.31},{"code":"002677","name":"浙江美大","buy":13573998.0,"sell":16523867.23,"net":-2949869.23,"buy_wan":1357.4,"sell_wan":1652.39,"net_wan":-294.99},{"code":"002747","name":"埃斯顿","buy":493606470.69,"sell":279425697.69,"net":214180773.0,"buy_wan":49360.65,"sell_wan":27942.57,"net_wan":21418.08},{"code":"002841","name":"视源股份","buy":605472833.9,"sell":239456276.41000003,"net":366016557.49,"buy_wan":60547.28,"sell_wan":23945.63,"net_wan":36601.66},{"code":"002931","name":"锋龙股份","buy":368579951.64,"sell":184487782.63,"net":184092169.01,"buy_wan":36858.0,"sell_wan":18448.78,"net_wan":18409.22},{"code":"002951","name":"金时科技","buy":29473162.0,"sell":81101326.0,"net":-51628164.0,"buy_wan":2947.32,"sell_wan":8110.13,"net_wan":-5162.82},{"code":"002990","name":"盛视科技","buy":36174590.0,"sell":56241023.62,"net":-20066433.62,"buy_wan":3617.46,"sell_wan":5624.1,"net_wan":-2006.64},{"code":"300164","name":"通源石油","buy":76391567.0,"sell":101215800.0,"net":-24824233.0,"buy_wan":7639.16,"sell_wan":10121.58,"net_wan":-2482.42},{"code":"300236","name":"上海新阳","buy":315428379.18,"sell":118259783.66,"net":197168595.52,"buy_wan":31542.84,"sell_wan":11825.98,"net_wan":19716.86},{"code":"300469","name":"信息发展","buy":144316065.35,"sell":10900090.2,"net":133415975.15,"buy_wan":14431.61,"sell_wan":1090.01,"net_wan":13341.6},{"code":"301117","name":"佳缘科技","buy":2125587.0,"sell":0.0,"net":2125587.0,"buy_wan":212.56,"sell_wan":0.0,"net_wan":212.56},{"code":"301201","name":"诚达药业","buy":70481395.6,"sell":49197361.03,"net":21284034.57,"buy_wan":7048.14,"sell_wan":4919.74,"net_wan":2128.4},{"code":"301251","name":"威尔高","buy":179376195.0,"sell":152083307.11,"net":27292887.89,"buy_wan":17937.62,"sell_wan":15208.33,"net_wan":2729.29},{"code":"301379","name":"天山电子","buy":30610688.84,"sell":150395263.44,"net":-119784574.6,"buy_wan":3061.07,"sell_wan":15039.53,"net_wan":-11978.46},{"code":"301516","name":"中远通","buy":15887293.59,"sell":37653575.52,"net":-21766281.93,"buy_wan":1588.73,"sell_wan":3765.36,"net_wan":-2176.63},{"code":"301607","name":"富特科技","buy":66151435.12,"sell":109363297.14,"net":-43211862.02,"buy_wan":6615.14,"sell_wan":10936.33,"net_wan":-4321.19},{"code":"600172","name":"黄河旋风","buy":566351628.22,"sell":0.0,"net":566351628.22,"buy_wan":56635.16,"sell_wan":0.0,"net_wan":56635.16},{"code":"600288","name":"大恒科技","buy":113866286.02,"sell":0.0,"net":113866286.02,"buy_wan":11386.63,"sell_wan":0.0,"net_wan":11386.63},{"code":"600350","name":"山东高速","buy":8178248.0,"sell":0.0,"net":8178248.0,"buy_wan":817.82,"sell_wan":0.0,"net_wan":817.82},{"code":"600353","name":"旭光电子","buy":34566684.02,"sell":0.0,"net":34566684.02,"buy_wan":3456.67,"sell_wan":0.0,"net_wan":3456.67},{"code":"600909","name":"华安证券","buy":230544675.78,"sell":0.0,"net":230544675.78,"buy_wan":23054.47,"sell_wan":0.0,"net_wan":23054.47},{"code":"603380","name":"易德龙","buy":17110749.0,"sell":0.0,"net":17110749.0,"buy_wan":1711.07,"sell_wan":0.0,"net_wan":1711.07},{"code":"603538","name":"美诺华","buy":436818146.04,"sell":0.0,"net":436818146.04,"buy_wan":43681.81,"sell_wan":0.0,"net_wan":43681.81},{"code":"603666","name":"亿嘉和","buy":19639465.0,"sell":0.0,"net":19639465.0,"buy_wan":1963.95,"sell_wan":0.0,"net_wan":1963.95},{"code":"605580","name":"恒盛能源","buy":28918023.0,"sell":0.0,"net":28918023.0,"buy_wan":2891.8,"sell_wan":0.0,"net_wan":2891.8},{"code":"688168","name":"安博通","buy":67967083.94,"sell":0.0,"net":67967083.94,"buy_wan":6796.71,"sell_wan":0.0,"net_wan":6796.71},{"code":"688333","name":"铂力特","buy":172588606.99,"sell":0.0,"net":172588606.99,"buy_wan":17258.86,"sell_wan":0.0,"net_wan":17258.86},{"code":"688432","name":"有研硅","buy":780835931.27,"sell":0.0,"net":780835931.27,"buy_wan":78083.59,"sell_wan":0.0,"net_wan":78083.59},{"code":"688610","name":"埃科光电","buy":45144079.79,"sell":0.0,"net":45144079.79,"buy_wan":4514.41,"sell_wan":0.0,"net_wan":4514.41},{"code":"688720","name":"艾森股份","buy":89019295.45,"sell":0.0,"net":89019295.45,"buy_wan":8901.93,"sell_wan":0.0,"net_wan":8901.93},{"code":"603906","name":"龙蟠科技","buy":0.0,"sell":77674520.94,"net":-77674520.94,"buy_wan":0.0,"sell_wan":7767.45,"net_wan":-7767.45}],"total_net_wan":668027.16,"hk_holiday":false},"2026-07-10":{"date":"2026-07-10","stocks":[{"code":"000524","name":"岭南控股","buy":14872435.0,"sell":17826286.35,"net":-2953851.35,"buy_wan":1487.24,"sell_wan":1782.63,"net_wan":-295.39},{"code":"000547","name":"航天发展","buy":147648915.05,"sell":105310423.77,"net":42338491.28,"buy_wan":14764.89,"sell_wan":10531.04,"net_wan":4233.85},{"code":"000566","name":"海南海药","buy":59037375.75,"sell":86556136.0,"net":-27518760.25,"buy_wan":5903.74,"sell_wan":8655.61,"net_wan":-2751.88},{"code":"000887","name":"中鼎股份","buy":613481539.12,"sell":142642321.48,"net":470839217.64,"buy_wan":61348.15,"sell_wan":14264.23,"net_wan":47083.92},{"code":"000892","name":"欢瑞世纪","buy":45751342.0,"sell":23545013.26,"net":22206328.74,"buy_wan":4575.13,"sell_wan":2354.5,"net_wan":2220.63},{"code":"000933","name":"神火股份","buy":297555639.73,"sell":201712196.02,"net":95843443.71,"buy_wan":29755.56,"sell_wan":20171.22,"net_wan":9584.34},{"code":"000938","name":"紫光股份","buy":3518850620.37,"sell":2005242487.45,"net":1513608132.92,"buy_wan":351885.06,"sell_wan":200524.25,"net_wan":151360.81},{"code":"002057","name":"中钢天源","buy":183064060.42,"sell":159306768.28,"net":23757292.14,"buy_wan":18306.41,"sell_wan":15930.68,"net_wan":2375.73},{"code":"002137","name":"实益达","buy":79384436.8,"sell":65437502.25,"net":13946934.55,"buy_wan":7938.44,"sell_wan":6543.75,"net_wan":1394.69},{"code":"002192","name":"融捷股份","buy":381606774.5,"sell":562069785.2,"net":-180463010.7,"buy_wan":38160.68,"sell_wan":56206.98,"net_wan":-18046.3},{"code":"002202","name":"金风科技","buy":512293805.75,"sell":84375195.2,"net":427918610.55,"buy_wan":51229.38,"sell_wan":8437.52,"net_wan":42791.86},{"code":"002346","name":"柘中股份","buy":15446186.0,"sell":42990411.0,"net":-27544225.0,"buy_wan":1544.62,"sell_wan":4299.04,"net_wan":-2754.42},{"code":"002353","name":"杰瑞股份","buy":340050337.47,"sell":314184218.81,"net":25866118.66,"buy_wan":34005.03,"sell_wan":31418.42,"net_wan":2586.61},{"code":"002354","name":"天娱数科","buy":339902552.19,"sell":89205843.6,"net":250696708.59,"buy_wan":33990.26,"sell_wan":8920.58,"net_wan":25069.67},{"code":"002414","name":"高德红外","buy":298419851.34,"sell":108092776.94,"net":190327074.39999998,"buy_wan":29841.99,"sell_wan":10809.28,"net_wan":19032.71},{"code":"002497","name":"雅化集团","buy":438217026.26,"sell":664374803.88,"net":-226157777.62,"buy_wan":43821.7,"sell_wan":66437.48,"net_wan":-22615.78},{"code":"002552","name":"宝鼎科技","buy":219063552.8,"sell":140141818.0,"net":78921734.8,"buy_wan":21906.36,"sell_wan":14014.18,"net_wan":7892.17},{"code":"002617","name":"露笑科技","buy":146396889.06,"sell":211977111.57,"net":-65580222.51,"buy_wan":14639.69,"sell_wan":21197.71,"net_wan":-6558.02},{"code":"002829","name":"星网宇达","buy":23483039.8,"sell":11346518.32,"net":12136521.48,"buy_wan":2348.3,"sell_wan":1134.65,"net_wan":1213.65},{"code":"003020","name":"立方制药","buy":27569506.78,"sell":31474778.84,"net":-3905272.06,"buy_wan":2756.95,"sell_wan":3147.48,"net_wan":-390.53},{"code":"003043","name":"华亚智能","buy":90662389.44,"sell":70030555.11,"net":20631834.33,"buy_wan":9066.24,"sell_wan":7003.06,"net_wan":2063.18},{"code":"300065","name":"海兰信","buy":67414422.94,"sell":25409113.09,"net":42005309.85,"buy_wan":6741.44,"sell_wan":2540.91,"net_wan":4200.53},{"code":"300071","name":"福石控股","buy":213776390.42000002,"sell":99802280.0,"net":113974110.42,"buy_wan":21377.64,"sell_wan":9980.23,"net_wan":11397.41},{"code":"300164","name":"通源石油","buy":84230324.0,"sell":77417022.0,"net":6813302.0,"buy_wan":8423.03,"sell_wan":7741.7,"net_wan":681.33},{"code":"300255","name":"常山药业","buy":183400678.6,"sell":46325804.32,"net":137074874.28,"buy_wan":18340.07,"sell_wan":4632.58,"net_wan":13707.49},{"code":"300390","name":"天华新能","buy":779040346.03,"sell":652743987.97,"net":126296358.06,"buy_wan":77904.03,"sell_wan":65274.4,"net_wan":12629.64},{"code":"301117","name":"佳缘科技","buy":46228653.86,"sell":13242948.76,"net":32985705.1,"buy_wan":4622.87,"sell_wan":1324.29,"net_wan":3298.57},{"code":"301516","name":"中远通","buy":31636865.0,"sell":17278223.56,"net":14358641.44,"buy_wan":3163.69,"sell_wan":1727.82,"net_wan":1435.86},{"code":"600129","name":"太极集团","buy":47856203.8,"sell":0.0,"net":47856203.8,"buy_wan":4785.62,"sell_wan":0.0,"net_wan":4785.62},{"code":"600172","name":"黄河旋风","buy":652436993.16,"sell":0.0,"net":652436993.16,"buy_wan":65243.7,"sell_wan":0.0,"net_wan":65243.7},{"code":"600288","name":"大恒科技","buy":64121464.0,"sell":0.0,"net":64121464.0,"buy_wan":6412.15,"sell_wan":0.0,"net_wan":6412.15},{"code":"600378","name":"昊华科技","buy":518555828.49,"sell":0.0,"net":518555828.49,"buy_wan":51855.58,"sell_wan":0.0,"net_wan":51855.58},{"code":"600821","name":"金开新能","buy":43056443.86,"sell":0.0,"net":43056443.86,"buy_wan":4305.64,"sell_wan":0.0,"net_wan":4305.64},{"code":"601608","name":"中信重工","buy":32250105.23,"sell":0.0,"net":32250105.23,"buy_wan":3225.01,"sell_wan":0.0,"net_wan":3225.01},{"code":"603203","name":"快克智能","buy":48294853.64,"sell":0.0,"net":48294853.64,"buy_wan":4829.49,"sell_wan":0.0,"net_wan":4829.49},{"code":"603687","name":"大胜达","buy":29633891.0,"sell":0.0,"net":29633891.0,"buy_wan":2963.39,"sell_wan":0.0,"net_wan":2963.39},{"code":"603906","name":"龙蟠科技","buy":86522124.79,"sell":0.0,"net":86522124.79,"buy_wan":8652.21,"sell_wan":0.0,"net_wan":8652.21},{"code":"603931","name":"格林达","buy":151032730.72,"sell":0.0,"net":151032730.72,"buy_wan":15103.27,"sell_wan":0.0,"net_wan":15103.27},{"code":"603986","name":"兆易创新","buy":2644643538.88,"sell":0.0,"net":2644643538.88,"buy_wan":264464.35,"sell_wan":0.0,"net_wan":264464.35},{"code":"688249","name":"晶合集成","buy":344220445.16,"sell":0.0,"net":344220445.16,"buy_wan":34422.04,"sell_wan":0.0,"net_wan":34422.04},{"code":"688392","name":"骄成超声","buy":133222395.62,"sell":0.0,"net":133222395.62,"buy_wan":13322.24,"sell_wan":0.0,"net_wan":13322.24},{"code":"688523","name":"航天环宇","buy":83387037.32,"sell":0.0,"net":83387037.32,"buy_wan":8338.7,"sell_wan":0.0,"net_wan":8338.7},{"code":"688549","name":"中巨芯","buy":106076854.27,"sell":0.0,"net":106076854.27,"buy_wan":10607.69,"sell_wan":0.0,"net_wan":10607.69},{"code":"688596","name":"正帆科技","buy":172532752.8,"sell":0.0,"net":172532752.8,"buy_wan":17253.28,"sell_wan":0.0,"net_wan":17253.28},{"code":"688710","name":"益诺思","buy":74077080.57,"sell":0.0,"net":74077080.57,"buy_wan":7407.71,"sell_wan":0.0,"net_wan":7407.71},{"code":"600664","name":"哈药股份","buy":0.0,"sell":2770247.0,"net":-2770247.0,"buy_wan":0.0,"sell_wan":277.02,"net_wan":-277.02}],"total_net_wan":835757.38,"hk_holiday":false},"2026-07-13":{"date":"2026-07-13","stocks":[{"code":"000048","name":"京基智农","buy":87806514.36,"sell":72230976.86,"net":15575537.5,"buy_wan":8780.65,"sell_wan":7223.1,"net_wan":1557.55},{"code":"000892","name":"欢瑞世纪","buy":108779290.0,"sell":83081084.0,"net":25698206.0,"buy_wan":10877.93,"sell_wan":8308.11,"net_wan":2569.82},{"code":"000920","name":"沃顿科技","buy":117551839.0,"sell":91987548.74,"net":25564290.259999998,"buy_wan":11755.18,"sell_wan":9198.75,"net_wan":2556.43},{"code":"000925","name":"众合科技","buy":36112209.4,"sell":61869075.11,"net":-25756865.71,"buy_wan":3611.22,"sell_wan":6186.91,"net_wan":-2575.69},{"code":"000989","name":"九芝堂","buy":19781433.52,"sell":23715948.0,"net":-3934514.48,"buy_wan":1978.14,"sell_wan":2371.59,"net_wan":-393.45},{"code":"002038","name":"双鹭药业","buy":47221664.2,"sell":48001248.55,"net":-779584.35,"buy_wan":4722.17,"sell_wan":4800.12,"net_wan":-77.96},{"code":"002115","name":"三维通信","buy":84413768.45,"sell":72785078.35,"net":11628690.1,"buy_wan":8441.38,"sell_wan":7278.51,"net_wan":1162.87},{"code":"002185","name":"华天科技","buy":1268604450.9,"sell":1066584916.5,"net":202019534.4,"buy_wan":126860.45,"sell_wan":106658.49,"net_wan":20201.95},{"code":"002208","name":"合肥城建","buy":268710962.6,"sell":328682415.2,"net":-59971452.6,"buy_wan":26871.1,"sell_wan":32868.24,"net_wan":-5997.15},{"code":"002317","name":"众生药业","buy":751639478.35,"sell":446262199.11,"net":305377279.24,"buy_wan":75163.95,"sell_wan":44626.22,"net_wan":30537.73},{"code":"002354","name":"天娱数科","buy":132236477.3,"sell":263243962.28,"net":-131007484.98,"buy_wan":13223.65,"sell_wan":26324.4,"net_wan":-13100.75},{"code":"002379","name":"宏桥控股","buy":64744275.0,"sell":99933412.5,"net":-35189137.5,"buy_wan":6474.43,"sell_wan":9993.34,"net_wan":-3518.91},{"code":"002768","name":"国恩股份","buy":140107922.48,"sell":140474568.04,"net":-366645.56,"buy_wan":14010.79,"sell_wan":14047.46,"net_wan":-36.66},{"code":"002829","name":"星网宇达","buy":20493110.25,"sell":38790637.25,"net":-18297527.0,"buy_wan":2049.31,"sell_wan":3879.06,"net_wan":-1829.75},{"code":"002842","name":"翔鹭钨业","buy":284966653.0,"sell":146013425.2,"net":138953227.8,"buy_wan":28496.67,"sell_wan":14601.34,"net_wan":13895.32},{"code":"300039","name":"上海凯宝","buy":12066986.6,"sell":13934292.02,"net":-1867305.42,"buy_wan":1206.7,"sell_wan":1393.43,"net_wan":-186.73},{"code":"300164","name":"通源石油","buy":27523227.0,"sell":95229408.39,"net":-67706181.39,"buy_wan":2752.32,"sell_wan":9522.94,"net_wan":-6770.62},{"code":"300475","name":"香农芯创","buy":552781159.37,"sell":688966450.74,"net":-136185291.37,"buy_wan":55278.12,"sell_wan":68896.65,"net_wan":-13618.53},{"code":"301092","name":"争光股份","buy":69186850.87,"sell":103292940.51,"net":-34106089.64,"buy_wan":6918.69,"sell_wan":10329.29,"net_wan":-3410.61},{"code":"301307","name":"美利信","buy":172249270.22,"sell":76471125.85,"net":95778144.37,"buy_wan":17224.93,"sell_wan":7647.11,"net_wan":9577.81},{"code":"301310","name":"鑫宏业","buy":253172238.2,"sell":296274845.52,"net":-43102607.32,"buy_wan":25317.22,"sell_wan":29627.48,"net_wan":-4310.26},{"code":"301326","name":"捷邦科技","buy":48845514.0,"sell":41058120.01,"net":7787393.99,"buy_wan":4884.55,"sell_wan":4105.81,"net_wan":778.74},{"code":"600151","name":"航天机电","buy":8010675.0,"sell":0.0,"net":8010675.0,"buy_wan":801.07,"sell_wan":0.0,"net_wan":801.07},{"code":"600288","name":"大恒科技","buy":87197488.65,"sell":0.0,"net":87197488.65,"buy_wan":8719.75,"sell_wan":0.0,"net_wan":8719.75},{"code":"600353","name":"旭光电子","buy":128439178.42,"sell":0.0,"net":128439178.42,"buy_wan":12843.92,"sell_wan":0.0,"net_wan":12843.92},{"code":"600428","name":"中远海特","buy":173506534.49,"sell":0.0,"net":173506534.49,"buy_wan":17350.65,"sell_wan":0.0,"net_wan":17350.65},{"code":"600513","name":"联环药业","buy":98269456.0,"sell":0.0,"net":98269456.0,"buy_wan":9826.95,"sell_wan":0.0,"net_wan":9826.95},{"code":"600629","name":"华建集团","buy":117180270.99000001,"sell":0.0,"net":117180270.99000001,"buy_wan":11718.03,"sell_wan":0.0,"net_wan":11718.03},{"code":"600664","name":"哈药股份","buy":53090749.08,"sell":0.0,"net":53090749.08,"buy_wan":5309.07,"sell_wan":0.0,"net_wan":5309.07},{"code":"600756","name":"浪潮软件","buy":31183276.98,"sell":0.0,"net":31183276.98,"buy_wan":3118.33,"sell_wan":0.0,"net_wan":3118.33},{"code":"600990","name":"四创电子","buy":4112324.5,"sell":0.0,"net":4112324.5,"buy_wan":411.23,"sell_wan":0.0,"net_wan":411.23},{"code":"601608","name":"中信重工","buy":62946918.23,"sell":0.0,"net":62946918.23,"buy_wan":6294.69,"sell_wan":0.0,"net_wan":6294.69},{"code":"603223","name":"恒通股份","buy":78592810.8,"sell":0.0,"net":78592810.8,"buy_wan":7859.28,"sell_wan":0.0,"net_wan":7859.28},{"code":"603313","name":"梦百合","buy":27272852.4,"sell":0.0,"net":27272852.4,"buy_wan":2727.29,"sell_wan":0.0,"net_wan":2727.29},{"code":"603538","name":"美诺华","buy":292831068.9,"sell":0.0,"net":292831068.9,"buy_wan":29283.11,"sell_wan":0.0,"net_wan":29283.11},{"code":"603950","name":"长源东谷","buy":230601995.7,"sell":0.0,"net":230601995.7,"buy_wan":23060.2,"sell_wan":0.0,"net_wan":23060.2},{"code":"605090","name":"九丰能源","buy":187671670.66,"sell":0.0,"net":187671670.66,"buy_wan":18767.17,"sell_wan":0.0,"net_wan":18767.17},{"code":"688072","name":"拓荆科技","buy":604989028.66,"sell":0.0,"net":604989028.66,"buy_wan":60498.9,"sell_wan":0.0,"net_wan":60498.9},{"code":"688101","name":"三达膜","buy":60717481.73,"sell":0.0,"net":60717481.73,"buy_wan":6071.75,"sell_wan":0.0,"net_wan":6071.75},{"code":"688143","name":"长盈通","buy":104461328.59,"sell":0.0,"net":104461328.59,"buy_wan":10446.13,"sell_wan":0.0,"net_wan":10446.13},{"code":"688319","name":"欧林生物","buy":23129104.35,"sell":0.0,"net":23129104.35,"buy_wan":2312.91,"sell_wan":0.0,"net_wan":2312.91},{"code":"688584","name":"上海合晶","buy":384472746.71,"sell":0.0,"net":384472746.71,"buy_wan":38447.27,"sell_wan":0.0,"net_wan":38447.27},{"code":"688710","name":"益诺思","buy":130224171.78,"sell":0.0,"net":130224171.78,"buy_wan":13022.42,"sell_wan":0.0,"net_wan":13022.42},{"code":"688146","name":"中船特气","buy":0.0,"sell":233447652.68,"net":-233447652.68,"buy_wan":0.0,"sell_wan":23344.77,"net_wan":-23344.77}],"total_net_wan":292556.5,"hk_holiday":false},"2026-07-14":{"date":"2026-07-14","stocks":[{"code":"000636","name":"风华高科","buy":1250001364.82,"sell":478710468.9,"net":771290895.92,"buy_wan":125000.14,"sell_wan":47871.05,"net_wan":77129.09},{"code":"000989","name":"九芝堂","buy":38522529.47,"sell":54534426.0,"net":-16011896.53,"buy_wan":3852.25,"sell_wan":5453.44,"net_wan":-1601.19},{"code":"001270","name":"铖昌科技","buy":42177715.0,"sell":36880396.56,"net":5297318.44,"buy_wan":4217.77,"sell_wan":3688.04,"net_wan":529.73},{"code":"001388","name":"信通电子","buy":16232515.5,"sell":22543323.6,"net":-6310808.1,"buy_wan":1623.25,"sell_wan":2254.33,"net_wan":-631.08},{"code":"002079","name":"苏州固锝","buy":78894741.04,"sell":86970073.0,"net":-8075331.96,"buy_wan":7889.47,"sell_wan":8697.01,"net_wan":-807.53},{"code":"002185","name":"华天科技","buy":925457181.56,"sell":1510767206.46,"net":-585310024.9,"buy_wan":92545.72,"sell_wan":151076.72,"net_wan":-58531.0},{"code":"002245","name":"蔚蓝锂芯","buy":219974601.72,"sell":307773593.48,"net":-87798991.76,"buy_wan":21997.46,"sell_wan":30777.36,"net_wan":-8779.9},{"code":"002379","name":"宏桥控股","buy":185915965.4,"sell":269123187.28,"net":-83207221.88,"buy_wan":18591.6,"sell_wan":26912.32,"net_wan":-8320.72},{"code":"002384","name":"东山精密","buy":930529933.95,"sell":1256992364.0,"net":-326462430.05,"buy_wan":93052.99,"sell_wan":125699.24,"net_wan":-32646.24},{"code":"002396","name":"星网锐捷","buy":649560449.0,"sell":666816757.32,"net":-17256308.32,"buy_wan":64956.04,"sell_wan":66681.68,"net_wan":-1725.63},{"code":"002463","name":"沪电股份","buy":1154881683.7,"sell":515432119.62,"net":639449564.08,"buy_wan":115488.17,"sell_wan":51543.21,"net_wan":63944.96},{"code":"002490","name":"山东墨龙","buy":62210849.0,"sell":75573683.61,"net":-13362834.61,"buy_wan":6221.08,"sell_wan":7557.37,"net_wan":-1336.28},{"code":"002549","name":"凯美特气","buy":18148058.51,"sell":34879735.71,"net":-16731677.2,"buy_wan":1814.81,"sell_wan":3487.97,"net_wan":-1673.17},{"code":"002552","name":"宝鼎科技","buy":155765645.0,"sell":115583140.0,"net":40182505.0,"buy_wan":15576.56,"sell_wan":11558.31,"net_wan":4018.25},{"code":"002617","name":"露笑科技","buy":380693327.35,"sell":382448167.79,"net":-1754840.44,"buy_wan":38069.33,"sell_wan":38244.82,"net_wan":-175.48},{"code":"002636","name":"金安国纪","buy":836554577.68,"sell":657252844.62,"net":179301733.06,"buy_wan":83655.46,"sell_wan":65725.28,"net_wan":17930.17},{"code":"002842","name":"翔鹭钨业","buy":111816469.26,"sell":285733136.75,"net":-173916667.49,"buy_wan":11181.65,"sell_wan":28573.31,"net_wan":-17391.67},{"code":"003020","name":"立方制药","buy":10244829.4,"sell":8730786.64,"net":1514042.76,"buy_wan":1024.48,"sell_wan":873.08,"net_wan":151.4},{"code":"300065","name":"海兰信","buy":92198618.18,"sell":44326183.57,"net":47872434.61,"buy_wan":9219.86,"sell_wan":4432.62,"net_wan":4787.24},{"code":"300164","name":"通源石油","buy":406783197.0,"sell":186533008.44,"net":220250188.56,"buy_wan":40678.32,"sell_wan":18653.3,"net_wan":22025.02},{"code":"300209","name":"行云科技","buy":519265545.67,"sell":134332127.02,"net":384933418.65,"buy_wan":51926.55,"sell_wan":13433.21,"net_wan":38493.34},{"code":"300444","name":"双杰电气","buy":16938268.0,"sell":5162043.0,"net":11776225.0,"buy_wan":1693.83,"sell_wan":516.2,"net_wan":1177.62},{"code":"300532","name":"今天国际","buy":18127223.08,"sell":27638351.56,"net":-9511128.48,"buy_wan":1812.72,"sell_wan":2763.84,"net_wan":-951.11},{"code":"300566","name":"激智科技","buy":79104067.97,"sell":78116311.48,"net":987756.49,"buy_wan":7910.41,"sell_wan":7811.63,"net_wan":98.78},{"code":"301259","name":"艾布鲁","buy":39094540.17,"sell":53165119.19,"net":-14070579.02,"buy_wan":3909.45,"sell_wan":5316.51,"net_wan":-1407.06},{"code":"600129","name":"太极集团","buy":13812273.15,"sell":0.0,"net":13812273.15,"buy_wan":1381.23,"sell_wan":0.0,"net_wan":1381.23},{"code":"600288","name":"大恒科技","buy":70206583.33,"sell":0.0,"net":70206583.33,"buy_wan":7020.66,"sell_wan":0.0,"net_wan":7020.66},{"code":"600403","name":"大有能源","buy":18424085.0,"sell":0.0,"net":18424085.0,"buy_wan":1842.41,"sell_wan":0.0,"net_wan":1842.41},{"code":"600488","name":"津药药业","buy":209038105.93,"sell":0.0,"net":209038105.93,"buy_wan":20903.81,"sell_wan":0.0,"net_wan":20903.81},{"code":"603077","name":"和邦生物","buy":58003832.44,"sell":0.0,"net":58003832.44,"buy_wan":5800.38,"sell_wan":0.0,"net_wan":5800.38},{"code":"603127","name":"昭衍新药","buy":82370059.18,"sell":0.0,"net":82370059.18,"buy_wan":8237.01,"sell_wan":0.0,"net_wan":8237.01},{"code":"603313","name":"梦百合","buy":64049049.96,"sell":0.0,"net":64049049.96,"buy_wan":6404.9,"sell_wan":0.0,"net_wan":6404.9},{"code":"603466","name":"风语筑","buy":59431417.4,"sell":0.0,"net":59431417.4,"buy_wan":5943.14,"sell_wan":0.0,"net_wan":5943.14},{"code":"603538","name":"美诺华","buy":337696322.32,"sell":0.0,"net":337696322.32,"buy_wan":33769.63,"sell_wan":0.0,"net_wan":33769.63},{"code":"688192","name":"迪哲医药","buy":20309834.63,"sell":0.0,"net":20309834.63,"buy_wan":2030.98,"sell_wan":0.0,"net_wan":2030.98},{"code":"688519","name":"南亚新材","buy":228513755.12,"sell":0.0,"net":228513755.12,"buy_wan":22851.38,"sell_wan":0.0,"net_wan":22851.38}],"total_net_wan":210493.07,"hk_holiday":false},"2026-07-15":{"date":"2026-07-15","stocks":[{"code":"000021","name":"深科技","buy":247633752.43,"sell":599113993.77,"net":-351480241.34,"buy_wan":24763.38,"sell_wan":59911.4,"net_wan":-35148.02},{"code":"000036","name":"华联控股","buy":70110381.1,"sell":58894350.52,"net":11216030.58,"buy_wan":7011.04,"sell_wan":5889.44,"net_wan":1121.6},{"code":"000566","name":"海南海药","buy":30335947.13,"sell":18123855.71,"net":12212091.42,"buy_wan":3033.59,"sell_wan":1812.39,"net_wan":1221.21},{"code":"000759","name":"中百集团","buy":37912911.0,"sell":43549635.4,"net":-5636724.4,"buy_wan":3791.29,"sell_wan":4354.96,"net_wan":-563.67},{"code":"001270","name":"铖昌科技","buy":195861423.0,"sell":106855885.42,"net":89005537.58,"buy_wan":19586.14,"sell_wan":10685.59,"net_wan":8900.55},{"code":"001309","name":"德明利","buy":74122560.0,"sell":0.0,"net":74122560.0,"buy_wan":7412.26,"sell_wan":0.0,"net_wan":7412.26},{"code":"001896","name":"豫能控股","buy":79389158.0,"sell":164735154.36,"net":-85345996.36,"buy_wan":7938.92,"sell_wan":16473.52,"net_wan":-8534.6},{"code":"002137","name":"实益达","buy":148991466.0,"sell":119374097.04,"net":29617368.96,"buy_wan":14899.15,"sell_wan":11937.41,"net_wan":2961.74},{"code":"002185","name":"华天科技","buy":350208837.0,"sell":1061016975.33,"net":-710808138.33,"buy_wan":35020.88,"sell_wan":106101.7,"net_wan":-71080.81},{"code":"002208","name":"合肥城建","buy":181684869.08,"sell":248251123.6,"net":-66566254.519999996,"buy_wan":18168.49,"sell_wan":24825.11,"net_wan":-6656.63},{"code":"002342","name":"巨力索具","buy":129988805.52,"sell":177534824.92,"net":-47546019.4,"buy_wan":12998.88,"sell_wan":17753.48,"net_wan":-4754.6},{"code":"002350","name":"北京科锐","buy":24373497.0,"sell":38394329.45,"net":-14020832.45,"buy_wan":2437.35,"sell_wan":3839.43,"net_wan":-1402.08},{"code":"002517","name":"恺英网络","buy":242487828.81,"sell":53874000.0,"net":188613828.81,"buy_wan":24248.78,"sell_wan":5387.4,"net_wan":18861.38},{"code":"002558","name":"巨人网络","buy":948811711.72,"sell":252883110.56,"net":695928601.16,"buy_wan":94881.17,"sell_wan":25288.31,"net_wan":69592.86},{"code":"002739","name":"儒意电影","buy":51993442.0,"sell":9217228.0,"net":42776214.0,"buy_wan":5199.34,"sell_wan":921.72,"net_wan":4277.62},{"code":"002821","name":"凯莱英","buy":410779622.72,"sell":738561060.5,"net":-327781437.78,"buy_wan":41077.96,"sell_wan":73856.11,"net_wan":-32778.14},{"code":"002975","name":"博杰股份","buy":311244287.08,"sell":401007218.6,"net":-89762931.52,"buy_wan":31124.43,"sell_wan":40100.72,"net_wan":-8976.29},{"code":"003020","name":"立方制药","buy":28310970.8,"sell":21267536.36,"net":7043434.44,"buy_wan":2831.1,"sell_wan":2126.75,"net_wan":704.34},{"code":"300149","name":"睿智医药","buy":45651078.5,"sell":18941573.93,"net":26709504.57,"buy_wan":4565.11,"sell_wan":1894.16,"net_wan":2670.95},{"code":"300164","name":"通源石油","buy":109566120.44,"sell":118655726.39,"net":-9089605.95,"buy_wan":10956.61,"sell_wan":11865.57,"net_wan":-908.96},{"code":"300231","name":"银信科技","buy":40740873.63,"sell":24293717.49,"net":16447156.14,"buy_wan":4074.09,"sell_wan":2429.37,"net_wan":1644.72},{"code":"300528","name":"幸福蓝海","buy":42047539.0,"sell":22169103.0,"net":19878436.0,"buy_wan":4204.75,"sell_wan":2216.91,"net_wan":1987.84},{"code":"300821","name":"东岳硅材","buy":153728230.07,"sell":224793868.66,"net":-71065638.59,"buy_wan":15372.82,"sell_wan":22479.39,"net_wan":-7106.56},{"code":"600058","name":"五矿发展","buy":20201697.52,"sell":0.0,"net":20201697.52,"buy_wan":2020.17,"sell_wan":0.0,"net_wan":2020.17},{"code":"600186","name":"莲花控股","buy":257167102.88,"sell":0.0,"net":257167102.88,"buy_wan":25716.71,"sell_wan":0.0,"net_wan":25716.71},{"code":"600227","name":"赤天化","buy":91705620.0,"sell":0.0,"net":91705620.0,"buy_wan":9170.56,"sell_wan":0.0,"net_wan":9170.56},{"code":"600288","name":"大恒科技","buy":8139438.0,"sell":0.0,"net":8139438.0,"buy_wan":813.94,"sell_wan":0.0,"net_wan":813.94},{"code":"600343","name":"航天动力","buy":105130172.2,"sell":0.0,"net":105130172.2,"buy_wan":10513.02,"sell_wan":0.0,"net_wan":10513.02},{"code":"600403","name":"大有能源","buy":41641453.94,"sell":0.0,"net":41641453.94,"buy_wan":4164.15,"sell_wan":0.0,"net_wan":4164.15},{"code":"600746","name":"江苏索普","buy":32753126.0,"sell":0.0,"net":32753126.0,"buy_wan":3275.31,"sell_wan":0.0,"net_wan":3275.31},{"code":"600829","name":"人民同泰","buy":26652819.0,"sell":0.0,"net":26652819.0,"buy_wan":2665.28,"sell_wan":0.0,"net_wan":2665.28},{"code":"603516","name":"淳中科技","buy":47010992.0,"sell":0.0,"net":47010992.0,"buy_wan":4701.1,"sell_wan":0.0,"net_wan":4701.1},{"code":"603538","name":"美诺华","buy":84055107.95,"sell":0.0,"net":84055107.95,"buy_wan":8405.51,"sell_wan":0.0,"net_wan":8405.51},{"code":"603698","name":"航天工程","buy":6121033.72,"sell":0.0,"net":6121033.72,"buy_wan":612.1,"sell_wan":0.0,"net_wan":612.1},{"code":"603800","name":"洪田股份","buy":162268069.48,"sell":0.0,"net":162268069.48,"buy_wan":16226.81,"sell_wan":0.0,"net_wan":16226.81},{"code":"605133","name":"嵘泰股份","buy":16628170.3,"sell":0.0,"net":16628170.3,"buy_wan":1662.82,"sell_wan":0.0,"net_wan":1662.82},{"code":"605598","name":"上海港湾","buy":52801491.0,"sell":0.0,"net":52801491.0,"buy_wan":5280.15,"sell_wan":0.0,"net_wan":5280.15},{"code":"688046","name":"药康生物","buy":40986067.8,"sell":0.0,"net":40986067.8,"buy_wan":4098.61,"sell_wan":0.0,"net_wan":4098.61},{"code":"688166","name":"博瑞医药","buy":14535524.08,"sell":0.0,"net":14535524.08,"buy_wan":1453.55,"sell_wan":0.0,"net_wan":1453.55},{"code":"688333","name":"铂力特","buy":314223183.97,"sell":0.0,"net":314223183.97,"buy_wan":31422.32,"sell_wan":0.0,"net_wan":31422.32},{"code":"688433","name":"华曙高科","buy":64150419.91,"sell":0.0,"net":64150419.91,"buy_wan":6415.04,"sell_wan":0.0,"net_wan":6415.04},{"code":"688525","name":"佰维存储","buy":470253942.66,"sell":0.0,"net":470253942.66,"buy_wan":47025.39,"sell_wan":0.0,"net_wan":47025.39},{"code":"600488","name":"津药药业","buy":0.0,"sell":45335978.0,"net":-45335978.0,"buy_wan":0.0,"sell_wan":4533.6,"net_wan":-4533.6},{"code":"600664","name":"哈药股份","buy":0.0,"sell":8873023.0,"net":-8873023.0,"buy_wan":0.0,"sell_wan":887.3,"net_wan":-887.3},{"code":"600879","name":"航天电子","buy":0.0,"sell":172627003.75,"net":-172627003.75,"buy_wan":0.0,"sell_wan":17262.7,"net_wan":-17262.7},{"code":"688192","name":"迪哲医药","buy":0.0,"sell":44939062.34,"net":-44939062.34,"buy_wan":0.0,"sell_wan":4493.91,"net_wan":-4493.91}],"total_net_wan":101911.74,"hk_holiday":false},"2026-07-16":{"date":"2026-07-16","stocks":[{"code":"000566","name":"海南海药","buy":209204357.20999998,"sell":287371286.12,"net":-78166928.91,"buy_wan":20920.44,"sell_wan":28737.13,"net_wan":-7816.69},{"code":"000676","name":"智度股份","buy":79584575.0,"sell":117810329.0,"net":-38225754.0,"buy_wan":7958.46,"sell_wan":11781.03,"net_wan":-3822.58},{"code":"000988","name":"华工科技","buy":231228776.07,"sell":56535098.38,"net":174693677.69,"buy_wan":23122.88,"sell_wan":5653.51,"net_wan":17469.37},{"code":"002079","name":"苏州固锝","buy":263470661.0,"sell":267432215.27,"net":-3961554.27,"buy_wan":26347.07,"sell_wan":26743.22,"net_wan":-396.16},{"code":"002080","name":"中材科技","buy":489223805.62,"sell":366518958.16,"net":122704847.46,"buy_wan":48922.38,"sell_wan":36651.9,"net_wan":12270.48},{"code":"002173","name":"创新医疗","buy":68697402.36,"sell":35794588.07,"net":32902814.29,"buy_wan":6869.74,"sell_wan":3579.46,"net_wan":3290.28},{"code":"002185","name":"华天科技","buy":448970110.53,"sell":257720672.57,"net":191249437.96,"buy_wan":44897.01,"sell_wan":25772.07,"net_wan":19124.94},{"code":"002309","name":"中利集团","buy":150020340.2,"sell":142584726.16,"net":7435614.04,"buy_wan":15002.03,"sell_wan":14258.47,"net_wan":743.56},{"code":"002317","name":"众生药业","buy":174047279.43,"sell":123057596.34,"net":50989683.09,"buy_wan":17404.73,"sell_wan":12305.76,"net_wan":5098.97},{"code":"002354","name":"天娱数科","buy":73518254.13,"sell":100645640.07,"net":-27127385.94,"buy_wan":7351.83,"sell_wan":10064.56,"net_wan":-2712.74},{"code":"002365","name":"永安药业","buy":35137749.8,"sell":41160032.98,"net":-6022283.18,"buy_wan":3513.77,"sell_wan":4116.0,"net_wan":-602.23},{"code":"002396","name":"星网锐捷","buy":303899477.29,"sell":286064631.93,"net":17834845.36,"buy_wan":30389.95,"sell_wan":28606.46,"net_wan":1783.48},{"code":"002432","name":"九安医疗","buy":374513592.64,"sell":630950328.64,"net":-256436736.0,"buy_wan":37451.36,"sell_wan":63095.03,"net_wan":-25643.67},{"code":"002549","name":"凯美特气","buy":125208273.92,"sell":90026079.73,"net":35182194.19,"buy_wan":12520.83,"sell_wan":9002.61,"net_wan":3518.22},{"code":"002653","name":"海思科","buy":36337271.4,"sell":91210451.42,"net":-54873180.02,"buy_wan":3633.73,"sell_wan":9121.05,"net_wan":-5487.32},{"code":"002739","name":"儒意电影","buy":197061865.98,"sell":112026932.0,"net":85034933.98,"buy_wan":19706.19,"sell_wan":11202.69,"net_wan":8503.49},{"code":"002788","name":"鹭燕医药","buy":53097881.24,"sell":55714041.83,"net":-2616160.59,"buy_wan":5309.79,"sell_wan":5571.4,"net_wan":-261.62},{"code":"002851","name":"麦格米特","buy":546176050.51,"sell":503177840.03,"net":42998210.48,"buy_wan":54617.61,"sell_wan":50317.78,"net_wan":4299.82},{"code":"002881","name":"美格智能","buy":42091781.45,"sell":33108805.18,"net":8982976.27,"buy_wan":4209.18,"sell_wan":3310.88,"net_wan":898.3},{"code":"002980","name":"华盛昌","buy":267919225.2,"sell":470344515.12,"net":-202425289.92,"buy_wan":26791.92,"sell_wan":47034.45,"net_wan":-20242.53},{"code":"003010","name":"若羽臣","buy":78855847.74,"sell":110542881.28,"net":-31687033.54,"buy_wan":7885.58,"sell_wan":11054.29,"net_wan":-3168.7},{"code":"300149","name":"睿智医药","buy":89907587.5,"sell":70691239.86,"net":19216347.64,"buy_wan":8990.76,"sell_wan":7069.12,"net_wan":1921.63},{"code":"300164","name":"通源石油","buy":66006699.0,"sell":97407070.5,"net":-31400371.5,"buy_wan":6600.67,"sell_wan":9740.71,"net_wan":-3140.04},{"code":"300231","name":"银信科技","buy":108822356.63,"sell":64318212.05,"net":44504144.58,"buy_wan":10882.24,"sell_wan":6431.82,"net_wan":4450.41},{"code":"300528","name":"幸福蓝海","buy":97173379.66,"sell":67956906.36,"net":29216473.3,"buy_wan":9717.34,"sell_wan":6795.69,"net_wan":2921.65},{"code":"300590","name":"移为通信","buy":72570838.52,"sell":37717902.8,"net":34852935.72,"buy_wan":7257.08,"sell_wan":3771.79,"net_wan":3485.29},{"code":"300596","name":"利安隆","buy":112105753.32,"sell":54903231.0,"net":57202522.32,"buy_wan":11210.58,"sell_wan":5490.32,"net_wan":5720.25},{"code":"300689","name":"澄天伟业","buy":70769634.0,"sell":39571086.0,"net":31198548.0,"buy_wan":7076.96,"sell_wan":3957.11,"net_wan":3119.85},{"code":"600162","name":"香江控股","buy":57016160.32,"sell":0.0,"net":57016160.32,"buy_wan":5701.62,"sell_wan":0.0,"net_wan":5701.62},{"code":"600403","name":"大有能源","buy":46318018.4,"sell":0.0,"net":46318018.4,"buy_wan":4631.8,"sell_wan":0.0,"net_wan":4631.8},{"code":"600584","name":"长电科技","buy":576445034.16,"sell":0.0,"net":576445034.16,"buy_wan":57644.5,"sell_wan":0.0,"net_wan":57644.5},{"code":"603108","name":"润达医疗","buy":21560547.24,"sell":0.0,"net":21560547.24,"buy_wan":2156.05,"sell_wan":0.0,"net_wan":2156.05},{"code":"603115","name":"海星股份","buy":73525213.0,"sell":0.0,"net":73525213.0,"buy_wan":7352.52,"sell_wan":0.0,"net_wan":7352.52},{"code":"603127","name":"昭衍新药","buy":179090515.89,"sell":0.0,"net":179090515.89,"buy_wan":17909.05,"sell_wan":0.0,"net_wan":17909.05},{"code":"603567","name":"珍宝岛","buy":13795425.0,"sell":0.0,"net":13795425.0,"buy_wan":1379.54,"sell_wan":0.0,"net_wan":1379.54},{"code":"603716","name":"塞力医疗","buy":37285715.51,"sell":0.0,"net":37285715.51,"buy_wan":3728.57,"sell_wan":0.0,"net_wan":3728.57},{"code":"603757","name":"大元泵业","buy":103158500.0,"sell":0.0,"net":103158500.0,"buy_wan":10315.85,"sell_wan":0.0,"net_wan":10315.85},{"code":"688008","name":"澜起科技","buy":1608223557.55,"sell":0.0,"net":1608223557.55,"buy_wan":160822.36,"sell_wan":0.0,"net_wan":160822.36},{"code":"688166","name":"博瑞医药","buy":184763224.44,"sell":0.0,"net":184763224.44,"buy_wan":18476.32,"sell_wan":0.0,"net_wan":18476.32},{"code":"003020","name":"立方制药","buy":5018311.1,"sell":13528332.12,"net":-8510021.02,"buy_wan":501.83,"sell_wan":1352.83,"net_wan":-851.0},{"code":"300968","name":"格林精密","buy":3894802.0,"sell":17664235.0,"net":-13769433.0,"buy_wan":389.48,"sell_wan":1766.42,"net_wan":-1376.94},{"code":"600488","name":"津药药业","buy":0.0,"sell":12104028.63,"net":-12104028.63,"buy_wan":0.0,"sell_wan":1210.4,"net_wan":-1210.4},{"code":"603538","name":"美诺华","buy":0.0,"sell":97175831.98,"net":-97175831.98,"buy_wan":0.0,"sell_wan":9717.58,"net_wan":-9717.58}],"total_net_wan":302287.97,"hk_holiday":false},"2026-07-17":{"date":"2026-07-17","stocks":[{"code":"000676","name":"智度股份","buy":29809942.0,"sell":44358214.55,"net":-14548272.55,"buy_wan":2980.99,"sell_wan":4435.82,"net_wan":-1454.83},{"code":"000722","name":"湖南发展","buy":60650802.0,"sell":31888302.16,"net":28762499.84,"buy_wan":6065.08,"sell_wan":3188.83,"net_wan":2876.25},{"code":"001258","name":"立新能源","buy":31976594.75,"sell":31083991.44,"net":892603.31,"buy_wan":3197.66,"sell_wan":3108.4,"net_wan":89.26},{"code":"001388","name":"信通电子","buy":35064766.28,"sell":26366822.779999997,"net":8697943.5,"buy_wan":3506.48,"sell_wan":2636.68,"net_wan":869.79},{"code":"002046","name":"国机精工","buy":131445673.02,"sell":176266850.44,"net":-44821177.42,"buy_wan":13144.57,"sell_wan":17626.69,"net_wan":-4482.12},{"code":"002310","name":"东方新能","buy":92930685.84,"sell":118042336.84,"net":-25111651.0,"buy_wan":9293.07,"sell_wan":11804.23,"net_wan":-2511.17},{"code":"002365","name":"永安药业","buy":23708977.0,"sell":38208836.0,"net":-14499859.0,"buy_wan":2370.9,"sell_wan":3820.88,"net_wan":-1449.99},{"code":"002396","name":"星网锐捷","buy":156043214.8,"sell":322957657.2,"net":-166914442.4,"buy_wan":15604.32,"sell_wan":32295.77,"net_wan":-16691.44},{"code":"002432","name":"九安医疗","buy":212320203.52,"sell":354664718.8,"net":-142344515.28,"buy_wan":21232.02,"sell_wan":35466.47,"net_wan":-14234.45},{"code":"002632","name":"道明光学","buy":43595668.0,"sell":19532046.0,"net":24063622.0,"buy_wan":4359.57,"sell_wan":1953.2,"net_wan":2406.36},{"code":"002766","name":"索菱股份","buy":10349706.0,"sell":21827867.0,"net":-11478161.0,"buy_wan":1034.97,"sell_wan":2182.79,"net_wan":-1147.82},{"code":"002829","name":"星网宇达","buy":26646649.0,"sell":50718296.08,"net":-24071647.08,"buy_wan":2664.66,"sell_wan":5071.83,"net_wan":-2407.16},{"code":"002881","name":"美格智能","buy":82944147.82,"sell":97551652.45,"net":-14607504.63,"buy_wan":8294.41,"sell_wan":9755.17,"net_wan":-1460.75},{"code":"300005","name":"探路者","buy":117307684.61,"sell":222336199.0,"net":-105028514.39,"buy_wan":11730.77,"sell_wan":22233.62,"net_wan":-10502.85},{"code":"300164","name":"通源石油","buy":56518650.0,"sell":86946438.35,"net":-30427788.35,"buy_wan":5651.86,"sell_wan":8694.64,"net_wan":-3042.78},{"code":"300255","name":"常山药业","buy":291682276.15,"sell":354222964.8,"net":-62540688.65,"buy_wan":29168.23,"sell_wan":35422.3,"net_wan":-6254.07},{"code":"300577","name":"开润股份","buy":16155470.81,"sell":40084023.0,"net":-23928552.189999998,"buy_wan":1615.55,"sell_wan":4008.4,"net_wan":-2392.86},{"code":"300688","name":"创业黑马","buy":38218327.0,"sell":25045252.0,"net":13173075.0,"buy_wan":3821.83,"sell_wan":2504.53,"net_wan":1317.31},{"code":"300968","name":"格林精密","buy":14719512.66,"sell":30874438.02,"net":-16154925.36,"buy_wan":1471.95,"sell_wan":3087.44,"net_wan":-1615.49},{"code":"301096","name":"百诚医药","buy":40996074.84,"sell":36267516.1,"net":4728558.74,"buy_wan":4099.61,"sell_wan":3626.75,"net_wan":472.86},{"code":"301228","name":"实朴检测","buy":53318265.45,"sell":16691907.0,"net":36626358.45,"buy_wan":5331.83,"sell_wan":1669.19,"net_wan":3662.64},{"code":"600162","name":"香江控股","buy":21420594.0,"sell":0.0,"net":21420594.0,"buy_wan":2142.06,"sell_wan":0.0,"net_wan":2142.06},{"code":"600227","name":"赤天化","buy":23502914.0,"sell":0.0,"net":23502914.0,"buy_wan":2350.29,"sell_wan":0.0,"net_wan":2350.29},{"code":"600288","name":"大恒科技","buy":19055482.0,"sell":0.0,"net":19055482.0,"buy_wan":1905.55,"sell_wan":0.0,"net_wan":1905.55},{"code":"600353","name":"旭光电子","buy":409358523.4,"sell":0.0,"net":409358523.4,"buy_wan":40935.85,"sell_wan":0.0,"net_wan":40935.85},{"code":"600436","name":"片仔癀","buy":271848889.78,"sell":0.0,"net":271848889.78,"buy_wan":27184.89,"sell_wan":0.0,"net_wan":27184.89},{"code":"600664","name":"哈药股份","buy":198340446.8,"sell":0.0,"net":198340446.8,"buy_wan":19834.04,"sell_wan":0.0,"net_wan":19834.04},{"code":"600667","name":"太极实业","buy":1025170302.29,"sell":0.0,"net":1025170302.29,"buy_wan":102517.03,"sell_wan":0.0,"net_wan":102517.03},{"code":"600722","name":"金牛化工","buy":29235180.0,"sell":0.0,"net":29235180.0,"buy_wan":2923.52,"sell_wan":0.0,"net_wan":2923.52},{"code":"600769","name":"祥龙电业","buy":14094141.0,"sell":0.0,"net":14094141.0,"buy_wan":1409.41,"sell_wan":0.0,"net_wan":1409.41},{"code":"600881","name":"亚泰集团","buy":35514785.0,"sell":0.0,"net":35514785.0,"buy_wan":3551.48,"sell_wan":0.0,"net_wan":3551.48},{"code":"603118","name":"共进股份","buy":168564326.35,"sell":0.0,"net":168564326.35,"buy_wan":16856.43,"sell_wan":0.0,"net_wan":16856.43},{"code":"603163","name":"圣晖集成","buy":90554725.03,"sell":0.0,"net":90554725.03,"buy_wan":9055.47,"sell_wan":0.0,"net_wan":9055.47},{"code":"603567","name":"珍宝岛","buy":27170989.0,"sell":0.0,"net":27170989.0,"buy_wan":2717.1,"sell_wan":0.0,"net_wan":2717.1},{"code":"603716","name":"塞力医疗","buy":20600683.34,"sell":0.0,"net":20600683.34,"buy_wan":2060.07,"sell_wan":0.0,"net_wan":2060.07},{"code":"603757","name":"大元泵业","buy":76401006.73,"sell":0.0,"net":76401006.73,"buy_wan":7640.1,"sell_wan":0.0,"net_wan":7640.1},{"code":"688048","name":"长光华芯","buy":218876703.71,"sell":0.0,"net":218876703.71,"buy_wan":21887.67,"sell_wan":0.0,"net_wan":21887.67},{"code":"688371","name":"菲沃泰","buy":52266727.58,"sell":0.0,"net":52266727.58,"buy_wan":5226.67,"sell_wan":0.0,"net_wan":5226.67},{"code":"688668","name":"鼎通科技","buy":307798135.71,"sell":0.0,"net":307798135.71,"buy_wan":30779.81,"sell_wan":0.0,"net_wan":30779.81},{"code":"000566","name":"海南海药","buy":16148057.0,"sell":67784893.29,"net":-51636836.29,"buy_wan":1614.81,"sell_wan":6778.49,"net_wan":-5163.68}],"total_net_wan":237860.45,"hk_holiday":false}};
+
+
+    var currentPeriod = 'week';
+
+    function fmtAmount(wan) {
+        if (wan === undefined || wan === null) return '--';
+        var abs = Math.abs(wan);
+        if (abs >= 10000) return (wan / 10000).toFixed(2) + '亿';
+        return wan.toFixed(0) + '万';
+    }
+
+    function fmtPct(pct) {
+        if (pct === undefined || pct === null) return '--';
+        var s = pct.toFixed(2);
+        if (pct > 0) return '+' + s + '%';
+        return s + '%';
+    }
+
+    function pctClass(pct) {
+        if (pct > 0) return 'up';
+        if (pct < 0) return 'down';
+        return '';
+    }
+
+    function getRankNumClass(i) {
+        if (i === 0) return 'top1';
+        if (i === 1) return 'top2';
+        if (i === 2) return 'top3';
+        return '';
+    }
+
+    // ========== 周期切换 ==========
+    function switchPeriod(period) {
+        currentPeriod = period;
+        document.getElementById('period-week').classList.toggle('active', period === 'week');
+        document.getElementById('period-month').classList.toggle('active', period === 'month');
+        renderPage();
+    }
+
+    // ========== 渲染：行业配置趋势 ==========
+    function renderIndustry() {
+        var container = document.getElementById('nb-industry-grid');
+        var data = nbAnalysis[currentPeriod] || {};
+        var ind = data.industry_trend || {};
+        var topBuy = ind.top_buy || [];
+        var topSell = ind.top_sell || [];
+
+        var maxBuy = 0;
+        for (var i = 0; i < topBuy.length; i++) {
+            if (topBuy[i].net_buy_wan > maxBuy) maxBuy = topBuy[i].net_buy_wan;
+        }
+        var maxSell = 0;
+        for (var i = 0; i < topSell.length; i++) {
+            if (topSell[i].net_sell_wan > maxSell) maxSell = topSell[i].net_sell_wan;
+        }
+
+        var html = '';
+        // 净买入TOP行业
+        html += '<div class="industry-box">';
+        html += '<div class="industry-box-title">📈 净买入TOP行业</div>';
+        if (!ind.has_industry_data) {
+            html += '<div class="empty">行业数据接口接入中...</div>';
+        } else if (topBuy.length === 0) {
+            html += '<div class="empty">暂无数据</div>';
+        } else {
+            for (var i = 0; i < topBuy.length; i++) {
+                var it = topBuy[i];
+                var pct = maxBuy > 0 ? (it.net_buy_wan / maxBuy * 100) : 0;
+                html += '<div class="industry-item">';
+                html += '<div class="industry-name" title="' + it.industry + '">' + it.industry + '</div>';
+                html += '<div class="industry-bar"><div class="industry-bar-fill buy" style="width:' + pct + '%;"></div></div>';
+                html += '<div class="industry-amount up">+' + fmtAmount(it.net_buy_wan) + '</div>';
+                html += '</div>';
+            }
+        }
+        html += '</div>';
+
+        // 净卖出TOP行业
+        html += '<div class="industry-box">';
+        html += '<div class="industry-box-title">📉 净卖出TOP行业</div>';
+        if (!ind.has_industry_data) {
+            html += '<div class="empty">行业数据接口接入中...</div>';
+        } else if (topSell.length === 0) {
+            html += '<div class="empty">暂无数据</div>';
+        } else {
+            for (var i = 0; i < topSell.length; i++) {
+                var it = topSell[i];
+                var pct = maxSell > 0 ? (it.net_sell_wan / maxSell * 100) : 0;
+                html += '<div class="industry-item">';
+                html += '<div class="industry-name" title="' + it.industry + '">' + it.industry + '</div>';
+                html += '<div class="industry-bar"><div class="industry-bar-fill sell" style="width:' + pct + '%;"></div></div>';
+                html += '<div class="industry-amount down">-' + fmtAmount(it.net_sell_wan) + '</div>';
+                html += '</div>';
+            }
+        }
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    // ========== 渲染：北向连续加仓榜 ==========
+    function renderContinuousBuy() {
+        var container = document.getElementById('nb-continuous');
+        var data = nbAnalysis[currentPeriod] || {};
+        var list = data.continuous_buy || [];
+        if (list.length === 0) {
+            container.innerHTML = '<div class="empty" style="padding:30px;text-align:center;">暂无连续加仓个股</div>';
+            return;
+        }
+        var html = '<table class="rank-table"><thead><tr>';
+        html += '<th style="width:50px;">排名</th><th>股票名称</th>';
+        html += '<th style="width:90px;">连续天数</th>';
+        html += '<th style="width:110px;">累计净买</th>';
+        html += '<th style="width:100px;">区间涨跌幅</th>';
+        html += '</tr></thead><tbody>';
+        for (var i = 0; i < list.length; i++) {
+            var s = list[i];
+            html += '<tr>';
+            html += '<td><span class="rank-num ' + getRankNumClass(i) + '">' + (i + 1) + '</span></td>';
+            html += '<td>' + s.name + '<span class="stock-code">' + s.code + '</span></td>';
+            html += '<td style="color:#58a6ff;font-weight:600;">' + s.streak_days + ' 天</td>';
+            html += '<td class="up">' + fmtAmount(s.total_net_wan) + '</td>';
+            html += '<td class="' + pctClass(s.change_pct) + '">' + fmtPct(s.change_pct) + '</td>';
+            html += '</tr>';
+        }
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    }
+
+    // ========== 渲染：北向+机构共振 ==========
+    function renderResonance() {
+        var container = document.getElementById('nb-inst-resonance');
+        var data = nbAnalysis[currentPeriod] || {};
+        var list = data.resonance || [];
+        if (list.length === 0) {
+            container.innerHTML = '<div class="empty" style="padding:30px;text-align:center;">暂无共振个股</div>';
+            return;
+        }
+        var html = '<table class="rank-table"><thead><tr>';
+        html += '<th style="width:50px;">排名</th><th>股票名称</th>';
+        html += '<th style="width:120px;">北向净买</th>';
+        html += '<th style="width:120px;">机构净买</th>';
+        html += '<th style="width:120px;">共振强度</th>';
+        html += '</tr></thead><tbody>';
+        for (var i = 0; i < list.length; i++) {
+            var s = list[i];
+            html += '<tr>';
+            html += '<td><span class="rank-num ' + getRankNumClass(i) + '">' + (i + 1) + '</span></td>';
+            html += '<td>' + s.name + '<span class="stock-code">' + s.code + '</span></td>';
+            html += '<td style="color:#58a6ff;font-weight:500;">' + fmtAmount(s.nb_net_wan) + '</td>';
+            html += '<td style="color:#f85149;font-weight:500;">' + fmtAmount(s.inst_net_wan) + '</td>';
+            html += '<td style="color:#a371f7;font-weight:600;">' + fmtAmount(s.resonance_strength) + '</td>';
+            html += '</tr>';
+        }
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    }
+
+    // ========== 渲染：持仓变化榜 ==========
+    function renderHoldingChange() {
+        var container = document.getElementById('nb-holding-change');
+        var data = nbAnalysis[currentPeriod] || {};
+        var hc = data.holding_change || {};
+        var topBuy = hc.top_buy || [];
+        var topSell = hc.top_sell || [];
+
+        var html = '';
+        // 净买入
+        html += '<div class="dual-table-box">';
+        html += '<div class="dual-table-title buy">📈 净买入 TOP10</div>';
+        if (topBuy.length === 0) {
+            html += '<div class="empty" style="padding:20px;">暂无数据</div>';
+        } else {
+            html += '<table class="rank-table"><thead><tr><th style="width:40px;">#</th><th>股票</th><th style="width:90px;">净买额</th></tr></thead><tbody>';
+            for (var i = 0; i < topBuy.length; i++) {
+                var s = topBuy[i];
+                html += '<tr>';
+                html += '<td><span class="rank-num ' + getRankNumClass(i) + '">' + (i + 1) + '</span></td>';
+                html += '<td>' + s.name + '<span class="stock-code">' + s.code + '</span></td>';
+                html += '<td class="up">' + fmtAmount(s.net_wan) + '</td>';
+                html += '</tr>';
+            }
+            html += '</tbody></table>';
+        }
+        html += '</div>';
+
+        // 净卖出
+        html += '<div class="dual-table-box">';
+        html += '<div class="dual-table-title sell">📉 净卖出 TOP10</div>';
+        if (topSell.length === 0) {
+            html += '<div class="empty" style="padding:20px;">暂无数据</div>';
+        } else {
+            html += '<table class="rank-table"><thead><tr><th style="width:40px;">#</th><th>股票</th><th style="width:90px;">净卖额</th></tr></thead><tbody>';
+            for (var i = 0; i < topSell.length; i++) {
+                var s = topSell[i];
+                html += '<tr>';
+                html += '<td><span class="rank-num ' + getRankNumClass(i) + '">' + (i + 1) + '</span></td>';
+                html += '<td>' + s.name + '<span class="stock-code">' + s.code + '</span></td>';
+                html += '<td class="down">' + fmtAmount(s.net_sell_wan) + '</td>';
+                html += '</tr>';
+            }
+            html += '</tbody></table>';
+        }
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    // ========== 渲染：热度指数 ==========
+    function renderHeatIndex() {
+        var container = document.getElementById('nb-heat-index');
+        var data = nbAnalysis[currentPeriod] || {};
+        var heat = data.heat_index || {};
+        var daily = heat.daily || [];
+        var reversed = daily.slice().reverse();  // 最新在前
+
+        var html = '';
+        html += '<div class="heat-stats">';
+        html += '<div class="heat-stat-card">';
+        html += '<div class="heat-stat-label">日均上榜股票数</div>';
+        html += '<div class="heat-stat-value">' + (heat.avg_stocks || 0) + ' 只</div>';
+        html += '</div>';
+        html += '<div class="heat-stat-card">';
+        html += '<div class="heat-stat-label">日均北向净买卖</div>';
+        var net = heat.avg_net_wan || 0;
+        var cls = net > 0 ? 'up' : 'down';
+        var sign = net > 0 ? '+' : '';
+        html += '<div class="heat-stat-value ' + cls + '">' + sign + fmtAmount(net) + '</div>';
+        html += '</div>';
+        html += '<div class="heat-stat-card">';
+        html += '<div class="heat-stat-label">累计交易日</div>';
+        html += '<div class="heat-stat-value" style="color:#58a6ff;">' + daily.length + ' 天</div>';
+        html += '</div>';
+        html += '</div>';
+
+        html += '<div style="font-size:13px;color:#8b949e;margin-bottom:10px;font-weight:500;">每日明细（最新在前）</div>';
+        html += '<div class="heat-daily-list">';
+        if (reversed.length === 0) {
+            html += '<div class="empty">暂无数据</div>';
+        } else {
+            for (var i = 0; i < reversed.length; i++) {
+                var d = reversed[i];
+                var netAmt = d.total_net_wan || 0;
+                html += '<div class="heat-daily-item">';
+                html += '<div class="heat-daily-date">' + d.date + '</div>';
+                html += '<div class="heat-daily-metrics">';
+                html += '<span style="color:#c9d1d9;">上榜 ' + d.stock_count + ' 只</span>';
+                html += '<span class="' + (netAmt > 0 ? 'up' : 'down') + '">' + (netAmt > 0 ? '+' : '') + '净买 ' + fmtAmount(netAmt) + '</span>';
+                html += '<span style="color:#58a6ff;">买 ' + d.buy_count + ' / 卖 ' + d.sell_count + '</span>';
+                html += '</div></div>';
+            }
+        }
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    // ========== 渲染主函数 ==========
+    function renderPage() {
+        var data = nbAnalysis[currentPeriod];
+        if (!data) {
+            document.getElementById('update-time').textContent = '暂无数据';
+            return;
+        }
+        renderIndustry();
+        renderContinuousBuy();
+        renderResonance();
+        renderHoldingChange();
+        renderHeatIndex();
+    }
+
+    // ========== 初始化 ==========
+    function init() {
+        var dates = Object.keys(nbDailyData || {}).sort();
+        if (dates.length > 0) {
+            var latest = dates[dates.length - 1];
+            document.getElementById('update-time').textContent = '数据截至 ' + latest;
+        }
+        renderPage();
+    }
+    init();
+    </script>
+</body>
+</html>
