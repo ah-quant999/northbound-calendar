@@ -875,6 +875,9 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
 </head>
 <body>
 <div class="container">
+    <div style="margin-bottom:12px;">
+        <a href="portal.html" style="display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border-radius:20px;background:linear-gradient(135deg,#8dd0c0,#b5e0d7);color:#4a4a4a;text-decoration:none;font-size:14px;font-weight:600;box-shadow:0 2px 8px rgba(141,208,192,0.35);transition:transform .15s,box-shadow .15s;cursor:pointer;">📅 返回九宝日历精选</a>
+    </div>
     <div class="header">
         <h1>📊 每日市场洞察</h1>
         <div class="subtitle">短线+中长线双视角 · 机游共振 × 北向资金</div>
