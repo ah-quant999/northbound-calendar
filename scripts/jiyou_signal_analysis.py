@@ -725,6 +725,264 @@ def compute_signals_for_date(date_str: str) -> Dict:
     return result
 
 
+# ========== 连续性追踪计算（第二批功能） ==========
+
+def compute_continuous_tracking(date_data_map: Dict[str, Dict],
+                                window_days: int = 30) -> Dict:
+    """
+    基于多日信号数据，计算连续性追踪指标
+    输入: date_data_map = {date_str: signal_data_dict}
+    输出: 连续追踪数据字典
+    """
+    sorted_dates = sorted(date_data_map.keys())
+    if not sorted_dates:
+        return {}
+
+    # 截取窗口内数据
+    window_date_list = sorted_dates[-window_days:] if len(sorted_dates) > window_days else sorted_dates
+    week_dates = sorted_dates[-7:] if len(sorted_dates) > 7 else sorted_dates
+
+    # ========== 1. 行业板块趋势（周/月） ==========
+    def aggregate_industry_trend(dates: List[str]) -> Dict:
+        inst_industry = {}  # {industry: net_buy_wan}
+        youzi_industry = {}
+        for ds in dates:
+            day_data = date_data_map.get(ds, {})
+            ind = day_data.get("industry", {})
+            for item in ind.get("inst_top10", []):
+                name = item["industry"]
+                inst_industry[name] = inst_industry.get(name, 0.0) + item["net_buy_wan"]
+            for item in ind.get("youzi_top10", []):
+                name = item["industry"]
+                youzi_industry[name] = youzi_industry.get(name, 0.0) + item["net_buy_wan"]
+
+        inst_top = [{"industry": k, "net_buy_wan": round(v, 2)}
+                    for k, v in sorted(inst_industry.items(), key=lambda x: x[1], reverse=True)[:10]]
+        youzi_top = [{"industry": k, "net_buy_wan": round(v, 2)}
+                     for k, v in sorted(youzi_industry.items(), key=lambda x: x[1], reverse=True)[:10]]
+        has_data = len(inst_industry) > 1 or (len(inst_industry) == 1 and "未分类" not in inst_industry)
+        return {
+            "inst_top10": inst_top,
+            "youzi_top10": youzi_top,
+            "has_industry_data": has_data,
+        }
+
+    industry_trend = {
+        "week": aggregate_industry_trend(week_dates),
+        "month": aggregate_industry_trend(window_date_list),
+    }
+
+    # ========== 2. 机构连续加仓榜 ==========
+    # 构建每只股票的每日机构净买序列
+    inst_stock_daily = {}  # {code: {name, dates: {date: net_wan}}}
+    for ds in window_date_list:
+        day_data = date_data_map.get(ds, {})
+        basic = day_data.get("basic_signals", {})
+        # 从所有基础信号中提取机构净买
+        for sig_key in ["resonance_buy", "resonance_sell",
+                        "inst_sell_youzi_buy", "inst_buy_youzi_sell"]:
+            for s in basic.get(sig_key, []):
+                code = s["code"]
+                if code not in inst_stock_daily:
+                    inst_stock_daily[code] = {"name": s["name"], "dates": {}}
+                inst_stock_daily[code]["dates"][ds] = s["inst_net_wan"]
+
+    # 计算连续加仓（找最长连续净买天数）
+    inst_continuous = []
+    for code, info in inst_stock_daily.items():
+        stock_dates = sorted(info["dates"].keys())
+        # 找从最近日期往前的连续净买天数
+        max_streak = 0
+        current_streak = 0
+        streak_net = 0.0
+        # 计算最长连续净买序列
+        for ds in stock_dates:
+            net = info["dates"][ds]
+            if net > 2000:  # 机构净买≥2000万才算加仓
+                current_streak += 1
+                streak_net += net
+                if current_streak > max_streak:
+                    max_streak = current_streak
+            else:
+                current_streak = 0
+                streak_net = 0.0
+
+        # 重新计算累计净买（使用最长连续序列的）
+        if max_streak >= 2:
+            # 累计净买（全窗口内净买额之和）
+            total_net = sum(v for v in info["dates"].values() if v > 0)
+            inst_continuous.append({
+                "code": code,
+                "name": info["name"],
+                "streak_days": max_streak,
+                "total_net_wan": round(total_net, 2),
+            })
+
+    inst_continuous.sort(key=lambda x: (x["streak_days"], x["total_net_wan"]), reverse=True)
+    inst_continuous = inst_continuous[:20]
+
+    # ========== 3. 游资接力榜 ==========
+    # 统计每只股票有多少天有游资净买入（不同游资接力也算）
+    youzi_stock_daily = {}  # {code: {name, dates: {date: net_wan}, youzi_count: int}}
+    for ds in window_date_list:
+        day_data = date_data_map.get(ds, {})
+        basic = day_data.get("basic_signals", {})
+        for sig_key in ["resonance_buy", "resonance_sell",
+                        "inst_sell_youzi_buy", "inst_buy_youzi_sell"]:
+            for s in basic.get(sig_key, []):
+                code = s["code"]
+                if code not in youzi_stock_daily:
+                    youzi_stock_daily[code] = {"name": s["name"], "dates": {}}
+                youzi_stock_daily[code]["dates"][ds] = s["youzi_net_wan"]
+
+    youzi_relay = []
+    for code, info in youzi_stock_daily.items():
+        stock_dates = sorted(info["dates"].keys())
+        # 连续接力天数
+        max_streak = 0
+        current_streak = 0
+        for ds in stock_dates:
+            net = info["dates"][ds]
+            if net > 1500:  # 游资净买≥1500万
+                current_streak += 1
+                if current_streak > max_streak:
+                    max_streak = current_streak
+            else:
+                current_streak = 0
+
+        # 参与游资数量（从知名游资统计）
+        youzi_count = 0
+        for ds in window_date_list:
+            day_data = date_data_map.get(ds, {})
+            for yz in day_data.get("famous_youzi", []):
+                for stk in yz.get("stocks", []):
+                    if stk["code"] == code and stk.get("net_buy_wan", 0) > 0:
+                        youzi_count += 1
+                        break
+
+        if max_streak >= 2:
+            total_net = sum(v for v in info["dates"].values() if v > 0)
+            youzi_relay.append({
+                "code": code,
+                "name": info["name"],
+                "relay_days": max_streak,
+                "youzi_count": youzi_count,
+                "total_net_wan": round(total_net, 2),
+            })
+
+    youzi_relay.sort(key=lambda x: (x["relay_days"], x["youzi_count"], x["total_net_wan"]), reverse=True)
+    youzi_relay = youzi_relay[:20]
+
+    # ========== 4. 高频上榜股 ==========
+    stock_appearances = {}  # {code: {name, count, up_days}}
+    for ds in window_date_list:
+        day_data = date_data_map.get(ds, {})
+        basic = day_data.get("basic_signals", {})
+        seen_today = set()
+        for sig_key in ["resonance_buy", "resonance_sell",
+                        "inst_sell_youzi_buy", "inst_buy_youzi_sell"]:
+            for s in basic.get(sig_key, []):
+                code = s["code"]
+                if code in seen_today:
+                    continue
+                seen_today.add(code)
+                if code not in stock_appearances:
+                    stock_appearances[code] = {"name": s["name"], "count": 0, "up_days": 0}
+                stock_appearances[code]["count"] += 1
+                if s.get("change_pct", 0) > 0:
+                    stock_appearances[code]["up_days"] += 1
+
+    def top_appearances(dates_subset: List[str], top_n: int = 20) -> List[Dict]:
+        sub_map = {}
+        for ds in dates_subset:
+            day_data = date_data_map.get(ds, {})
+            basic = day_data.get("basic_signals", {})
+            seen_today = set()
+            for sig_key in ["resonance_buy", "resonance_sell",
+                            "inst_sell_youzi_buy", "inst_buy_youzi_sell"]:
+                for s in basic.get(sig_key, []):
+                    code = s["code"]
+                    if code in seen_today:
+                        continue
+                    seen_today.add(code)
+                    if code not in sub_map:
+                        sub_map[code] = {"name": s["name"], "count": 0, "up_days": 0}
+                    sub_map[code]["count"] += 1
+                    if s.get("change_pct", 0) > 0:
+                        sub_map[code]["up_days"] += 1
+        result = [{"code": k, "name": v["name"], "count": v["count"], "up_days": v["up_days"]}
+                  for k, v in sub_map.items()]
+        result.sort(key=lambda x: (x["count"], x["up_days"]), reverse=True)
+        return result[:top_n]
+
+    high_freq = {
+        "week": top_appearances(week_dates, 20),
+        "month": top_appearances(window_date_list, 20),
+    }
+
+    # ========== 5. 龙虎榜热度指数 ==========
+    heat_index = []  # [{date, stock_count, inst_total_net, youzi_total_net}]
+    for ds in window_date_list:
+        day_data = date_data_map.get(ds, {})
+        stats = day_data.get("stats", {})
+        basic = day_data.get("basic_signals", {})
+        # 计算机构总净买
+        inst_total = 0.0
+        youzi_total = 0.0
+        seen_inst = set()
+        seen_youzi = set()
+        for sig_key in ["resonance_buy", "resonance_sell",
+                        "inst_sell_youzi_buy", "inst_buy_youzi_sell"]:
+            for s in basic.get(sig_key, []):
+                code = s["code"]
+                if code not in seen_inst:
+                    seen_inst.add(code)
+                    inst_total += s.get("inst_net_wan", 0)
+                if code not in seen_youzi:
+                    seen_youzi.add(code)
+                    youzi_total += s.get("youzi_net_wan", 0)
+
+        heat_index.append({
+            "date": ds,
+            "stock_count": stats.get("total_billboard_stocks", 0),
+            "inst_total_net_wan": round(inst_total, 2),
+            "youzi_total_net_wan": round(youzi_total, 2),
+        })
+
+    # 7日/30日均量
+    week_heat = heat_index[-7:] if len(heat_index) > 7 else heat_index
+    month_heat = heat_index[-30:] if len(heat_index) > 30 else heat_index
+
+    week_avg_stocks = round(sum(x["stock_count"] for x in week_heat) / max(len(week_heat), 1), 0)
+    week_avg_inst = round(sum(x["inst_total_net_wan"] for x in week_heat) / max(len(week_heat), 1), 2)
+    week_avg_youzi = round(sum(x["youzi_total_net_wan"] for x in week_heat) / max(len(week_heat), 1), 2)
+    month_avg_stocks = round(sum(x["stock_count"] for x in month_heat) / max(len(month_heat), 1), 0)
+    month_avg_inst = round(sum(x["inst_total_net_wan"] for x in month_heat) / max(len(month_heat), 1), 2)
+    month_avg_youzi = round(sum(x["youzi_total_net_wan"] for x in month_heat) / max(len(month_heat), 1), 2)
+
+    return {
+        "window_days": window_days,
+        "actual_days": len(window_date_list),
+        "industry_trend": industry_trend,
+        "inst_continuous": inst_continuous,
+        "youzi_relay": youzi_relay,
+        "high_freq": high_freq,
+        "heat_index": {
+            "daily": heat_index,
+            "week_avg": {
+                "avg_stocks": week_avg_stocks,
+                "avg_inst_net_wan": week_avg_inst,
+                "avg_youzi_net_wan": week_avg_youzi,
+            },
+            "month_avg": {
+                "avg_stocks": month_avg_stocks,
+                "avg_inst_net_wan": month_avg_inst,
+                "avg_youzi_net_wan": month_avg_youzi,
+            },
+        },
+    }
+
+
 # ========== 页面生成 ==========
 
 PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
@@ -1091,6 +1349,208 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
             border-radius: 3px;
         }
 
+        /* Tab 导航 */
+        .tab-nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #30363d;
+            padding-bottom: 0;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: #8b949e;
+            padding: 12px 20px;
+            font-size: 15px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .tab-btn:hover {
+            color: #c9d1d9;
+        }
+        .tab-btn.active {
+            color: #e8a0b0;
+            border-bottom-color: #e8a0b0;
+            font-weight: 600;
+        }
+        .tab-btn.tab-link {
+            color: #58a6ff;
+            text-decoration: none;
+            font-size: 13px;
+            padding: 6px 14px;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            border-bottom: 1px solid #30363d;
+            margin-bottom: 8px;
+        }
+        .tab-btn.tab-link:hover {
+            background: #21262d;
+            text-decoration: none;
+        }
+        .tab-pane {
+            display: none;
+        }
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* 周期切换 */
+        .period-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .period-label {
+            font-size: 13px;
+            color: #8b949e;
+        }
+        .period-btn {
+            background: #21262d;
+            border: 1px solid #30363d;
+            color: #8b949e;
+            padding: 5px 14px;
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .period-btn:hover {
+            background: #30363d;
+            color: #c9d1d9;
+        }
+        .period-btn.active {
+            background: rgba(232, 160, 176, 0.15);
+            border-color: #e8a0b0;
+            color: #e8a0b0;
+            font-weight: 500;
+        }
+
+        .section-sub {
+            font-size: 12px;
+            font-weight: normal;
+            color: #6e7681;
+            margin-left: 8px;
+        }
+
+        /* 排名表格 */
+        .rank-table-wrap {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .rank-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .rank-table th {
+            background: #161b22;
+            color: #8b949e;
+            font-weight: 500;
+            font-size: 12px;
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #30363d;
+        }
+        .rank-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #21262d;
+            color: #c9d1d9;
+        }
+        .rank-table tr:last-child td {
+            border-bottom: none;
+        }
+        .rank-table tr:hover td {
+            background: #161b22;
+        }
+        .rank-num {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            border-radius: 50%;
+            background: #21262d;
+            color: #8b949e;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .rank-num.top1 { background: linear-gradient(135deg, #f0b429, #d4a017); color: #0d1117; }
+        .rank-num.top2 { background: linear-gradient(135deg, #a0aec0, #718096); color: #0d1117; }
+        .rank-num.top3 { background: linear-gradient(135deg, #c05621, #9c4221); color: #0d1117; }
+
+        /* 热度指数 */
+        .heat-index-wrap {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .heat-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .heat-stat-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        .heat-stat-label {
+            font-size: 12px;
+            color: #8b949e;
+            margin-bottom: 8px;
+        }
+        .heat-stat-value {
+            font-size: 22px;
+            font-weight: 600;
+            color: #f0f6fc;
+        }
+        .heat-stat-value.up { color: #f85149; }
+        .heat-stat-value.down { color: #3fb950; }
+        .heat-daily-list {
+            max-height: 280px;
+            overflow-y: auto;
+        }
+        .heat-daily-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #21262d;
+            font-size: 13px;
+        }
+        .heat-daily-item:last-child {
+            border-bottom: none;
+        }
+        .heat-daily-date {
+            color: #8b949e;
+            width: 90px;
+            flex-shrink: 0;
+        }
+        .heat-daily-metrics {
+            display: flex;
+            gap: 20px;
+            flex: 1;
+            justify-content: flex-end;
+        }
+        .heat-daily-metrics span {
+            font-size: 12px;
+            min-width: 80px;
+            text-align: right;
+        }
+
         @media (max-width: 768px) {
             .signal-cards, .industry-grid, .youzi-grid, .sub-signal-list {
                 grid-template-columns: 1fr;
@@ -1103,6 +1563,17 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
             }
             .sub-signal-list {
                 grid-template-columns: 1fr;
+            }
+            .heat-stats {
+                grid-template-columns: 1fr;
+            }
+            .rank-table th, .rank-table td {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+            .tab-btn {
+                padding: 10px 14px;
+                font-size: 14px;
             }
         }
     </style>
@@ -1126,35 +1597,95 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
         </div>
         <div class="update-time" id="update-time">--</div>
 
-        <!-- 一、当日信号总览 -->
-        <div class="section">
-            <div class="section-title">🎯 当日信号总览</div>
-            <div class="signal-cards" id="signal-cards">
-                <!-- JS动态渲染 -->
+        <!-- Tab 导航 -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('daily')" id="tab-daily">📊 单日分析</button>
+            <button class="tab-btn" onclick="switchTab('continuous')" id="tab-continuous">📈 连续追踪</button>
+            <a href="signal-guide.html" class="tab-btn tab-link" style="margin-left:auto;">📖 信号说明</a>
+        </div>
+
+        <!-- Tab 1: 单日分析 -->
+        <div class="tab-pane active" id="pane-daily">
+            <!-- 一、当日信号总览 -->
+            <div class="section">
+                <div class="section-title">🎯 当日信号总览</div>
+                <div class="signal-cards" id="signal-cards">
+                    <!-- JS动态渲染 -->
+                </div>
+            </div>
+
+            <!-- 二、行业板块追踪 -->
+            <div class="section">
+                <div class="section-title">🏭 行业板块追踪（当日）</div>
+                <div class="industry-grid" id="industry-grid">
+                    <!-- JS动态渲染 -->
+                </div>
+            </div>
+
+            <!-- 三、知名游资追踪 -->
+            <div class="section">
+                <div class="section-title">🏦 知名游资追踪（当日）</div>
+                <div class="youzi-grid" id="youzi-grid">
+                    <!-- JS动态渲染 -->
+                </div>
+            </div>
+
+            <!-- 四、细分信号 -->
+            <div class="section">
+                <div class="section-title">⚡ 细分信号</div>
+                <div id="sub-signals">
+                    <!-- JS动态渲染 -->
+                </div>
             </div>
         </div>
 
-        <!-- 二、行业板块追踪 -->
-        <div class="section">
-            <div class="section-title">🏭 行业板块追踪（当日）</div>
-            <div class="industry-grid" id="industry-grid">
-                <!-- JS动态渲染 -->
+        <!-- Tab 2: 连续追踪 -->
+        <div class="tab-pane" id="pane-continuous">
+            <!-- 周期切换 -->
+            <div class="period-toggle">
+                <span class="period-label">统计周期：</span>
+                <button class="period-btn active" onclick="switchPeriod('week')" id="period-week">近7日</button>
+                <button class="period-btn" onclick="switchPeriod('month')" id="period-month">近30日</button>
             </div>
-        </div>
 
-        <!-- 三、知名游资追踪 -->
-        <div class="section">
-            <div class="section-title">🏦 知名游资追踪（当日）</div>
-            <div class="youzi-grid" id="youzi-grid">
-                <!-- JS动态渲染 -->
+            <!-- ① 行业板块趋势 -->
+            <div class="section">
+                <div class="section-title">🏭 行业板块趋势</div>
+                <div class="industry-grid" id="ct-industry-grid">
+                    <!-- JS动态渲染 -->
+                </div>
             </div>
-        </div>
 
-        <!-- 四、细分信号 -->
-        <div class="section">
-            <div class="section-title">⚡ 细分信号</div>
-            <div id="sub-signals">
-                <!-- JS动态渲染 -->
+            <!-- ② 机构连续加仓榜 -->
+            <div class="section">
+                <div class="section-title">🏢 机构连续加仓榜 <span class="section-sub">连续2天及以上机构净买入≥2000万</span></div>
+                <div class="rank-table-wrap" id="ct-inst-continuous">
+                    <!-- JS动态渲染 -->
+                </div>
+            </div>
+
+            <!-- ③ 游资接力榜 -->
+            <div class="section">
+                <div class="section-title">⚡ 游资接力榜 <span class="section-sub">连续2天及以上游资净买入≥1500万</span></div>
+                <div class="rank-table-wrap" id="ct-youzi-relay">
+                    <!-- JS动态渲染 -->
+                </div>
+            </div>
+
+            <!-- ④ 高频上榜股 -->
+            <div class="section">
+                <div class="section-title">🔥 高频上榜股 TOP20</div>
+                <div class="rank-table-wrap" id="ct-high-freq">
+                    <!-- JS动态渲染 -->
+                </div>
+            </div>
+
+            <!-- ⑤ 龙虎榜热度指数 -->
+            <div class="section">
+                <div class="section-title">🌡️ 龙虎榜热度指数</div>
+                <div class="heat-index-wrap" id="ct-heat-index">
+                    <!-- JS动态渲染 -->
+                </div>
             </div>
         </div>
     </div>
@@ -1213,7 +1744,7 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
                     html += '<div class="stock-item">';
                     html += '<div class="stock-name">' + s.name + '<span class="stock-code">' + s.code + '</span></div>';
                     html += '<div class="stock-meta">';
-                    html += '<div class="row1"><span class="up">机构' + fmtAmount(s.inst_net_wan) + '</span> / <span ' + (s.youzi_net_wan > 0 ? 'class="up"' : 'class="down"') + '>游资' + fmtAmount(s.youzi_net_wan) + '</span></div>';
+                    html += '<div class="row1"><span ' + (s.inst_net_wan > 0 ? 'class="up"' : 'class="down"') + '>机构<span ' + (s.inst_net_wan > 0 ? 'class="up"' : 'class="down"') + '>机构t_net_wan) + '</span> / <span ' + (s.youzi_net_wan > 0 ? 'class="up"' : 'class="down"') + '>游资' + fmtAmount(s.youzi_net_wan) + '</span></div>';
                     html += '<div class="row2">占比' + s.net_buy_ratio.toFixed(1) + '% · <span class="' + pctClass(s.change_pct) + '">' + fmtPct(s.change_pct) + '</span> · 换手' + s.turnover_rate.toFixed(1) + '%</div>';
                     html += '</div>';
                     html += '</div>';
@@ -1377,6 +1908,269 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
         container.innerHTML = html;
     }
 
+    // ========== 当前周期（周/月） ==========
+    var currentPeriod = 'week';
+
+    // ========== Tab 切换 ==========
+    function switchTab(tab) {
+        var dailyBtn = document.getElementById('tab-daily');
+        var contBtn = document.getElementById('tab-continuous');
+        var dailyPane = document.getElementById('pane-daily');
+        var contPane = document.getElementById('pane-continuous');
+        if (tab === 'daily') {
+            dailyBtn.classList.add('active');
+            contBtn.classList.remove('active');
+            dailyPane.classList.add('active');
+            contPane.classList.remove('active');
+        } else {
+            dailyBtn.classList.remove('active');
+            contBtn.classList.add('active');
+            dailyPane.classList.remove('active');
+            contPane.classList.add('active');
+            renderContinuousTracking();
+        }
+    }
+
+    // ========== 周期切换 ==========
+    function switchPeriod(period) {
+        currentPeriod = period;
+        document.getElementById('period-week').classList.toggle('active', period === 'week');
+        document.getElementById('period-month').classList.toggle('active', period === 'month');
+        renderContinuousTracking();
+    }
+
+    // ========== 渲染：连续追踪 ==========
+    function renderContinuousTracking() {
+        var ct = continuousData;
+        if (!ct || !ct.heat_index) {
+            var empty = '<div class="empty" style="padding:40px;text-align:center;">暂无连续追踪数据</div>';
+            document.getElementById('ct-industry-grid').innerHTML = empty;
+            document.getElementById('ct-inst-continuous').innerHTML = empty;
+            document.getElementById('ct-youzi-relay').innerHTML = empty;
+            document.getElementById('ct-high-freq').innerHTML = empty;
+            document.getElementById('ct-heat-index').innerHTML = empty;
+            return;
+        }
+
+        // 1. 行业板块趋势
+        renderCTIndustry(ct);
+
+        // 2. 机构连续加仓榜
+        renderCTInstContinuous(ct);
+
+        // 3. 游资接力榜
+        renderCTYouziRelay(ct);
+
+        // 4. 高频上榜股
+        renderCTHighFreq(ct);
+
+        // 5. 热度指数
+        renderCTHeatIndex(ct);
+    }
+
+    function renderCTIndustry(ct) {
+        var container = document.getElementById('ct-industry-grid');
+        var ind = ct.industry_trend[currentPeriod] || {};
+        var instTop = ind.inst_top10 || [];
+        var youziTop = ind.youzi_top10 || [];
+
+        var maxInst = 0;
+        for (var i = 0; i < instTop.length; i++) {
+            var abs = Math.abs(instTop[i].net_buy_wan);
+            if (abs > maxInst) maxInst = abs;
+        }
+        var maxYouzi = 0;
+        for (var i = 0; i < youziTop.length; i++) {
+            var abs = Math.abs(youziTop[i].net_buy_wan);
+            if (abs > maxYouzi) maxYouzi = abs;
+        }
+
+        var html = '';
+        // 机构
+        html += '<div class="industry-box">';
+        html += '<div class="industry-box-title">🏢 机构净买TOP行业</div>';
+        if (!ind.has_industry_data) {
+            html += '<div class="empty">行业数据接口接入中...</div>';
+        } else if (instTop.length === 0) {
+            html += '<div class="empty">暂无数据</div>';
+        } else {
+            for (var i = 0; i < instTop.length; i++) {
+                var it = instTop[i];
+                var pct = maxInst > 0 ? (Math.abs(it.net_buy_wan) / maxInst * 100) : 0;
+                var cls = it.net_buy_wan > 0 ? 'buy' : 'sell';
+                var amtCls = it.net_buy_wan > 0 ? 'up' : 'down';
+                var sign = it.net_buy_wan > 0 ? '+' : '';
+                html += '<div class="industry-item">';
+                html += '<div class="industry-name" title="' + it.industry + '">' + it.industry + '</div>';
+                html += '<div class="industry-bar"><div class="industry-bar-fill ' + cls + '" style="width:' + pct + '%;"></div></div>';
+                html += '<div class="industry-amount ' + amtCls + '">' + sign + fmtAmount(it.net_buy_wan) + '</div>';
+                html += '</div>';
+            }
+        }
+        html += '</div>';
+        // 游资
+        html += '<div class="industry-box">';
+        html += '<div class="industry-box-title">⚡ 游资净买TOP行业</div>';
+        if (!ind.has_industry_data) {
+            html += '<div class="empty">行业数据接口接入中...</div>';
+        } else if (youziTop.length === 0) {
+            html += '<div class="empty">暂无数据</div>';
+        } else {
+            for (var i = 0; i < youziTop.length; i++) {
+                var it = youziTop[i];
+                var pct = maxYouzi > 0 ? (Math.abs(it.net_buy_wan) / maxYouzi * 100) : 0;
+                var cls = it.net_buy_wan > 0 ? 'youzi-buy' : 'sell';
+                var amtCls = it.net_buy_wan > 0 ? 'up' : 'down';
+                var sign = it.net_buy_wan > 0 ? '+' : '';
+                html += '<div class="industry-item">';
+                html += '<div class="industry-name" title="' + it.industry + '">' + it.industry + '</div>';
+                html += '<div class="industry-bar"><div class="industry-bar-fill ' + cls + '" style="width:' + pct + '%;"></div></div>';
+                html += '<div class="industry-amount ' + amtCls + '">' + sign + fmtAmount(it.net_buy_wan) + '</div>';
+                html += '</div>';
+            }
+        }
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    function getRankNumClass(i) {
+        if (i === 0) return 'top1';
+        if (i === 1) return 'top2';
+        if (i === 2) return 'top3';
+        return '';
+    }
+
+    function renderCTInstContinuous(ct) {
+        var container = document.getElementById('ct-inst-continuous');
+        var list = ct.inst_continuous || [];
+        if (list.length === 0) {
+            container.innerHTML = '<div class="empty" style="padding:30px;text-align:center;">暂无连续加仓个股</div>';
+            return;
+        }
+        var html = '<table class="rank-table"><thead><tr>';
+        html += '<th style="width:50px;">排名</th><th>股票名称</th>';
+        html += '<th style="width:100px;">连续天数</th><th style="width:120px;">累计净买</th>';
+        html += '</tr></thead><tbody>';
+        for (var i = 0; i < list.length; i++) {
+            var s = list[i];
+            html += '<tr>';
+            html += '<td><span class="rank-num ' + getRankNumClass(i) + '">' + (i + 1) + '</span></td>';
+            html += '<td>' + s.name + '<span class="stock-code">' + s.code + '</span></td>';
+            html += '<td style="color:#e8a0b0;font-weight:600;">' + s.streak_days + ' 天</td>';
+            html += '<td class="up">' + fmtAmount(s.total_net_wan) + '</td>';
+            html += '</tr>';
+        }
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    }
+
+    function renderCTYouziRelay(ct) {
+        var container = document.getElementById('ct-youzi-relay');
+        var list = ct.youzi_relay || [];
+        if (list.length === 0) {
+            container.innerHTML = '<div class="empty" style="padding:30px;text-align:center;">暂无游资接力个股</div>';
+            return;
+        }
+        var html = '<table class="rank-table"><thead><tr>';
+        html += '<th style="width:50px;">排名</th><th>股票名称</th>';
+        html += '<th style="width:90px;">接力天数</th><th style="width:90px;">游资参与</th>';
+        html += '<th style="width:120px;">游资累计净买</th>';
+        html += '</tr></thead><tbody>';
+        for (var i = 0; i < list.length; i++) {
+            var s = list[i];
+            html += '<tr>';
+            html += '<td><span class="rank-num ' + getRankNumClass(i) + '">' + (i + 1) + '</span></td>';
+            html += '<td>' + s.name + '<span class="stock-code">' + s.code + '</span></td>';
+            html += '<td style="color:#d29922;font-weight:600;">' + s.relay_days + ' 天</td>';
+            html += '<td>' + s.youzi_count + ' 位</td>';
+            html += '<td class="up">' + fmtAmount(s.total_net_wan) + '</td>';
+            html += '</tr>';
+        }
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    }
+
+    function renderCTHighFreq(ct) {
+        var container = document.getElementById('ct-high-freq');
+        var list = (ct.high_freq && ct.high_freq[currentPeriod]) ? ct.high_freq[currentPeriod] : [];
+        if (list.length === 0) {
+            container.innerHTML = '<div class="empty" style="padding:30px;text-align:center;">暂无数据</div>';
+            return;
+        }
+        var html = '<table class="rank-table"><thead><tr>';
+        html += '<th style="width:50px;">排名</th><th>股票名称</th>';
+        html += '<th style="width:100px;">上榜次数</th><th style="width:100px;">上涨天数</th>';
+        html += '<th style="width:100px;">上涨占比</th>';
+        html += '</tr></thead><tbody>';
+        for (var i = 0; i < list.length; i++) {
+            var s = list[i];
+            var ratio = s.count > 0 ? (s.up_days / s.count * 100).toFixed(1) : '0.0';
+            html += '<tr>';
+            html += '<td><span class="rank-num ' + getRankNumClass(i) + '">' + (i + 1) + '</span></td>';
+            html += '<td>' + s.name + '<span class="stock-code">' + s.code + '</span></td>';
+            html += '<td style="font-weight:600;">' + s.count + ' 次</td>';
+            html += '<td class="up">' + s.up_days + ' 天</td>';
+            html += '<td>' + ratio + '%</td>';
+            html += '</tr>';
+        }
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    }
+
+    function renderCTHeatIndex(ct) {
+        var container = document.getElementById('ct-heat-index');
+        var heat = ct.heat_index || {};
+        var avg = heat[currentPeriod + '_avg'] || {};
+        var daily = heat.daily || [];
+        // 取对应周期的数据
+        var days = currentPeriod === 'week' ? 7 : 30;
+        var periodDaily = daily.slice(-Math.min(days, daily.length));
+        periodDaily.reverse();  // 最新在上面
+
+        var html = '';
+        html += '<div class="heat-stats">';
+        html += '<div class="heat-stat-card">';
+        html += '<div class="heat-stat-label">日均上榜股票数</div>';
+        html += '<div class="heat-stat-value">' + (avg.avg_stocks || 0) + ' 只</div>';
+        html += '</div>';
+        html += '<div class="heat-stat-card">';
+        html += '<div class="heat-stat-label">日均机构净买卖</div>';
+        var instNet = avg.avg_inst_net_wan || 0;
+        var instCls = instNet > 0 ? 'up' : 'down';
+        var instSign = instNet > 0 ? '+' : '';
+        html += '<div class="heat-stat-value ' + instCls + '">' + instSign + fmtAmount(instNet) + '</div>';
+        html += '</div>';
+        html += '<div class="heat-stat-card">';
+        html += '<div class="heat-stat-label">日均游资净买卖</div>';
+        var youziNet = avg.avg_youzi_net_wan || 0;
+        var youziCls = youziNet > 0 ? 'up' : 'down';
+        var youziSign = youziNet > 0 ? '+' : '';
+        html += '<div class="heat-stat-value ' + youziCls + '">' + youziSign + fmtAmount(youziNet) + '</div>';
+        html += '</div>';
+        html += '</div>';
+
+        html += '<div style="font-size:13px;color:#8b949e;margin-bottom:10px;font-weight:500;">每日明细（最新在前）</div>';
+        html += '<div class="heat-daily-list">';
+        if (periodDaily.length === 0) {
+            html += '<div class="empty">暂无数据</div>';
+        } else {
+            for (var i = 0; i < periodDaily.length; i++) {
+                var d = periodDaily[i];
+                var instN = d.inst_total_net_wan || 0;
+                var yzN = d.youzi_total_net_wan || 0;
+                html += '<div class="heat-daily-item">';
+                html += '<div class="heat-daily-date">' + d.date + '</div>';
+                html += '<div class="heat-daily-metrics">';
+                html += '<span style="color:#c9d1d9;">上榜 ' + d.stock_count + ' 只</span>';
+                html += '<span class="' + (instN > 0 ? 'up' : 'down') + '">机构 ' + (instN > 0 ? '+' : '') + fmtAmount(instN) + '</span>';
+                html += '<span class="' + (yzN > 0 ? 'up' : 'down') + '">游资 ' + (yzN > 0 ? '+' : '') + fmtAmount(yzN) + '</span>';
+                html += '</div></div>';
+            }
+        }
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
     // ========== 渲染主函数 ==========
     function renderPage(dateStr) {
         var data = signalData[dateStr];
@@ -1450,18 +2244,23 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
 
 def inject_data_into_page(html_content: str, date_data_map: Dict[str, Dict]) -> str:
     """
-    将多日信号数据注入到HTML中
+    将多日信号数据 + 连续追踪数据 注入到HTML中
     date_data_map: {date_str: signal_data_dict}
     """
     # 按日期排序
     sorted_dates = sorted(date_data_map.keys())
     data_json = json.dumps(date_data_map, ensure_ascii=False, separators=(',', ':'))
 
+    # 计算连续追踪数据
+    continuous_data = compute_continuous_tracking(date_data_map, window_days=30)
+    continuous_json = json.dumps(continuous_data, ensure_ascii=False, separators=(',', ':'))
+
     # 替换注入标记
     inject_marker = "// __SIGNAL_DATA_INJECT__"
     replacement = (
         f"// __SIGNAL_DATA_INJECT__\n"
         f"    signalData = {data_json};\n"
+        f"    continuousData = {continuous_json};\n"
         f"    // 有数据的日期列表\n"
         f"    var _availableDates = {json.dumps(sorted_dates)};\n"
     )
