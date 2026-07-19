@@ -376,12 +376,12 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
 
     temp_colors = {
         "hot": "#f85149",
-        "warm": "#d29922",
-        "neutral": "#58a6ff",
-        "cool": "#58a6ff",
+        "warm": "#d4af37",
+        "neutral": "#d4af37",
+        "cool": "#e6c65c",
         "cold": "#3fb950",
     }
-    temp_color = temp_colors.get(market_temp["level"], "#58a6ff")
+    temp_color = temp_colors.get(market_temp["level"], "#d4af37")
 
     # 指标
     metrics_html = ""
@@ -528,8 +528,9 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
             margin: 0 auto;
             background: #161b22;
             border-radius: 12px;
-            border: 1px solid #30363d;
+            border: 1px solid #d4af37;
             padding: 30px;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
         }}
         .header {{
             text-align: center;
@@ -540,7 +541,7 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
         .header h1 {{
             font-size: 28px;
             font-weight: 600;
-            color: #8dd0c0;
+            color: #d4af37;
             margin-bottom: 8px;
             letter-spacing: 2px;
         }}
@@ -555,7 +556,7 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
             gap: 18px;
             padding: 12px 16px;
             background: #161b22;
-            border: 1px solid #30363d;
+            border: 1px solid #d4af37;
             border-radius: 10px;
             margin-bottom: 18px;
         }}
@@ -574,10 +575,10 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
         }}
         .legend-dot.buy {{ background: #f85149; }}
         .legend-dot.sell {{ background: #3fb950; }}
-        .legend-dot.temp {{ background: #58a6ff; }}
+        .legend-dot.temp {{ background: #d4af37; }}
         .legend-dot.jiyou {{ background: #f85149; }}
         .legend-dot.nb {{ background: #3fb950; }}
-        .legend-dot.focus {{ background: #d29922; }}
+        .legend-dot.focus {{ background: #d4af37; }}
         .update-time {{
             text-align: center;
             color: #6e7681;
@@ -587,13 +588,14 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
         /* 市场温度 */
         .temp-card {{
             background: linear-gradient(135deg, #161b22 0%, #1c2128 100%);
-            border: 1px solid #30363d;
+            border: 1px solid #d4af37;
             border-radius: 12px;
             padding: 18px 24px;
             margin-bottom: 14px;
             display: flex;
             align-items: center;
             gap: 24px;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.08);
         }}
         .temp-score {{
             flex-shrink: 0;
@@ -661,14 +663,15 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
         }}
         .column-card {{
             background: #161b22;
-            border: 1px solid #30363d;
+            border: 1px solid #d4af37;
             border-radius: 12px;
             padding: 16px 18px;
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.06);
         }}
         .column-title {{
             font-size: 16px;
             font-weight: 600;
-            color: #f0f6fc;
+            color: #d4af37;
             margin-bottom: 4px;
             display: flex;
             align-items: center;
@@ -701,11 +704,11 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
         .section-label {{
             font-size: 12px;
             font-weight: 600;
-            color: #58a6ff;
+            color: #d4af37;
             margin: 10px 0 8px;
         }}
         .section-label.risk {{ color: #f85149; }}
-        .section-label.industry {{ color: #d29922; }}
+        .section-label.industry {{ color: #d4af37; }}
 
         /* 股票项 */
         .stock-item {{
@@ -798,8 +801,8 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
 
         /* 行业高亮 */
         .industry-highlight {{
-            background: linear-gradient(90deg, rgba(210, 153, 34, 0.1) 0%, rgba(210, 153, 34, 0.02) 100%);
-            border: 1px solid rgba(210, 153, 34, 0.3);
+            background: linear-gradient(90deg, rgba(212, 175, 55, 0.12) 0%, rgba(212, 175, 55, 0.02) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.3);
             border-radius: 8px;
             padding: 12px 14px;
             display: flex;
@@ -809,7 +812,7 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
         .industry-name {{
             font-size: 15px;
             font-weight: 600;
-            color: #d29922;
+            color: #d4af37;
         }}
         .industry-net {{
             font-size: 13px;
@@ -819,8 +822,8 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
 
         /* 共振项 */
         .resonance-item {{
-            background: rgba(88, 166, 255, 0.05);
-            border: 1px solid rgba(88, 166, 255, 0.2);
+            background: rgba(212, 175, 55, 0.06);
+            border: 1px solid rgba(212, 175, 55, 0.25);
             border-radius: 8px;
             padding: 10px 12px;
             margin-bottom: 8px;
@@ -845,9 +848,9 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
         }}
         .res-strength {{
             font-size: 12px;
-            color: #58a6ff;
+            color: #d4af37;
         }}
-        .res-strength b {{ color: #58a6ff; }}
+        .res-strength b {{ color: #d4af37; }}
 
         .empty-text {{
             color: #6e7681;
@@ -859,14 +862,15 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
         /* 明日关注 */
         .focus-card {{
             background: #161b22;
-            border: 1px solid #30363d;
+            border: 1px solid #d4af37;
             border-radius: 12px;
             padding: 16px 18px;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.08);
         }}
         .focus-title-bar {{
             font-size: 15px;
             font-weight: 600;
-            color: #f0f6fc;
+            color: #d4af37;
             margin-bottom: 12px;
             display: flex;
             align-items: center;
@@ -905,14 +909,14 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
             color: #6e7681;
             font-size: 11px;
         }}
-        .footer a {{ color: #58a6ff; text-decoration: none; }}
+        .footer a {{ color: #d4af37; text-decoration: none; }}
         .footer a:hover {{ text-decoration: underline; }}
     </style>
 </head>
 <body>
 <div class="container">
     <div style="margin-bottom:12px;">
-        <a href="portal.html" style="display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border-radius:20px;background:linear-gradient(135deg,#8dd0c0,#b5e0d7);color:#4a4a4a;text-decoration:none;font-size:14px;font-weight:600;box-shadow:0 2px 8px rgba(141,208,192,0.35);transition:transform .15s,box-shadow .15s;cursor:pointer;">📅 返回九宝日历精选</a>
+        <a href="portal.html" style="display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border-radius:20px;background:linear-gradient(135deg,#d4af37,#e6c65c);color:#4a4a4a;text-decoration:none;font-size:14px;font-weight:600;box-shadow:0 2px 8px rgba(212,175,55,0.35);transition:transform .15s,box-shadow .15s;cursor:pointer;">📅 返回九宝日历精选</a>
         <a href="signal-guide.html" style="display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border-radius:20px;background:linear-gradient(135deg,#d2a8ff,#8957e5);color:#fff;text-decoration:none;font-size:14px;font-weight:600;box-shadow:0 2px 8px rgba(210,168,255,0.35);transition:transform .15s;margin-left:10px;cursor:pointer;">📖 信号说明</a>
     </div>
     <div class="header">
