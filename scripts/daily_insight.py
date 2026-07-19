@@ -909,6 +909,7 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
 <div class="container">
     <div style="margin-bottom:12px;">
         <a href="portal.html" style="display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border-radius:20px;background:linear-gradient(135deg,#8dd0c0,#b5e0d7);color:#4a4a4a;text-decoration:none;font-size:14px;font-weight:600;box-shadow:0 2px 8px rgba(141,208,192,0.35);transition:transform .15s,box-shadow .15s;cursor:pointer;">📅 返回九宝日历精选</a>
+        <a href="signal-guide.html" style="display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border-radius:20px;background:linear-gradient(135deg,#d2a8ff,#8957e5);color:#fff;text-decoration:none;font-size:14px;font-weight:600;box-shadow:0 2px 8px rgba(210,168,255,0.35);transition:transform .15s;margin-left:10px;cursor:pointer;">📖 信号说明</a>
     </div>
     <div class="header">
         <h1>📊 每日市场洞察</h1>
