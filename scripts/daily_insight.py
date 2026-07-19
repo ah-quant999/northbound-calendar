@@ -988,17 +988,10 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
         <div class="legend-item"><span style="color:#3fb950;font-weight:600;">绿色=下跌/卖出</span></div>
     </div>
 
-    <!-- 市场温度 -->
-    <div class="temp-card">
-        <div class="temp-score">
-            <div class="num">{market_temp['score']}</div>
-            <div class="label">{market_temp['label']}</div>
-        </div>
-        <div class="temp-info">
-            <div class="summary">{market_temp['summary']}</div>
-            <div class="metrics-row">{metrics_html}
-            </div>
-        </div>
+    <!-- 明日关注点 -->
+    <div class="focus-card">
+        <div class="focus-title-bar">🎯 明日关注点</div>
+        {focus_html}
     </div>
 
     <!-- 双列 -->
@@ -1038,10 +1031,17 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
         </div>
     </div>
 
-    <!-- 明日关注点 -->
-    <div class="focus-card">
-        <div class="focus-title-bar">🎯 明日关注点</div>
-        {focus_html}
+    <!-- 市场温度 -->
+    <div class="temp-card">
+        <div class="temp-score">
+            <div class="num">{market_temp['score']}</div>
+            <div class="label">{market_temp['label']}</div>
+        </div>
+        <div class="temp-info">
+            <div class="summary">{market_temp['summary']}</div>
+            <div class="metrics-row">{metrics_html}
+            </div>
+        </div>
     </div>
 
     <!-- 深入分析入口 -->
