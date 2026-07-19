@@ -234,7 +234,7 @@
         }
         .tag.up { background: rgba(248, 81, 73, 0.12); color: #f85149; }
         .tag.down { background: rgba(63, 185, 80, 0.12); color: #3fb950; }
-        .tag.streak { background: rgba(63, 185, 80, 0.15); color: #3fb950; }
+        .tag.streak { background: rgba(248, 81, 73, 0.12); color: #f85149; }
         .stock-meta {
             display: flex;
             justify-content: space-between;
@@ -466,7 +466,7 @@
         <h1>📊 每日市场洞察</h1>
         <div class="subtitle">短线+中长线双视角 · 机游共振 × 北向资金</div>
     </div>
-    <div class="update-time">数据日期：2026-07-17 · 更新时间：2026-07-19 22:58</div>
+    <div class="update-time">数据日期：2026-07-17 · 更新时间：2026-07-19 23:02</div>
 
     <!-- 图例 -->
     <div class="legend">
@@ -476,6 +476,31 @@
         <div class="legend-item"><span class="legend-dot focus"></span><span>明日关注</span></div>
         <div class="legend-item"><span style="color:#f85149;font-weight:600;">红色=上涨/买入</span></div>
         <div class="legend-item"><span style="color:#3fb950;font-weight:600;">绿色=下跌/卖出</span></div>
+    </div>
+
+    <!-- 市场温度 -->
+    <div class="temp-card">
+        <div class="temp-score">
+            <div class="num">55</div>
+            <div class="label">🌤️ 中性</div>
+        </div>
+        <div class="temp-info">
+            <div class="summary">市场情绪中性，多空相对平衡，精选个股为主。</div>
+            <div class="metrics-row">
+            <div class="metric-card">
+                <div class="metric-label">北向净买入</div>
+                <div class="metric-value up">+23.79亿</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">机游共振买入</div>
+                <div class="metric-value down">1只</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">龙虎榜个股</div>
+                <div class="metric-value ">68只</div>
+            </div>
+            </div>
+        </div>
     </div>
 
     <!-- 明日关注点 -->
@@ -573,7 +598,7 @@
                     <span class="tag up">累计+11.51亿</span>
                 </div>
                 <div class="stock-meta">
-                    <span>区间涨幅</span>
+                    <span>当日涨跌</span>
                     <span class="change-pct down">-9.99%</span>
                 </div>
             </div>
@@ -584,7 +609,7 @@
                     <span class="tag up">累计+3.63亿</span>
                 </div>
                 <div class="stock-meta">
-                    <span>区间涨幅</span>
+                    <span>当日涨跌</span>
                     <span class="change-pct down">-9.99%</span>
                 </div>
             </div>
@@ -598,31 +623,6 @@
                     <span class="mini-tag">机构+86.91亿</span>
                 </div>
                 <div class="res-strength">共振强度 <b>+94.72亿</b></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 市场温度 -->
-    <div class="temp-card">
-        <div class="temp-score">
-            <div class="num">55</div>
-            <div class="label">🌤️ 中性</div>
-        </div>
-        <div class="temp-info">
-            <div class="summary">市场情绪中性，多空相对平衡，精选个股为主。</div>
-            <div class="metrics-row">
-            <div class="metric-card">
-                <div class="metric-label">北向净买入</div>
-                <div class="metric-value up">+23.79亿</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-label">机游共振买入</div>
-                <div class="metric-value down">1只</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-label">龙虎榜个股</div>
-                <div class="metric-value ">68只</div>
-            </div>
             </div>
         </div>
     </div>

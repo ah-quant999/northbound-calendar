@@ -467,7 +467,7 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
                     <span class="tag {net_cls}">累计{s['total_net']}</span>
                 </div>
                 <div class="stock-meta">
-                    <span>区间涨幅</span>
+                    <span>当日涨跌</span>
                     <span class="change-pct {chg_cls}">{s['change_pct']}</span>
                 </div>
             </div>"""
@@ -744,7 +744,7 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
         }}
         .tag.up {{ background: rgba(248, 81, 73, 0.12); color: #f85149; }}
         .tag.down {{ background: rgba(63, 185, 80, 0.12); color: #3fb950; }}
-        .tag.streak {{ background: rgba(63, 185, 80, 0.15); color: #3fb950; }}
+        .tag.streak {{ background: rgba(248, 81, 73, 0.12); color: #f85149; }}
         .stock-meta {{
             display: flex;
             justify-content: space-between;
@@ -988,6 +988,19 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
         <div class="legend-item"><span style="color:#3fb950;font-weight:600;">绿色=下跌/卖出</span></div>
     </div>
 
+    <!-- 市场温度 -->
+    <div class="temp-card">
+        <div class="temp-score">
+            <div class="num">{market_temp['score']}</div>
+            <div class="label">{market_temp['label']}</div>
+        </div>
+        <div class="temp-info">
+            <div class="summary">{market_temp['summary']}</div>
+            <div class="metrics-row">{metrics_html}
+            </div>
+        </div>
+    </div>
+
     <!-- 明日关注点 -->
     <div class="focus-card">
         <div class="focus-title-bar">🎯 明日关注点</div>
@@ -1028,19 +1041,6 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
             {nb_continuous_html}
 
             {resonance_section}
-        </div>
-    </div>
-
-    <!-- 市场温度 -->
-    <div class="temp-card">
-        <div class="temp-score">
-            <div class="num">{market_temp['score']}</div>
-            <div class="label">{market_temp['label']}</div>
-        </div>
-        <div class="temp-info">
-            <div class="summary">{market_temp['summary']}</div>
-            <div class="metrics-row">{metrics_html}
-            </div>
         </div>
     </div>
 
