@@ -70,9 +70,17 @@ def fmt_wan(val: float) -> str:
     if val is None:
         return "—"
     abs_val = abs(val)
+    sign = "+" if val > 0 else ("-" if val < 0 else "")
     if abs_val >= 10000:
-        return f"{val / 10000:.2f}亿"
-    return f"{val:,.0f}万"
+        return f"{sign}{abs_val / 10000:.2f}亿"
+    return f"{sign}{abs_val:,.0f}万"
+
+
+def val_sign(val_str: str) -> str:
+    """根据金额字符串返回 up/down 类名"""
+    if val_str.startswith("-"):
+        return "down"
+    return "up"
 
 
 def compute_market_temp(signal_data: dict, nb_daily: dict, latest_date: str,
@@ -389,16 +397,19 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
     jiyou_buy_html = ""
     if jiyou_insight.get("top_resonance"):
         for s in jiyou_insight["top_resonance"]:
+            inst_cls = val_sign(s['inst_net'])
+            youzi_cls = val_sign(s['youzi_net'])
+            chg_cls = val_sign(s['change_pct'])
             jiyou_buy_html += f"""
             <div class="stock-item">
                 <div class="stock-name">{s['name']} <span class="stock-code">{s['code']}</span></div>
                 <div class="stock-detail">
-                    <span class="tag up">机构 {s['inst_net']}</span>
-                    <span class="tag up">游资 {s['youzi_net']}</span>
+                    <span class="tag {inst_cls}">机构 {s['inst_net']}</span>
+                    <span class="tag {youzi_cls}">游资 {s['youzi_net']}</span>
                 </div>
                 <div class="stock-meta">
                     <span>合计 {s['total']}</span>
-                    <span class="change-pct up">{s['change_pct']}</span>
+                    <span class="change-pct {chg_cls}">{s['change_pct']}</span>
                 </div>
             </div>"""
     else:
@@ -421,21 +432,23 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
     jiyou_relay_html = ""
     if jiyou_insight.get("youzi_relay"):
         for s in jiyou_insight["youzi_relay"]:
+            net_cls = val_sign(s['total_net'])
             jiyou_relay_html += f"""
             <div class="relay-item">
                 <span class="relay-name">{s['name']}</span>
                 <span class="relay-badge">接力{s['relay_days']}</span>
-                <span class="relay-net up">{s['total_net']}</span>
+                <span class="relay-net {net_cls}">{s['total_net']}</span>
             </div>"""
 
     # 北向行业
     nb_industry_html = ""
     if nb_insight.get("top_industry"):
         ind = nb_insight["top_industry"]
+        ind_cls = val_sign(ind['net_buy'])
         nb_industry_html = f"""
             <div class="industry-highlight">
                 <div class="industry-name">{ind['name']}</div>
-                <div class="industry-net up">周净买入 {ind['net_buy']}</div>
+                <div class="industry-net {ind_cls}">周净买入 {ind['net_buy']}</div>
             </div>"""
     else:
         nb_industry_html = '<div class="empty-text">行业数据待补充</div>'
@@ -444,18 +457,18 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
     nb_continuous_html = ""
     if nb_insight.get("continuous_buy"):
         for s in nb_insight["continuous_buy"]:
-            is_up = s['change_pct'].startswith('+') or (not s['change_pct'].startswith('-') and s['change_pct'] != '0.00%')
-            cls = "up" if is_up else "down"
+            chg_cls = val_sign(s['change_pct'])
+            net_cls = val_sign(s['total_net'])
             nb_continuous_html += f"""
             <div class="stock-item">
                 <div class="stock-name">{s['name']} <span class="stock-code">{s['code']}</span></div>
                 <div class="stock-detail">
                     <span class="tag streak">连续加仓{s['streak_days']}</span>
-                    <span class="tag up">累计{s['total_net']}</span>
+                    <span class="tag {net_cls}">累计{s['total_net']}</span>
                 </div>
                 <div class="stock-meta">
                     <span>区间涨幅</span>
-                    <span class="change-pct {cls}">{s['change_pct']}</span>
+                    <span class="change-pct {chg_cls}">{s['change_pct']}</span>
                 </div>
             </div>"""
     else:
