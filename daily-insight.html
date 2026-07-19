@@ -19,19 +19,51 @@
         }
         .header {
             text-align: center;
-            padding: 12px 0 16px;
+            padding: 20px 0;
+            border-bottom: 1px solid #30363d;
+            margin-bottom: 25px;
         }
         .header h1 {
-            font-size: 24px;
-            font-weight: 700;
-            color: #f0f6fc;
-            margin-bottom: 4px;
+            font-size: 28px;
+            font-weight: 600;
+            color: #8dd0c0;
+            margin-bottom: 8px;
             letter-spacing: 2px;
         }
         .header .subtitle {
             color: #8b949e;
-            font-size: 12px;
+            font-size: 13px;
         }
+        /* 图例 */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            padding: 12px 16px;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 10px;
+            margin-bottom: 18px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #8b949e;
+        }
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .legend-dot.buy { background: #f85149; }
+        .legend-dot.sell { background: #3fb950; }
+        .legend-dot.temp { background: #58a6ff; }
+        .legend-dot.jiyou { background: #f85149; }
+        .legend-dot.nb { background: #3fb950; }
+        .legend-dot.focus { background: #d29922; }
         .update-time {
             text-align: center;
             color: #6e7681;
@@ -372,7 +404,17 @@
         <h1>📊 每日市场洞察</h1>
         <div class="subtitle">短线+中长线双视角 · 机游共振 × 北向资金</div>
     </div>
-    <div class="update-time">数据日期：2026-07-17 · 更新时间：2026-07-19 21:39</div>
+    <div class="update-time">数据日期：2026-07-17 · 更新时间：2026-07-19 21:40</div>
+
+    <!-- 图例 -->
+    <div class="legend">
+        <div class="legend-item"><span class="legend-dot temp"></span><span>市场温度</span></div>
+        <div class="legend-item"><span class="legend-dot jiyou"></span><span>机游共振（短线）</span></div>
+        <div class="legend-item"><span class="legend-dot nb"></span><span>北向资金（中长线）</span></div>
+        <div class="legend-item"><span class="legend-dot focus"></span><span>明日关注</span></div>
+        <div class="legend-item"><span style="color:#f85149;font-weight:600;">红色=上涨/买入</span></div>
+        <div class="legend-item"><span style="color:#3fb950;font-weight:600;">绿色=下跌/卖出</span></div>
+    </div>
 
     <!-- 市场温度 -->
     <div class="temp-card">
