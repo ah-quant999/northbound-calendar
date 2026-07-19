@@ -221,12 +221,31 @@ def main():
         if r_analysis.returncode != 0:
             log_warn(f"北向分析页更新 {ds} 失败（返回码={r_analysis.returncode}），继续后续流程")
 
+    # 步骤6：生成每日市场洞察
+    log_info("步骤6/6：生成每日市场洞察")
+    insight_html = os.path.join(os.path.dirname(html_path), "daily-insight.html")
+    insight_script = str(SCRIPT_DIR / "daily_insight.py")
+    # 机游分析页面路径
+    jiyou_html = os.path.join(os.path.dirname(html_path), "jiyou-signal-analysis.html")
+    if os.path.isfile(jiyou_html):
+        r_insight = run_cmd([
+            sys.executable, insight_script,
+            "--repo-dir", os.path.dirname(html_path),
+            "--jiyou-html", "jiyou-signal-analysis.html",
+            "--nb-html", "northbound-analysis.html",
+            "--output", "daily-insight.html",
+        ], timeout=120)
+        if r_insight.returncode != 0:
+            log_warn(f"每日洞察生成失败（返回码={r_insight.returncode}），继续后续流程")
+    else:
+        log_warn("机游信号分析页不存在，跳过每日洞察生成")
+
     # 检查是否有变更
     size_after = os.path.getsize(html_path)
     print(f"\n📏 更新后文件大小: {size_after} 字节")
 
     # 检查 git 状态
-    changed = has_git_changes(repo_dir, [html_file, "index.html", "northbound-analysis.html"])
+    changed = has_git_changes(repo_dir, [html_file, "index.html", "northbound-analysis.html", "daily-insight.html"])
 
     print()
     print("=" * 60)
