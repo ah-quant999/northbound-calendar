@@ -524,8 +524,12 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
             color: #c9d1d9;
         }}
         .container {{
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
+            background: #161b22;
+            border-radius: 12px;
+            border: 1px solid #30363d;
+            padding: 30px;
         }}
         .header {{
             text-align: center;
