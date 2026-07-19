@@ -200,7 +200,7 @@ def main():
     print(f"📋 待更新日期: {', '.join(update_dates)}")
 
     # 步骤1：逐个更新
-    log_info("步骤1/6：更新每日数据")
+    log_info("步骤1/7：更新每日数据")
     all_ok = True
     for ds in update_dates:
         print(f"\n--- 更新 {ds} ---")
@@ -212,7 +212,7 @@ def main():
         sys.exit(1)
 
     # 步骤2：更新当周汇总
-    log_info("步骤2/6：更新当周汇总TOP5")
+    log_info("步骤2/7：更新当周汇总TOP5")
     try:
         update_jiyou_weekly_summary(html_path, target_date)
     except Exception as e:
@@ -221,7 +221,7 @@ def main():
         traceback.print_exc()
 
     # 步骤3：更新月度汇总
-    log_info("步骤3/6：更新月度汇总TOP10")
+    log_info("步骤3/7：更新月度汇总TOP10")
     try:
         update_jiyou_monthly_summary(html_path, target_date)
     except Exception as e:
@@ -230,13 +230,30 @@ def main():
         traceback.print_exc()
 
     # 步骤4：同步 index.html
-    log_info("步骤4/6：同步 index.html")
+    log_info("步骤4/7：同步 index.html")
     shutil.copy2(html_path, index_path)
     print(f"✅ index.html 已同步: {index_path}")
 
-    # 步骤5：API 模式校验（校验当日 + 回刷日的数据正确性）
+    # 步骤5：更新信号分析页
+    log_info("步骤5/7：更新信号分析页面")
+    signal_html = os.path.join(os.path.dirname(html_path), "jiyou-signal-analysis.html")
+    signal_script = str(SCRIPT_DIR / "jiyou_signal_analysis.py")
+    for ds in update_dates:
+        if not is_trading_day(ds):
+            continue
+        print(f"\n--- 信号分析 {ds} ---")
+        r_sig = run_cmd([
+            sys.executable, signal_script,
+            "--date", ds,
+            "--html", signal_html,
+            "--repo-dir", os.path.dirname(html_path),
+        ], timeout=180)
+        if r_sig.returncode != 0:
+            log_warn(f"信号分析页更新 {ds} 失败（返回码={r_sig.returncode}），继续后续流程")
+
+    # 步骤6：API 模式校验（校验当日 + 回刷日的数据正确性）
     if not args.skip_validate:
-        log_info("步骤5/6：API 模式数据一致性校验")
+        log_info("步骤6/7：API 模式数据一致性校验")
         val_ok = True
         for ds in update_dates:
             if not is_trading_day(ds):
@@ -248,21 +265,21 @@ def main():
             log_error("API 模式校验失败，流水线中止")
             sys.exit(1)
 
-        # 步骤6：HTML 模式校验
-        log_info("步骤6/6：HTML 模式格式校验")
+        # 步骤7：HTML 模式校验
+        log_info("步骤7/7：HTML 模式格式校验")
         if not run_validate_html(html_path):
             log_error("HTML 模式校验失败，流水线中止")
             sys.exit(1)
     else:
-        log_info("步骤5/6：跳过API校验（--skip-validate）")
-        log_info("步骤6/6：跳过HTML校验（--skip-validate）")
+        log_info("步骤6/7：跳过API校验（--skip-validate）")
+        log_info("步骤7/7：跳过HTML校验（--skip-validate）")
 
     # 检查是否有变更
     size_after = os.path.getsize(html_path)
     print(f"\n📏 更新后文件大小: {size_after} 字节")
 
     # 检查 git 状态
-    changed = has_git_changes(repo_dir, [html_file, "index.html"])
+    changed = has_git_changes(repo_dir, [html_file, "index.html", "jiyou-signal-analysis.html"])
 
     print()
     print("=" * 60)

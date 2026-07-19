@@ -2121,7 +2121,7 @@
             var signalSections = signalsEl.querySelectorAll('.signal-section');
             if (signalSections.length > 0) {
                 var sigHtml = '<div class="daily-signals-section">';
-                sigHtml += '<div class="signals-header">每日信号精选</div>';
+                sigHtml += '<div class="signals-header" style="position:relative;">每日信号精选<a href=\"jiyou-signal-analysis.html\" style=\"font-size:13px;color:#58a6ff;text-decoration:none;margin-left:auto;font-weight:normal;\" onmouseover=\"this.style.textDecoration='underline'\" onmouseout=\"this.style.textDecoration='none'\">查看完整分析 →</a></div>';
                 sigHtml += '<div class="signals-grid">';
                 for (var k = 0; k < signalSections.length; k++) {
                     var sec = signalSections[k];
