@@ -1149,7 +1149,7 @@ def inject_data_into_page(html_content: str, analysis_data: Dict,
     replacement = (
         f"// __NB_DATA_INJECT__\n"
         f"    nbAnalysis = {analysis_json};\n"
-        f"    nbDailyData = {daily_json};\n"
+        f"    var nbDailyData = {daily_json};\n"
     )
 
     if inject_marker in html_content:

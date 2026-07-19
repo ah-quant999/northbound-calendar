@@ -2262,8 +2262,7 @@ def inject_data_into_page(html_content: str, date_data_map: Dict[str, Dict]) -> 
         f"    signalData = {data_json};\n"
         f"    continuousData = {continuous_json};\n"
         f"    // 有数据的日期列表\n"
-        f"    var _availableDates = {json.dumps(sorted_dates)};\n"
-    )
+            )
 
     if inject_marker in html_content:
         html_content = html_content.replace(inject_marker, replacement, 1)
