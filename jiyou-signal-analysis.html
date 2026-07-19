@@ -758,7 +758,7 @@
                     html += '<div class="stock-item">';
                     html += '<div class="stock-name">' + s.name + '<span class="stock-code">' + s.code + '</span></div>';
                     html += '<div class="stock-meta">';
-                    html += '<div class="row1"><span ' + (s.inst_net_wan > 0 ? 'class="up"' : 'class="down"') + '>机构<span ' + (s.inst_net_wan > 0 ? 'class="up"' : 'class="down"') + '>机构t_net_wan) + '</span> / <span ' + (s.youzi_net_wan > 0 ? 'class="up"' : 'class="down"') + '>游资' + fmtAmount(s.youzi_net_wan) + '</span></div>';
+                    html += '<div class="row1"><span ' + (s.inst_net_wan > 0 ? 'class="up"' : 'class="down"') + '>机构</span><span ' + (s.inst_net_wan > 0 ? 'class="up"' : 'class="down"') + '>' + fmtAmount(s.inst_net_wan) + '</span> / <span ' + (s.youzi_net_wan > 0 ? 'class="up"' : 'class="down"') + '>游资' + fmtAmount(s.youzi_net_wan) + '</span></div>';
                     html += '<div class="row2">占比' + s.net_buy_ratio.toFixed(1) + '% · <span class="' + pctClass(s.change_pct) + '">' + fmtPct(s.change_pct) + '</span> · 换手' + s.turnover_rate.toFixed(1) + '%</div>';
                     html += '</div>';
                     html += '</div>';
