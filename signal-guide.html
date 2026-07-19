@@ -116,9 +116,32 @@
         .page-desc {
             color: #8b949e;
             font-size: 14px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             padding-bottom: 20px;
             border-bottom: 1px solid #30363d;
+        }
+        .legend-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding: 12px 16px;
+            background: #161b22;
+            border: 1px solid #a371f7;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #c9d1d9;
+        }
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
         }
 
         h2 {
@@ -437,6 +460,13 @@
             <h1>📖 信号分析方法论</h1>
             <div class="page-desc">
                 本文档详细阐述机游信号分析系统的设计原理、判断标准和使用方法。所有信号均基于龙虎榜公开数据计算得出，仅供参考，不构成投资建议。
+            </div>
+
+            <!-- 图例 -->
+            <div class="legend-row">
+                <div class="legend-item"><span class="legend-dot" style="background:#f85149;"></span><span>红色 = 买入 / 上涨 / 净买入</span></div>
+                <div class="legend-item"><span class="legend-dot" style="background:#3fb950;"></span><span>绿色 = 卖出 / 下跌 / 净卖出</span></div>
+                <div class="legend-item"><span class="legend-dot" style="background:#a371f7;"></span><span>紫色 = 综合信号 / 重点提示</span></div>
             </div>
 
             <!-- 第一章 -->
