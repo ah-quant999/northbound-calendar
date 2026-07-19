@@ -200,16 +200,33 @@ def main():
         traceback.print_exc()
 
     # 步骤4：同步 index.html
-    log_info("步骤4/4：同步 index.html")
+    log_info("步骤4/5：同步 index.html")
     shutil.copy2(html_path, index_path)
     print(f"✅ index.html 已同步: {index_path}")
+
+    # 步骤5：更新北向分析页
+    log_info("步骤5/5：更新北向分析页面")
+    analysis_html = os.path.join(os.path.dirname(html_path), "northbound-analysis.html")
+    analysis_script = str(SCRIPT_DIR / "northbound_analysis.py")
+    for ds in update_dates:
+        if not is_northbound_open(ds):
+            continue
+        print(f"\n--- 北向分析 {ds} ---")
+        r_analysis = run_cmd([
+            sys.executable, analysis_script,
+            "--date", ds,
+            "--html", analysis_html,
+            "--repo-dir", os.path.dirname(html_path),
+        ], timeout=180)
+        if r_analysis.returncode != 0:
+            log_warn(f"北向分析页更新 {ds} 失败（返回码={r_analysis.returncode}），继续后续流程")
 
     # 检查是否有变更
     size_after = os.path.getsize(html_path)
     print(f"\n📏 更新后文件大小: {size_after} 字节")
 
     # 检查 git 状态
-    changed = has_git_changes(repo_dir, [html_file, "index.html"])
+    changed = has_git_changes(repo_dir, [html_file, "index.html", "northbound-analysis.html"])
 
     print()
     print("=" * 60)
