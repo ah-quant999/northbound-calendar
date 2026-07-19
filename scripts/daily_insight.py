@@ -770,12 +770,12 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
         }}
         .risk-reason {{
             font-size: 12px;
-            color: #f85149;
+            color: #3fb950;
             margin-bottom: 3px;
         }}
         .risk-detail {{
             font-size: 11px;
-            color: #8b949e;
+            color: #3fb950;
         }}
 
         /* 接力项 */
