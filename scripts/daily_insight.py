@@ -983,7 +983,7 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
         <h1>📊 每日市场洞察</h1>
         <div class="subtitle">短线+中长线双视角 · 机游共振 × 北向资金</div>
     </div>
-    <div class="update-time">数据日期：{latest_date} · 更新时间：{update_time}</div>
+    <div class="update-time">数据日期：{latest_date} | 每日固定更新：17:50 | 本次更新：{update_time}</div>
 
     <!-- 图例 -->
     <div class="legend">
