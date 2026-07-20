@@ -82,7 +82,7 @@
         }
 
         /* ===== 面板页 ===== */
-        .panel { display: none; }
+        .panel { display: block; }
         .panel .header {
             text-align: center; padding: 20px 0 28px;
         }
@@ -239,7 +239,7 @@
 <body>
     <div class="container">
         <!-- 登录页 -->
-        <div class="login-box" id="loginPage">
+        <div class="login-box" id="loginPage" style="display:none">
             <div class="logo-icon">📅</div>
             <h1>九宝日历精选</h1>
             <div class="subtitle">日历面板 · 请输入密码</div>
@@ -323,9 +323,7 @@
             document.getElementById("errorMsg").style.display = "none";
         }
 
-        window.onload = function() {
-            if (sessionStorage.getItem("portal_role")) showPanel();
-        }
+        window.onload = function() {}
     </script>
 </body>
 </html>
