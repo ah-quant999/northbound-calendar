@@ -634,6 +634,12 @@
     .daily-signals-section .signals-header::before {
         content: "🎯";
     }
+    .signal-link-hover {
+        text-decoration: none;
+    }
+    .signal-link-hover:hover {
+        text-decoration: underline;
+    }
     .signals-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -699,11 +705,12 @@
                 <span class="nav-current" id="nav-year">2026年 7月</span>
                 <span class="nav-link month-btn" onclick="switchMonth(8)" id="nav-next">8月 →</span>
             </div>
-            <div class="subtitle">龙虎榜机构席位 + 游资席位数据 | 每日更新时间：17:35 | 本次更新时间：2026-07-19 13:01</div>
+            <div class="subtitle">龙虎榜机构席位 + 游资席位数据 | 每日更新时间：17:35 | 本次更新时间：2026-07-20 11:24</div>
         </div>
 
         <div class="legend">
             <div class="legend-item"><span class="stock-icon up" style="color:#f85149;">▲</span><span>机构买入</span></div>
+            <div class="legend-item"><span class="stock-icon down" style="color:#3fb950;">▼</span><span>机构卖出</span></div>
             <div class="legend-item"><span class="stock-icon up" style="color:#f85149;">▲</span><span>游资买入</span></div>
             <div class="legend-item"><span class="stock-icon down" style="color:#3fb950;">▼</span><span>游资卖出</span></div>
             <div class="legend-item"><span style="color:#ffd700;font-weight:600;">★ 机游共振</span></div>
@@ -1398,6 +1405,49 @@
                             <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">华微电子</span><span class="stock-amount down">-1.41亿</span></span>
                         </div>
                     </div>
+                    <div class="daily-signals" style="display:none;" data-signals="1">
+                        <div class="signal-section signal-buy">
+                            <div class="signal-section-title" style="color:#f85149;">① 机游共振买入</div>
+                            <div class="signal-item">
+                                <span class="signal-name">红板科技</span>
+                                <span class="signal-meta">机构+9571万 / 游资+3.49亿 占比15.02%</span>
+                            </div>
+                            <div class="signal-item">
+                                <span class="signal-name">智度股份</span>
+                                <span class="signal-meta">机构+2713万 / 游资+4001万 占比5.24%</span>
+                            </div>
+                        </div>
+                        <div class="signal-section signal-mix1">
+                            <div class="signal-section-title" style="color:#d29922;">③ 机构出货 游资接盘</div>
+                            <div class="signal-item">
+                                <span class="signal-name">澜起科技</span>
+                                <span class="signal-meta">机构-11.97亿 / 游资+20.67亿 占比8.08%</span>
+                            </div>
+                            <div class="signal-item">
+                                <span class="signal-name">海星股份</span>
+                                <span class="signal-meta">机构-1.56亿 / 游资+5173万 占比25.55%</span>
+                            </div>
+                            <div class="signal-item">
+                                <span class="signal-name">博瑞医药</span>
+                                <span class="signal-meta">机构-1.55亿 / 游资+3402万 占比6.59%</span>
+                            </div>
+                        </div>
+                        <div class="signal-section signal-mix2">
+                            <div class="signal-section-title" style="color:#a371f7;">④ 机构接盘 游资出货</div>
+                            <div class="signal-item">
+                                <span class="signal-name">麦格米特</span>
+                                <span class="signal-meta">机构+2.11亿 / 游资-3.40亿 占比6.35%</span>
+                            </div>
+                            <div class="signal-item">
+                                <span class="signal-name">银信科技</span>
+                                <span class="signal-meta">机构+1.33亿 / 游资-2658万 占比10.61%</span>
+                            </div>
+                            <div class="signal-item">
+                                <span class="signal-name">利安隆</span>
+                                <span class="signal-meta">机构+2831万 / 游资-1.63亿 占比22.7%</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                     </td>
                     <td onclick="showDayDetail(this)" style="cursor:pointer" class="has-resonance">
@@ -1510,7 +1560,115 @@
             </thead>
             <tbody>
                 <tr>
-                    <td onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number">20</span></div><div class="empty-content">--</div></div></td>
+                    <td onclick="showDayDetail(this)" style="cursor:pointer">
+                <div class="day-cell">
+                    <div class="day-header"><span class="day-number">20</span></div>
+                    <div class="stock-list">
+                        <div class="section-title">▲ 机构净买入TOP5</div>
+                        <div class="stock-row">
+                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">光迅科技</span><span class="stock-amount up">+3.58亿</span></span>
+                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">德明利</span><span class="stock-amount up">+2.69亿</span></span>
+                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">天通股份</span><span class="stock-amount up">+2.59亿</span></span>
+                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">陇神戎发</span><span class="stock-amount up">+2.29亿</span></span>
+                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">九安医疗</span><span class="stock-amount up">+2.29亿</span></span>
+                        </div>
+                        <div class="section-title sell-title">▼ 机构净卖出TOP5</div>
+                        <div class="stock-row">
+                            <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">中国巨石</span><span class="stock-amount down">-15.42亿</span></span>
+                            <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">东山精密</span><span class="stock-amount down">-5.13亿</span></span>
+                            <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">博迁新材</span><span class="stock-amount down">-4.11亿</span></span>
+                            <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">宏和科技</span><span class="stock-amount down">-3.94亿</span></span>
+                            <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">海星股份</span><span class="stock-amount down">-2.75亿</span></span>
+                        </div>
+                        <div class="section-title youzi-title">▲ 游资净买入TOP5</div>
+                        <div class="stock-row">
+                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">兆易创新</span><span class="stock-amount up">+17.40亿</span></span>
+                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">中国巨石</span><span class="stock-amount up">+16.95亿</span></span>
+                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">东山精密</span><span class="stock-amount up">+5.75亿</span></span>
+                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">博迁新材</span><span class="stock-amount up">+4.57亿</span></span>
+                            <span class="stock-item"><span class="stock-icon up">▲</span><span class="stock-name">宏和科技</span><span class="stock-amount up">+2.36亿</span></span>
+                        </div>
+                        <div class="section-title youzi-sell-title">▼ 游资净卖出TOP5</div>
+                        <div class="stock-row">
+                            <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">德明利</span><span class="stock-amount down">-13.03亿</span></span>
+                            <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">光迅科技</span><span class="stock-amount down">-2.73亿</span></span>
+                            <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">九安医疗</span><span class="stock-amount down">-2.70亿</span></span>
+                            <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">金海通</span><span class="stock-amount down">-1.93亿</span></span>
+                            <span class="stock-item"><span class="stock-icon down">▼</span><span class="stock-name">天通股份</span><span class="stock-amount down">-1.88亿</span></span>
+                        </div>
+                    </div>
+                    <div class="daily-signals" style="display:none;" data-signals="1">
+                        <div class="signal-section signal-buy">
+                            <div class="signal-section-title" style="color:#f85149;">① 机游共振买入</div>
+                            <div class="signal-item">
+                                <span class="signal-name">陇神戎发</span>
+                                <span class="signal-meta">机构+2.29亿 / 游资+3831万 占比18.36%</span>
+                            </div>
+                            <div class="signal-item">
+                                <span class="signal-name">古井贡酒</span>
+                                <span class="signal-meta">机构+3352万 / 游资+8425万 占比8.07%</span>
+                            </div>
+                            <div class="signal-item">
+                                <span class="signal-name">晋控电力</span>
+                                <span class="signal-meta">机构+2695万 / 游资+9343万 占比7.72%</span>
+                            </div>
+                        </div>
+                        <div class="signal-section signal-sell">
+                            <div class="signal-section-title" style="color:#3fb950;">② 机游共振卖出</div>
+                            <div class="signal-item">
+                                <span class="signal-name">中岩大地</span>
+                                <span class="signal-meta">机构-2106万 / 游资-1.47亿 占比27.8%</span>
+                            </div>
+                        </div>
+                        <div class="signal-section signal-mix1">
+                            <div class="signal-section-title" style="color:#d29922;">③ 机构出货 游资接盘</div>
+                            <div class="signal-item">
+                                <span class="signal-name">中国巨石</span>
+                                <span class="signal-meta">机构-15.42亿 / 游资+16.95亿 占比6.48%</span>
+                            </div>
+                            <div class="signal-item">
+                                <span class="signal-name">博迁新材</span>
+                                <span class="signal-meta">机构-4.11亿 / 游资+4.57亿 占比7.37%</span>
+                            </div>
+                            <div class="signal-item">
+                                <span class="signal-name">宏和科技</span>
+                                <span class="signal-meta">机构-3.94亿 / 游资+2.36亿 占比5.19%</span>
+                            </div>
+                            <div class="signal-item">
+                                <span class="signal-name">海星股份</span>
+                                <span class="signal-meta">机构-2.75亿 / 游资+2.09亿 占比14.97%</span>
+                            </div>
+                            <div class="signal-item">
+                                <span class="signal-name">新锐股份</span>
+                                <span class="signal-meta">机构-2.33亿 / 游资+1.19亿 占比12.54%</span>
+                            </div>
+                            <div class="signal-item">
+                                <span class="signal-name">茂莱光学</span>
+                                <span class="signal-meta">机构-2.18亿 / 游资+1.24亿 占比17.24%</span>
+                            </div>
+                            <div class="signal-item">
+                                <span class="signal-name">探路者</span>
+                                <span class="signal-meta">机构-1.51亿 / 游资+7084万 占比10.22%</span>
+                            </div>
+                            <div class="signal-item">
+                                <span class="signal-name">福达合金</span>
+                                <span class="signal-meta">机构-3583万 / 游资+1.25亿 占比9.12%</span>
+                            </div>
+                        </div>
+                        <div class="signal-section signal-mix2">
+                            <div class="signal-section-title" style="color:#a371f7;">④ 机构接盘 游资出货</div>
+                            <div class="signal-item">
+                                <span class="signal-name">德明利</span>
+                                <span class="signal-meta">机构+2.69亿 / 游资-13.03亿 占比15.16%</span>
+                            </div>
+                            <div class="signal-item">
+                                <span class="signal-name">斯迪克</span>
+                                <span class="signal-meta">机构+1.22亿 / 游资-1.78亿 占比7.08%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    </td>
                     <td onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number">21</span></div><div class="empty-content">--</div></div></td>
                     <td onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number">22</span></div><div class="empty-content">--</div></div></td>
                     <td onclick="showDayDetail(this)" style="cursor:pointer"><div class="day-cell"><div class="day-header"><span class="day-number">23</span></div><div class="empty-content">--</div></div></td>
@@ -1748,18 +1906,59 @@
                     <div class="week-stocks">
                         <div class="week-section">
                             <div class="week-section-title">✅ 机构净买入TOP5</div>
-                            <div class="week-stock-item">
+                                                        <div class="week-stock-item">
                                 <span class="week-stock-rank">1</span>
-                                <span class="week-stock-name">暂无数据</span>
-                                <span class="week-stock-amount" style="color:#6e7681;">--</span>
+                                <span class="week-stock-name">光迅科技</span>
+                                <span class="week-stock-amount" style="color:#f85149;">+3.58亿</span>
+                            </div>
+                            <div class="week-stock-item">
+                                <span class="week-stock-rank">2</span>
+                                <span class="week-stock-name">德明利</span>
+                                <span class="week-stock-amount" style="color:#f85149;">+2.69亿</span>
+                            </div>
+                            <div class="week-stock-item">
+                                <span class="week-stock-rank">3</span>
+                                <span class="week-stock-name">天通股份</span>
+                                <span class="week-stock-amount" style="color:#f85149;">+2.59亿</span>
+                            </div>
+                            <div class="week-stock-item">
+                                <span class="week-stock-rank">4</span>
+                                <span class="week-stock-name">陇神戎发</span>
+                                <span class="week-stock-amount" style="color:#f85149;">+2.29亿</span>
+                            </div>
+                            <div class="week-stock-item">
+                                <span class="week-stock-rank">5</span>
+                                <span class="week-stock-name">九安医疗</span>
+                                <span class="week-stock-amount" style="color:#f85149;">+2.29亿</span>
                             </div>
                         </div>
                         <div class="week-section">
                             <div class="week-section-title">🔥 游资活跃TOP5</div>
-                            <div class="week-stock-item">
+                                                        <div class="week-stock-item">
                                 <span class="week-stock-rank">1</span>
-                                <span class="week-stock-name">暂无数据</span>
-                                <span class="week-stock-amount" style="color:#6e7681;">--</span>
+                                <span class="week-stock-name">兆易创新 国泰海通总部</span>
+                                <span class="week-stock-amount" style="color:#f85149;">+26.60亿</span>
+                            </div>
+                            <div class="week-stock-item">
+                                <span class="week-stock-rank">2</span>
+                                <span class="week-stock-name">兆易创新 中信上海分公司</span>
+                                <span class="week-stock-amount" style="color:#f85149;">+26.03亿</span>
+                            </div>
+                            <div class="week-stock-item">
+                                <span class="week-stock-rank">3</span>
+                                <span class="week-stock-name">兆易创新 银河股份有限公司南京洪武路</span>
+                                <span class="week-stock-amount" style="color:#f85149;">+15.11亿</span>
+                            </div>
+                            <div class="week-stock-item">
+                                <span class="week-stock-rank">4</span>
+                                <span class="week-stock-name">兆易创新 瑞银证券有限责任公司上海花园石桥路</span>
+                                <span class="week-stock-amount" style="color:#f85149;">+12.33亿</span>
+                            </div>
+                            <div class="week-stock-item">
+                                <span class="week-stock-rank">5</span>
+                                <span class="week-stock-name">中国巨石 国泰海通总部</span>
+                                <span class="week-stock-amount" style="color:#f85149;">+9.19亿</span>
+                            </div>
                             </div>
                         </div>
                     </div>
@@ -1812,16 +2011,16 @@
             <div class="summary-box">
                 <h3 class="sell">🔥 游资活跃TOP10</h3>
                 <ul class="rank-list">
-                    <li class="rank-item"><span class="rank-num top">1</span><span class="rank-name">国泰海通总部·昊华科技</span><span class="rank-amount buy">+11.88亿</span></li>
-                    <li class="rank-item"><span class="rank-num top">2</span><span class="rank-name">国泰海通北京知春路·华天科技</span><span class="rank-amount buy">+11.10亿</span></li>
-                    <li class="rank-item"><span class="rank-num top">3</span><span class="rank-name">中信上海分公司·黄河旋风</span><span class="rank-amount buy">+10.62亿</span></li>
-                    <li class="rank-item"><span class="rank-num other">4</span><span class="rank-name">国泰海通南京太平南路·浪潮信息</span><span class="rank-amount buy">+10.11亿</span></li>
-                    <li class="rank-item"><span class="rank-num other">5</span><span class="rank-name">华宝上海东大名路·三江转债</span><span class="rank-amount buy">+9.83亿</span></li>
-                    <li class="rank-item"><span class="rank-num other">6</span><span class="rank-name">国泰海通总部·兆易创新</span><span class="rank-amount buy">+9.25亿</span></li>
-                    <li class="rank-item"><span class="rank-num other">7</span><span class="rank-name">高盛(中国)证券有限责任公司上海浦东新区世纪大道·昊华科技</span><span class="rank-amount buy">+9.15亿</span></li>
-                    <li class="rank-item"><span class="rank-num other">8</span><span class="rank-name">高盛(中国)证券有限责任公司上海浦东新区世纪大道·红板科技</span><span class="rank-amount buy">+9.14亿</span></li>
-                    <li class="rank-item"><span class="rank-num other">9</span><span class="rank-name">国泰海通总部·臻宝科技</span><span class="rank-amount buy">+8.96亿</span></li>
-                    <li class="rank-item"><span class="rank-num other">10</span><span class="rank-name">华宝上海东大名路·银微转债</span><span class="rank-amount buy">+8.82亿</span></li>
+                    <li class="rank-item"><span class="rank-num top">1</span><span class="rank-name">国泰海通总部·兆易创新</span><span class="rank-amount buy">+35.84亿</span></li>
+                    <li class="rank-item"><span class="rank-num top">2</span><span class="rank-name">中信上海分公司·兆易创新</span><span class="rank-amount buy">+30.86亿</span></li>
+                    <li class="rank-item"><span class="rank-num top">3</span><span class="rank-name">瑞银证券有限责任公司上海花园石桥路·兆易创新</span><span class="rank-amount buy">+17.62亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">4</span><span class="rank-name">华宝上海东大名路·三江转债</span><span class="rank-amount buy">+15.37亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">5</span><span class="rank-name">银河股份有限公司南京洪武路·兆易创新</span><span class="rank-amount buy">+15.11亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">6</span><span class="rank-name">国泰海通总部·昊华科技</span><span class="rank-amount buy">+11.88亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">7</span><span class="rank-name">国泰海通上海分公司·东山精密</span><span class="rank-amount buy">+11.77亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">8</span><span class="rank-name">国泰海通北京知春路·华天科技</span><span class="rank-amount buy">+11.10亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">9</span><span class="rank-name">中信上海分公司·黄河旋风</span><span class="rank-amount buy">+10.62亿</span></li>
+                    <li class="rank-item"><span class="rank-num other">10</span><span class="rank-name">国泰海通南京太平南路·浪潮信息</span><span class="rank-amount buy">+10.11亿</span></li>
                 </ul>
                 <div class="summary-note">★ = 机游共振信号（机构净买入TOP5 ∩ 游资净买入TOP20）</div>
             </div>
@@ -1843,7 +2042,7 @@
             机游共振日历 · 纯东财API数据交叉版（游资按股票维度）<br>
             数据来源：东方财富官方龙虎榜API（机构买卖 + 个股明细，100%官方数据） / 证券时报·数据宝 / 东方财富Choice / 金融界<br>
             口径：龙虎榜机构专用席位净买入 + 知名游资营业部净买入 | 仅供参考，不构成投资建议<br>
-            生成日期：2026-07-19 12:00
+            生成日期：2026-07-20 12:00
         </div>
 
         <div class="data-source">
@@ -1908,6 +2107,21 @@
     // ===== 点击展开详情 =====
     var _detailPanel = null;
     var _detailCurrentTd = null;
+
+    
+    // 信号金额颜色处理（红涨绿跌）
+    function colorSignalMeta(text) {
+        if (!text) return '';
+        // Match patterns like 机构+XXX万 / 游资-XXX亿 占比XX%
+        // Add color spans around amount parts
+        return text.replace(/([+-][0-9.]+[万亿])/g, function(match) {
+            if (match.charAt(0) === '+') {
+                return '<span style="color:#f85149;">' + match + '</span>';
+            } else {
+                return '<span style="color:#3fb950;">' + match + '</span>';
+            }
+        });
+    }
 
     function showDayDetail(td) {
         var panel = document.getElementById('day-detail-panel');
@@ -2078,7 +2292,7 @@
             var signalSections = signalsEl.querySelectorAll('.signal-section');
             if (signalSections.length > 0) {
                 var sigHtml = '<div class="daily-signals-section">';
-                sigHtml += '<div class="signals-header">每日信号精选</div>';
+                sigHtml += '<div class="signals-header" style="position:relative;">每日信号精选<a href=\"jiyou-signal-analysis.html\" style=\"font-size:13px;color:#58a6ff;text-decoration:none;margin-left:auto;font-weight:normal;\" class=\"signal-link-hover\">查看完整分析 →</a></div>';
                 sigHtml += '<div class="signals-grid">';
                 for (var k = 0; k < signalSections.length; k++) {
                     var sec = signalSections[k];
@@ -2099,7 +2313,7 @@
                             var sMetaText = sMeta ? sMeta.textContent.trim() : '';
                             sigHtml += '<div class="signal-item">';
                             sigHtml += '<span class="signal-name">' + sNameText + '</span>';
-                            sigHtml += '<span class="signal-meta">' + sMetaText + '</span>';
+                            sigHtml += '<span class="signal-meta">' + colorSignalMeta(sMetaText) + '</span>';
                             sigHtml += '</div>';
                         }
                     }
