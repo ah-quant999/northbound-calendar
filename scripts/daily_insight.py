@@ -330,17 +330,19 @@ def compute_focus_points(jiyou_insight: dict, nb_insight: dict, market_temp: dic
     # 关注点1：最强方向
     if jiyou_insight.get("top_resonance"):
         top = jiyou_insight["top_resonance"][0]
+        total_cls = val_sign(top['total'])
         points.append({
             "icon": "⚡",
             "title": "短线关注",
-            "content": f"机游共振最强标的 {top['name']}({top['code']})，合计净买{top['total']}，观察次日溢价持续性。",
+            "content": f"机游共振最强标的 {top['name']}({top['code']})，合计净买<span class=\"amt {total_cls}\">{top['total']}</span>，观察次日溢价持续性。",
         })
     elif nb_insight.get("continuous_buy"):
         top = nb_insight["continuous_buy"][0]
+        total_cls = val_sign(top['total_net'])
         points.append({
             "icon": "📈",
             "title": "中长线关注",
-            "content": f"北向连续加仓龙头 {top['name']}({top['code']})，连续{top['streak_days']}，累计净买{top['total_net']}。",
+            "content": f"北向连续加仓龙头 {top['name']}({top['code']})，连续{top['streak_days']}天，累计净买<span class=\"amt {total_cls}\">{top['total_net']}</span>。",
         })
 
     # 关注点2：风险或行业
@@ -349,14 +351,15 @@ def compute_focus_points(jiyou_insight: dict, nb_insight: dict, market_temp: dic
         points.append({
             "icon": "⚠️",
             "title": "风险警示",
-            "content": f"{risk['name']}({risk['code']})出现{risk['reason']}，{risk['detail']}，警惕回调风险。",
+            "content": f"{risk['name']}({risk['code']})出现<span class=\"amt down\">{risk['reason']}</span>，{risk['detail']}，警惕回调风险。",
         })
     elif nb_insight.get("top_industry"):
         ind = nb_insight["top_industry"]
+        ind_cls = val_sign(ind['net_buy'])
         points.append({
             "icon": "🏭",
             "title": "行业方向",
-            "content": f"北向资金本周最看好 {ind['name']} 板块，净买入{ind['net_buy']}，可关注板块龙头。",
+            "content": f"北向资金本周最看好 {ind['name']} 板块，净买入<span class=\"amt {ind_cls}\">{ind['net_buy']}</span>，可关注板块龙头。",
         })
 
     if not points:
@@ -903,6 +906,8 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
             color: #8b949e;
             line-height: 1.5;
         }}
+        .focus-desc .amt.up {{ color: #f85149; font-weight: 600; }}
+        .focus-desc .amt.down {{ color: #3fb950; font-weight: 600; }}
 
         /* 底部 */
         /* 深入分析入口 */
