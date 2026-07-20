@@ -748,7 +748,8 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
         .tag.streak {{ background: rgba(248, 81, 73, 0.12); color: #f85149; }}
         .stock-meta {{
             display: flex;
-            justify-content: space-between;
+            gap: 6px;
+            align-items: center;
             font-size: 12px;
             color: #6e7681;
         }}
