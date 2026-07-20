@@ -656,6 +656,7 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 14px;
+            margin-top: 16px;
             margin-bottom: 14px;
         }}
         @media (max-width: 768px) {{
