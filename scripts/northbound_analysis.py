@@ -1169,6 +1169,13 @@ def generate_page(output_path: str, dates: List[str]) -> bool:
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(html_content)
 
+    # 注入密码保护
+    _pwd_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "password_protect.py")
+    if os.path.isfile(_pwd_script):
+        sys.path.insert(0, os.path.dirname(_pwd_script))
+        from password_protect import inject_password
+        inject_password(output_path, "#58a6ff")
+
     log_info(f"北向分析页面已生成: {output_path}（{len(dates)}天数据）")
     return True
 
@@ -1291,6 +1298,13 @@ def update_page_incremental(output_path: str, dates: List[str]) -> bool:
     os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(html_content)
+
+    # 注入密码保护
+    _pwd_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "password_protect.py")
+    if os.path.isfile(_pwd_script):
+        sys.path.insert(0, os.path.dirname(_pwd_script))
+        from password_protect import inject_password
+        inject_password(output_path, "#58a6ff")
 
     log_info(f"北向分析页增量更新完成: {output_path}（共{len(merged_daily)}天，本次{len(dates)}天）")
     return True

@@ -2288,6 +2288,13 @@ def generate_signal_page(output_path: str, date_data_map: Dict[str, Dict]) -> bo
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(html_content)
 
+    # 注入密码保护
+    _pwd_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "password_protect.py")
+    if os.path.isfile(_pwd_script):
+        sys.path.insert(0, os.path.dirname(_pwd_script))
+        from password_protect import inject_password
+        inject_password(output_path, "#e888a0")
+
     log_info(f"信号分析页面已生成: {output_path}（{len(date_data_map)}天数据）")
     return True
 
@@ -2319,6 +2326,13 @@ def update_signal_page_data(page_path: str, new_date_data: Dict[str, Dict]) -> b
 
     with open(page_path, "w", encoding="utf-8") as f:
         f.write(content)
+
+    # 注入密码保护
+    _pwd_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "password_protect.py")
+    if os.path.isfile(_pwd_script):
+        sys.path.insert(0, os.path.dirname(_pwd_script))
+        from password_protect import inject_password
+        inject_password(page_path, "#e888a0")
 
     log_info(f"信号分析页已更新: {page_path}（共{len(merged)}天数据，本次更新{len(new_date_data)}天）")
     return True

@@ -82,7 +82,7 @@
         }
 
         /* ===== 面板页 ===== */
-        .panel { display: block; }
+        .panel { display: none; }
         .panel .header {
             text-align: center; padding: 20px 0 28px;
         }
@@ -239,7 +239,7 @@
 <body>
     <div class="container">
         <!-- 登录页 -->
-        <div class="login-box" id="loginPage" style="display:none">
+        <div class="login-box" id="loginPage">
             <div class="logo-icon">📅</div>
             <h1>九宝日历精选</h1>
             <div class="subtitle">日历面板 · 请输入密码</div>
@@ -247,7 +247,7 @@
                    onkeydown="if(event.key==='Enter')login()">
             <button class="btn" onclick="login()">进入面板</button>
             <div class="error" id="errorMsg">密码错误，请重试</div>
-            <div class="hint">密码登录</div>
+            <div class="hint">密码登录 · 7天内免输入</div>
         </div>
 
         <!-- 面板页 -->
@@ -295,11 +295,38 @@
 
     <script>
         const CAL_PWD = "hjd666";
+        const EXPIRE_KEY = "portal_login_expire";
+        const EXPIRE_DAYS = 7;
+
+        function isLoggedIn() {
+            try {
+                var expire = parseInt(localStorage.getItem(EXPIRE_KEY) || "0", 10);
+                return expire > Date.now();
+            } catch(e) {
+                return false;
+            }
+        }
+
+        function setLoggedIn() {
+            try {
+                var expire = Date.now() + EXPIRE_DAYS * 24 * 60 * 60 * 1000;
+                localStorage.setItem(EXPIRE_KEY, String(expire));
+                sessionStorage.setItem("portal_role", "1");
+            } catch(e) {}
+        }
+
+        function clearLogin() {
+            try {
+                localStorage.removeItem(EXPIRE_KEY);
+                sessionStorage.removeItem("portal_role");
+            } catch(e) {}
+        }
 
         function login() {
             const pwd = document.getElementById("passwordInput").value;
             const error = document.getElementById("errorMsg");
             if (pwd === CAL_PWD) {
+                setLoggedIn();
                 showPanel();
             } else {
                 error.style.display = "block";
@@ -312,18 +339,22 @@
             document.getElementById("panelPage").style.display = "block";
             document.getElementById("roleTag").textContent = "📅 已登录";
             document.getElementById("welcomeMsg").textContent = "欢迎回来";
-            sessionStorage.setItem("portal_role", "1");
         }
 
         function logout() {
-            sessionStorage.removeItem("portal_role");
+            clearLogin();
             document.getElementById("panelPage").style.display = "none";
             document.getElementById("loginPage").style.display = "block";
             document.getElementById("passwordInput").value = "";
             document.getElementById("errorMsg").style.display = "none";
         }
 
-        window.onload = function() {}
+        window.onload = function() {
+            if (isLoggedIn()) {
+                sessionStorage.setItem("portal_role", "1");
+                showPanel();
+            }
+        }
     </script>
 </body>
 </html>

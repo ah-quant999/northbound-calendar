@@ -799,6 +799,13 @@ def update_html(html_path: str, data: DailyData) -> bool:
     try:
         with open(html_path, "w", encoding="utf-8") as f:
             f.write(html)
+
+        # 注入密码保护
+        _pwd_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "password_protect.py")
+        if os.path.isfile(_pwd_script):
+            sys.path.insert(0, os.path.dirname(_pwd_script))
+            from password_protect import inject_password
+            inject_password(html_path, "#e888a0")
         print(f"✅ HTML文件已更新: {html_path}")
         return True
     except Exception as e:

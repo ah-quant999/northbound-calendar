@@ -18,6 +18,8 @@
 """
 
 import argparse
+import sys
+import os
 import json
 import os
 import re
@@ -1194,6 +1196,11 @@ def main():
     os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(html_content)
+
+    # 注入密码保护
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from password_protect import inject_password
+    inject_password(output_path, "#ff7a00")
 
     print(f"  ✅ 已生成: {output_path}")
     print(f"  📏 文件大小: {os.path.getsize(output_path)} 字节")
