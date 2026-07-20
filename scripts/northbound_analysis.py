@@ -1159,7 +1159,7 @@ def inject_data_into_page(html_content: str, analysis_data: Dict,
 
 
 def generate_page(output_path: str, dates: List[str]) -> bool:
-    """生成北向分析页面"""
+    """生成北向分析页面（全量覆盖）"""
     analysis_data, daily_data = build_northbound_analysis(dates)
 
     html_content = PAGE_HTML_TEMPLATE
@@ -1170,6 +1170,129 @@ def generate_page(output_path: str, dates: List[str]) -> bool:
         f.write(html_content)
 
     log_info(f"北向分析页面已生成: {output_path}（{len(dates)}天数据）")
+    return True
+
+
+def extract_existing_daily_data(page_path: str) -> Dict[str, Dict]:
+    """
+    从已有HTML页面中提取nbDailyData数据（增量更新的历史基础）
+    """
+    if not os.path.isfile(page_path):
+        return {}
+
+    with open(page_path, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    # 匹配 var nbDailyData = {...};
+    m = re.search(r"var\s+nbDailyData\s*=\s*(\{.*?\});", content, re.DOTALL)
+    if not m:
+        log_warn("未在现有页面中找到 nbDailyData，无法提取历史数据")
+        return {}
+
+    try:
+        data = json.loads(m.group(1))
+        log_info(f"从现有页面提取到 {len(data)} 天历史数据")
+        return data
+    except Exception as e:
+        log_error(f"解析 nbDailyData 失败: {e}")
+        return {}
+
+
+def update_page_incremental(output_path: str, dates: List[str]) -> bool:
+    """
+    增量更新北向分析页面：
+    1. 如果页面不存在，走全量生成逻辑
+    2. 如果页面存在，先提取历史nbDailyData，再用新日期数据覆盖/追加
+    3. 基于合并后的全部日期重新计算 week/month 汇总
+    4. 重新生成完整HTML并写入
+    """
+    # 页面不存在 -> 全量生成
+    if not os.path.isfile(output_path):
+        log_info("页面不存在，走全量生成逻辑")
+        return generate_page(output_path, dates)
+
+    log_info(f"开始增量更新，本次更新 {len(dates)} 天: {', '.join(sorted(dates))}")
+
+    # 1. 提取现有历史数据
+    existing_daily = extract_existing_daily_data(output_path)
+    if not existing_daily:
+        log_warn("未提取到历史数据，走全量生成逻辑")
+        return generate_page(output_path, dates)
+
+    # 2. 获取本次新日期的北向数据
+    log_info(f"获取本次 {len(dates)} 天的北向数据 ...")
+    new_daily = {}
+    all_codes = set()
+    for ds in dates:
+        try:
+            day_data = get_northbound_daily(ds)
+            new_daily[ds] = day_data
+            for s in day_data.get("stocks", []):
+                all_codes.add(s["code"])
+            time.sleep(0.2)
+        except Exception as e:
+            log_error(f"获取 {ds} 北向数据失败: {e}")
+            new_daily[ds] = {"date": ds, "stocks": [], "total_net_wan": 0.0}
+
+    # 3. 合并：新数据覆盖旧数据，保留所有历史日期
+    merged_daily = {**existing_daily, **new_daily}
+    all_sorted_dates = sorted(merged_daily.keys())
+    log_info(f"合并后共 {len(merged_daily)} 天数据，范围: {all_sorted_dates[0]} ~ {all_sorted_dates[-1]}")
+
+    # 4. 获取所有日期的机构数据（用于重新计算共振）
+    # 优化：只获取机构数据，不重新抓北向
+    log_info(f"获取 {len(merged_daily)} 天的机构数据（重算共振）...")
+    inst_data_map = {}
+    for ds in all_sorted_dates:
+        try:
+            inst_data = get_institution_data(ds)
+            inst_data_map[ds] = inst_data
+            for s in inst_data.get("buy_sorted", []) + inst_data.get("sell_sorted", []):
+                all_codes.add(s["code"])
+            time.sleep(0.2)
+        except Exception as e:
+            log_error(f"获取 {ds} 机构数据失败: {e}")
+            inst_data_map[ds] = {"buy_sorted": [], "sell_sorted": []}
+
+    # 5. 获取行情数据
+    log_info(f"获取 {len(all_codes)} 只股票行情 ...")
+    quotes = {}
+    if all_codes:
+        try:
+            quotes = fetch_tencent_quotes(list(all_codes))
+            log_info(f"  成功获取 {len(quotes)} 只股票行情")
+        except Exception as e:
+            log_warn(f"行情数据获取失败: {e}")
+
+    # 6. 基于合并后的全部数据重新计算分析
+    nb_data = merged_daily
+    sorted_dates = sorted(nb_data.keys())
+    week_dates = sorted_dates[-7:] if len(sorted_dates) > 7 else sorted_dates
+    month_dates = sorted_dates[-30:] if len(sorted_dates) > 30 else sorted_dates
+
+    def compute_period(period_dates: List[str]) -> Dict:
+        return {
+            "industry_trend": compute_industry_trend(nb_data, period_dates),
+            "continuous_buy": compute_continuous_buy(nb_data, period_dates, quotes),
+            "resonance": compute_northbound_inst_resonance(nb_data, inst_data_map, period_dates),
+            "holding_change": compute_holding_change(nb_data, period_dates),
+            "heat_index": compute_northbound_heat(nb_data, period_dates),
+        }
+
+    analysis_data = {
+        "week": compute_period(week_dates),
+        "month": compute_period(month_dates),
+    }
+
+    # 7. 重新生成完整HTML（用模板 + 注入新数据）
+    html_content = PAGE_HTML_TEMPLATE
+    html_content = inject_data_into_page(html_content, analysis_data, nb_data)
+
+    os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(html_content)
+
+    log_info(f"北向分析页增量更新完成: {output_path}（共{len(merged_daily)}天，本次{len(dates)}天）")
     return True
 
 
@@ -1276,8 +1399,17 @@ def main():
         log_warn("没有需要处理的日期")
         return
 
+    # 判断走全量还是增量
+    # backfill 且日期数 >= 5 走全量；单日期或少日期走增量
+    is_full_backfill = bool(args.backfill) and len(target_dates) >= 5
+
     try:
-        generate_page(html_path, target_dates)
+        if is_full_backfill:
+            log_info(f"检测到 {len(target_dates)} 天回补，走全量生成模式")
+            generate_page(html_path, target_dates)
+        else:
+            log_info(f"检测到 {len(target_dates)} 天更新，走增量更新模式")
+            update_page_incremental(html_path, target_dates)
     except Exception as e:
         log_error(f"生成页面失败: {e}")
         import traceback
