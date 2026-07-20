@@ -206,10 +206,31 @@ def main() -> None:
         log_warn("北向资金更新失败（不阻塞机游更新，继续执行）")
 
     # 步骤2：机游共振 T 日更新
-    log_info("步骤2/2：机游共振 T 日兜底更新")
+    log_info("步骤2/3：机游共振 T 日兜底更新")
     if not run_jiyou_update(repo_dir, target_date):
         log_error("机游共振更新失败")
         sys.exit(1)
+
+    # 步骤3：重新生成每日市场洞察（确保两端数据都更新完后，洞察同步刷新）
+    log_info("步骤3/3：重新生成每日市场洞察")
+    insight_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "daily_insight.py")
+    insight_output = os.path.join(repo_dir, "daily-insight.html")
+    jy_analysis = os.path.join(repo_dir, "jiyou-signal-analysis.html")
+    nb_analysis = os.path.join(repo_dir, "northbound-analysis.html")
+    if os.path.isfile(insight_script) and os.path.isfile(jy_analysis) and os.path.isfile(nb_analysis):
+        r_insight = subprocess.run(
+            ["python3", insight_script,
+             "--jiyou-html", jy_analysis,
+             "--nb-html", nb_analysis,
+             "--output", insight_output],
+            capture_output=True, text=True, cwd=repo_dir
+        )
+        if r_insight.returncode == 0:
+            log_info("✅ 每日洞察重新生成成功")
+        else:
+            log_warn(f"每日洞察重新生成失败（返回码={r_insight.returncode}），不阻塞整体流程")
+    else:
+        log_warn("洞察脚本或分析页不存在，跳过每日洞察重新生成")
 
     # 检查 git 变更
     log_info("检查 git 变更")
