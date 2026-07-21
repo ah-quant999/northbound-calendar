@@ -24,7 +24,7 @@ import json
 import os
 import re
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 
@@ -1189,7 +1189,7 @@ def main():
 
     # 5. 生成HTML
     log_info("生成HTML页面 ...")
-    update_time = datetime.now().strftime("%Y-%m-%d %H:%M")
+    update_time = (datetime.now(timezone.utc) + timedelta(hours=8)).strftime("%Y-%m-%d %H:%M")
     html_content = generate_html(market_temp, jiyou_insight, nb_insight,
                                  focus_points, latest_date, update_time)
 

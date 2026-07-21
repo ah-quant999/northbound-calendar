@@ -28,7 +28,7 @@ import os
 import re
 import sys
 import time
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 try:
     import requests
@@ -724,8 +724,8 @@ def update_month_calendar(year, month, repo_dir, dry_run=False):
         print(f"❌ 文件不存在: {filepath}")
         return False
 
-    today = date.today()
-    now_dt = datetime.now()
+    today = (datetime.utcnow() + timedelta(hours=8)).date()
+    now_dt = datetime.utcnow() + timedelta(hours=8)
 
     # 1. 读取现有 HTML 母版
     print("1/4 读取现有 HTML 母版...")
@@ -846,7 +846,7 @@ def main():
             print(f"❌ 无效的月份格式: {args.month}（应为 YYYY-MM）")
             sys.exit(1)
     else:
-        today = date.today()
+        today = (datetime.utcnow() + timedelta(hours=8)).date()
         target_year = today.year
         target_month = today.month
 

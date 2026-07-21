@@ -1402,7 +1402,7 @@ def main():
             log_warn(f"{args.date} 非交易日或北向休市，跳过")
             return
     else:
-        today = datetime.now().strftime("%Y-%m-%d")
+        today = datetime.utcnow() + timedelta(hours=8).strftime("%Y-%m-%d")
         if is_trading_day(today) and is_northbound_open(today):
             target_dates = [today]
         else:

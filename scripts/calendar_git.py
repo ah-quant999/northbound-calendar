@@ -203,3 +203,15 @@ def calendar_git_push(repo_path: str, files: list, commit_msg: str) -> bool:
         return False
 
     return True
+
+
+# ===== 北京时间工具 =====
+def bj_now():
+    """返回当前北京时间的datetime对象（带时区）"""
+    from datetime import datetime, timezone, timedelta
+    return datetime.now(timezone.utc) + timedelta(hours=8)
+
+
+def bj_today_str():
+    """返回北京时间今日日期字符串 YYYY-MM-DD"""
+    return bj_now().strftime("%Y-%m-%d")

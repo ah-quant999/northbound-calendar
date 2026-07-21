@@ -739,7 +739,7 @@ def update_html(html_path: str, data: Dict) -> bool:
     has_data = bool(data["institution_top5"] or data["resonance"])
 
     # 更新更新时间
-    now = datetime.now()
+    now = datetime.utcnow() + timedelta(hours=8)
     update_time_str = now.strftime("%Y-%m-%d %H:%M")
     html = re.sub(
         r'本次更新时间：\d{4}-\d{2}-\d{2} \d{2}:\d{2}',
