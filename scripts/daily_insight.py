@@ -439,10 +439,12 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
         for s in jiyou_insight["youzi_relay"]:
             net_cls = val_sign(s['total_net'])
             jiyou_relay_html += f"""
-            <div class="relay-item">
-                <span class="relay-name">{s['name']}</span>
-                <span class="relay-badge">接力{s['relay_days']}</span>
-                <span class="relay-net {net_cls}">{s['total_net']}</span>
+            <div class="stock-item">
+                <div class="stock-name">{s['name']}</div>
+                <div class="stock-detail">
+                    <span class="tag streak">接力{s['relay_days']}</span>
+                    <span class="tag {net_cls}">{s['total_net']}</span>
+                </div>
             </div>"""
 
     # 北向行业
@@ -785,26 +787,6 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
             color: #3fb950;
         }}
 
-        /* 接力项 */
-        .relay-item {{
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 0;
-            border-bottom: 1px solid #21262d;
-            font-size: 12px;
-        }}
-        .relay-item:last-child {{ border-bottom: none; }}
-        .relay-name {{ flex: 1; color: #c9d1d9; }}
-        .relay-badge {{
-            font-size: 10px;
-            padding: 1px 6px;
-            border-radius: 3px;
-            background: rgba(248, 81, 73, 0.12);
-            color: #f85149;
-        }}
-        .relay-net {{ font-weight: 600; font-size: 11px; }}
-        .relay-net.up {{ color: #f85149; }}
 
         /* 行业高亮 */
         .industry-highlight {{
