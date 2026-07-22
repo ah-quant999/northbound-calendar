@@ -404,7 +404,7 @@ THRESHOLD_INST = 2000.0
 THRESHOLD_YOUZI = 1500.0
 THRESHOLD_NORTH = 500.0
 
-HOLD_PERIODS = [1, 3, 5]
+HOLD_PERIODS = [1, 3, 5, 10, 20, 30, 60, 90]
 
 # 腾讯K线接口
 KLINE_API_URL = "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get"
@@ -432,7 +432,7 @@ def shift_trading_day(date_str: str, n: int) -> Optional[str]:
         return date_str
     cur = datetime.strptime(date_str, "%Y-%m-%d")
     count = 0
-    for _ in range(60):
+    for _ in range(120):
         cur += timedelta(days=1)
         ds = cur.strftime("%Y-%m-%d")
         if is_trading_day(ds):
@@ -660,7 +660,7 @@ def compute_signal_returns(signal: Dict, hold_periods: List[int]) -> Dict:
     code = signal["code"]
     t0 = signal["date"]
 
-    klines = fetch_kline(code, lmt=80)
+    klines = fetch_kline(code, lmt=120)
     if not klines:
         signal["error"] = "no_kline"
         return signal
@@ -797,11 +797,12 @@ def build_html(result: Dict, output_path: Path) -> None:
     by_industry = result["by_industry"]
     by_month = result["by_month"]
     signals = result["signals"]
+    generate_time = result.get("generate_time", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
     def pct_color(v):
         if v is None:
             return "#c9d1d9"
-        return "#f85149" if v < 0 else ("#3fb950" if v > 0 else "#c9d1d9")
+        return "#f85149" if v > 0 else ("#3fb950" if v < 0 else "#c9d1d9")
 
     def stat_card(title, value, sub="", color="#e888a0"):
         return f'''
@@ -812,9 +813,10 @@ def build_html(result: Dict, output_path: Path) -> None:
         </div>'''
 
     overview_cards_html = ""
-    for period in ["T1", "T3", "T5"]:
+    for n in HOLD_PERIODS:
+        period = f"T{n}"
         stats = overview[period]
-        label = {"T1": "T+1", "T3": "T+3", "T5": "T+5"}[period]
+        label = f"T+{n}"
         overview_cards_html += f'''
         <div class="period-block">
             <div class="period-title">{label} 持有周期</div>
@@ -837,41 +839,65 @@ def build_html(result: Dict, output_path: Path) -> None:
         if rt not in by_type:
             continue
         t_stats = by_type[rt]
-        t3 = t_stats["T3"]
-        t5 = t_stats["T5"]
         color = RES_TYPE_COLORS.get(rt, "#c9d1d9")
+        # 样本数取第一个有效周期的count（所有周期样本数应该一致）
+        first_period = f"T{HOLD_PERIODS[0]}"
+        sample_count = t_stats[first_period]["count"]
+        period_cells = ""
+        for n in HOLD_PERIODS:
+            period = f"T{n}"
+            p = t_stats[period]
+            period_cells += f'''
+            <td style="color:{pct_color(p["avg_return"])}">{p["win_rate"]}%</td>
+            <td style="color:{pct_color(p["avg_return"])}">{p["avg_return"]}%</td>'''
         type_table_rows += f'''
         <tr>
             <td style="color:{color};font-weight:600">{RES_TYPE_LABELS.get(rt, rt)}</td>
-            <td>{t_stats["T1"]["count"]}</td>
-            <td style="color:{pct_color(t_stats["T1"]["avg_return"])}">{t_stats["T1"]["win_rate"]}%</td>
-            <td style="color:{pct_color(t_stats["T1"]["avg_return"])}">{t_stats["T1"]["avg_return"]}%</td>
-            <td style="color:{pct_color(t3["avg_return"])}">{t3["win_rate"]}%</td>
-            <td style="color:{pct_color(t3["avg_return"])}">{t3["avg_return"]}%</td>
-            <td style="color:{pct_color(t5["avg_return"])}">{t5["win_rate"]}%</td>
-            <td style="color:{pct_color(t5["avg_return"])}">{t5["avg_return"]}%</td>
+            <td>{sample_count}</td>
+            {period_cells}
         </tr>'''
+
+    # 分类型表头
+    type_headers = "<th>共振类型</th>\n                <th>样本数</th>"
+    for n in HOLD_PERIODS:
+        type_headers += f'''
+                <th>T+{n} 胜率</th>
+                <th>T+{n} 均收益</th>'''
 
     industry_rows = ""
     industry_list = []
+    # 以中间周期（T+20）作为样本数和排序依据
+    mid_period = "T20"
     for ind, data in by_industry.items():
-        t3 = data["T3"]
-        if t3["count"] >= 3:
+        mid = data.get(mid_period, data.get("T5", data.get("T1", {})))
+        if mid.get("count", 0) >= 3:
             industry_list.append((ind, data))
-    industry_list.sort(key=lambda x: x[1]["T3"]["win_rate"], reverse=True)
+    industry_list.sort(key=lambda x: x[1].get(mid_period, {}).get("win_rate", 0), reverse=True)
+
+    # 行业表头
+    industry_headers = "<th>行业</th>\n                <th>样本数</th>"
+    for n in HOLD_PERIODS:
+        industry_headers += f'''
+                <th>T+{n} 胜率</th>'''
+    industry_headers += f'''
+                <th>T+{HOLD_PERIODS[len(HOLD_PERIODS)//2]} 均收益</th>'''
 
     for ind, data in industry_list[:20]:
-        t1 = data["T1"]
-        t3 = data["T3"]
-        t5 = data["T5"]
+        mid_data = data.get(mid_period, data.get("T5", data.get("T1", {})))
+        period_cells = ""
+        for n in HOLD_PERIODS:
+            period = f"T{n}"
+            p = data.get(period, {})
+            period_cells += f'''
+            <td style="color:{pct_color(p.get("avg_return", 0))}">{p.get("win_rate", 0)}%</td>'''
+        mid_avg_period = f"T{HOLD_PERIODS[len(HOLD_PERIODS)//2]}"
+        mid_avg = data.get(mid_avg_period, {}).get("avg_return", 0)
         industry_rows += f'''
         <tr>
             <td>{ind}</td>
-            <td>{t3["count"]}</td>
-            <td style="color:{pct_color(t1["avg_return"])}">{t1["win_rate"]}%</td>
-            <td style="color:{pct_color(t3["avg_return"])}">{t3["win_rate"]}%</td>
-            <td style="color:{pct_color(t5["avg_return"])}">{t5["win_rate"]}%</td>
-            <td style="color:{pct_color(t3["avg_return"])}">{t3["avg_return"]}%</td>
+            <td>{mid_data.get("count", 0)}</td>
+            {period_cells}
+            <td style="color:{pct_color(mid_avg)}">{mid_avg}%</td>
         </tr>'''
 
     if not industry_rows:
@@ -879,18 +905,29 @@ def build_html(result: Dict, output_path: Path) -> None:
 
     months_sorted = sorted(by_month.keys())
     month_rows = ""
+
+    # 逐月表头
+    month_headers = "<th>月份</th>\n                <th>信号数</th>"
+    for n in HOLD_PERIODS:
+        month_headers += f'''
+                <th>T+{n}（胜率/均收益）</th>'''
+    # 信号数取第一个周期
+    first_period = f"T{HOLD_PERIODS[0]}"
+
     for ym in months_sorted:
         data = by_month[ym]
-        t1 = data["T1"]
-        t3 = data["T3"]
-        t5 = data["T5"]
+        signal_count = data[first_period]["count"]
+        period_cells = ""
+        for n in HOLD_PERIODS:
+            period = f"T{n}"
+            p = data[period]
+            period_cells += f'''
+            <td style="color:{pct_color(p["avg_return"])}">{p["win_rate"]}% / {p["avg_return"]}%</td>'''
         month_rows += f'''
         <tr>
             <td>{ym}</td>
-            <td>{t3["count"]}</td>
-            <td style="color:{pct_color(t1["avg_return"])}">{t1["win_rate"]}% / {t1["avg_return"]}%</td>
-            <td style="color:{pct_color(t3["avg_return"])}">{t3["win_rate"]}% / {t3["avg_return"]}%</td>
-            <td style="color:{pct_color(t5["avg_return"])}">{t5["win_rate"]}% / {t5["avg_return"]}%</td>
+            <td>{signal_count}</td>
+            {period_cells}
         </tr>'''
 
     if not month_rows:
@@ -902,11 +939,14 @@ def build_html(result: Dict, output_path: Path) -> None:
         if s.get("error"):
             continue
         returns = s.get("returns", {})
-        t1 = returns.get("T1")
-        t3 = returns.get("T3")
-        t5 = returns.get("T5")
         type_label = RES_TYPE_LABELS.get(s["res_type"], s["res_type"])
         type_color = RES_TYPE_COLORS.get(s["res_type"], "#c9d1d9")
+        period_cells = ""
+        for n in HOLD_PERIODS:
+            period = f"T{n}"
+            val = returns.get(period)
+            period_cells += f'''
+            <td style="color:{pct_color(val)}">{f"{val}%" if val is not None else "-"}</td>'''
         signal_rows += f'''
         <tr>
             <td>{s["date"]}</td>
@@ -916,14 +956,18 @@ def build_html(result: Dict, output_path: Path) -> None:
             <td style="text-align:right">{format_amount(s["inst_net_wan"])}</td>
             <td style="text-align:right">{format_amount(s["youzi_net_wan"])}</td>
             <td style="text-align:right">{format_amount(s["north_net_wan"])}</td>
-            <td style="color:{pct_color(t1)}">{f"{t1}%" if t1 is not None else "-"}</td>
-            <td style="color:{pct_color(t3)}">{f"{t3}%" if t3 is not None else "-"}</td>
-            <td style="color:{pct_color(t5)}">{f"{t5}%" if t5 is not None else "-"}</td>
+            {period_cells}
             <td>{s.get("industry", "未分类")}</td>
         </tr>'''
 
     total_valid = len([s for s in signals if not s.get("error")])
     total_filtered = len([s for s in signals if s.get("error")])
+
+    # 信号明细表头
+    signal_th_headers = ""
+    for n in HOLD_PERIODS:
+        signal_th_headers += f'''
+                <th>T+{n}</th>'''
 
     html = f'''<!DOCTYPE html>
 <html lang="zh-CN">
@@ -1127,7 +1171,7 @@ tr:last-child td {{ border-bottom: none; }}
 
 <div class="header">
     <h1>📊 机游北向共振策略胜率回测</h1>
-    <div class="subtitle">东方财富龙虎榜数据 · 前复权K线 · 次日开盘进场</div>
+    <div class="subtitle">东方财富龙虎榜数据 · 前复权K线 · 次日开盘进场<br>更新于 {generate_time}（北京时间，每日收盘后自动更新）</div>
 </div>
 
 <div class="params-bar">
@@ -1170,14 +1214,7 @@ tr:last-child td {{ border-bottom: none; }}
     <table>
         <thead>
             <tr>
-                <th>共振类型</th>
-                <th>样本数</th>
-                <th>T+1 胜率</th>
-                <th>T+1 均收益</th>
-                <th>T+3 胜率</th>
-                <th>T+3 均收益</th>
-                <th>T+5 胜率</th>
-                <th>T+5 均收益</th>
+                {type_headers}
             </tr>
         </thead>
         <tbody>
@@ -1189,17 +1226,12 @@ tr:last-child td {{ border-bottom: none; }}
 
 <!-- 行业胜率 -->
 <div class="section">
-    <div class="section-title">行业胜率排行（T+3 胜率排序，样本≥3）</div>
+    <div class="section-title">行业胜率排行（T+20 胜率排序，样本≥3）</div>
     <div class="table-wrap">
     <table>
         <thead>
             <tr>
-                <th>行业</th>
-                <th>样本数</th>
-                <th>T+1 胜率</th>
-                <th>T+3 胜率</th>
-                <th>T+5 胜率</th>
-                <th>T+3 均收益</th>
+                {industry_headers}
             </tr>
         </thead>
         <tbody>
@@ -1216,11 +1248,7 @@ tr:last-child td {{ border-bottom: none; }}
     <table>
         <thead>
             <tr>
-                <th>月份</th>
-                <th>信号数</th>
-                <th>T+1（胜率/均收益）</th>
-                <th>T+3（胜率/均收益）</th>
-                <th>T+5（胜率/均收益）</th>
+                {month_headers}
             </tr>
         </thead>
         <tbody>
@@ -1251,9 +1279,7 @@ tr:last-child td {{ border-bottom: none; }}
                 <th style="text-align:right">机构净买</th>
                 <th style="text-align:right">游资净买</th>
                 <th style="text-align:right">北向净买</th>
-                <th>T+1</th>
-                <th>T+3</th>
-                <th>T+5</th>
+                {signal_th_headers}
                 <th>行业</th>
             </tr>
         </thead>
@@ -1407,28 +1433,32 @@ def run_backtest(args) -> Dict:
     print(f"\n📈 生成统计报告...")
 
     overview = {}
-    for period in ["T1", "T3", "T5"]:
+    for n in HOLD_PERIODS:
+        period = f"T{n}"
         overview[period] = calc_stats(valid_signals, period)
 
     by_type_groups = group_by_res_type(valid_signals)
     by_type = {}
     for rt, sigs in by_type_groups.items():
         by_type[rt] = {}
-        for period in ["T1", "T3", "T5"]:
+        for n in HOLD_PERIODS:
+            period = f"T{n}"
             by_type[rt][period] = calc_stats(sigs, period)
 
     by_industry_groups = group_by_industry(valid_signals)
     by_industry = {}
     for ind, sigs in by_industry_groups.items():
         by_industry[ind] = {}
-        for period in ["T1", "T3", "T5"]:
+        for n in HOLD_PERIODS:
+            period = f"T{n}"
             by_industry[ind][period] = calc_stats(sigs, period)
 
     by_month_groups = group_by_month(valid_signals)
     by_month = {}
     for ym, sigs in by_month_groups.items():
         by_month[ym] = {}
-        for period in ["T1", "T3", "T5"]:
+        for n in HOLD_PERIODS:
+            period = f"T{n}"
             by_month[ym][period] = calc_stats(sigs, period)
 
     result = {
@@ -1477,7 +1507,8 @@ def main():
     print(f"\n{'='*60}")
     print("📊 回测概览")
     print(f"{'='*60}")
-    for period in ["T1", "T3", "T5"]:
+    for n in HOLD_PERIODS:
+        period = f"T{n}"
         s = result["overview"][period]
         print(f"  {period}: 样本{s['count']} | 胜率{s['win_rate']}% | 均收益{s['avg_return']}% | 盈亏比{s['profit_loss_ratio']}")
     print(f"\n✅ 回测完成！")
