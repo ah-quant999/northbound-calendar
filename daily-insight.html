@@ -205,15 +205,18 @@
         .metric-value.up { color: #f85149; }
         .metric-value.down { color: #3fb950; }
 
-        /* 双列 */
+        /* 三列 */
         .columns {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 14px;
             margin-top: 16px;
             margin-bottom: 14px;
         }
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
+            .columns { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 640px) {
             .columns { grid-template-columns: 1fr; }
         }
         .column-card {
@@ -238,6 +241,14 @@
             border-radius: 10px;
             background: rgba(248, 81, 73, 0.15);
             color: #f85149;
+            font-weight: 500;
+        }
+        .tag-mid {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: rgba(255, 122, 0, 0.15);
+            color: #ff7a00;
             font-weight: 500;
         }
         .tag-long {
@@ -528,7 +539,7 @@
         <h1>📊 每日市场洞察</h1>
         <div class="subtitle">短线+中长线双视角 · 机游共振 × 北向资金</div>
     </div>
-    <div class="update-time">数据日期：2026-07-21 | 每日固定更新：18:30 | 本次更新：2026-07-22 08:20</div>
+    <div class="update-time">数据日期：2026-07-21 | 每日固定更新：18:30 | 本次更新：2026-07-22 08:30</div>
 
     <!-- 图例 -->
     <div class="legend">
@@ -585,7 +596,7 @@
             </div>
     </div>
 
-    <!-- 双列 -->
+    <!-- 三列 -->
     <div class="columns">
         <!-- 短线·机游共振 -->
         <div class="column-card">
@@ -651,6 +662,28 @@
             </div>
         </div>
 
+        <!-- 机游+北向共振 -->
+        <div class="column-card">
+            <div class="column-title">
+                🤝 共振方向
+                <span class="tag-mid">共振</span>
+            </div>
+            <div class="column-conclusion">
+                今日机游+北向共振标的共1只，资金合力明显，重点关注共振强度高的龙头。
+            </div>
+
+            <div class="section-label">🎯 核心共振标的</div>
+            
+            <div class="resonance-item">
+                <div class="res-name">拓荆科技 <span class="stock-code">688072</span></div>
+                <div class="res-detail">
+                    <span class="mini-tag">北向+10.28亿</span>
+                    <span class="mini-tag">机构+48.59亿</span>
+                </div>
+                <div class="res-strength">共振强度 <b>+58.87亿</b></div>
+            </div>
+        </div>
+
         <!-- 中长线·北向资金 -->
         <div class="column-card">
             <div class="column-title">
@@ -689,17 +722,6 @@
                     <span>当日涨跌</span>
                     <span class="change-pct up">+9.98%</span>
                 </div>
-            </div>
-
-            <div class="section-label">🤝 北向+机构共振</div>
-            
-            <div class="resonance-item">
-                <div class="res-name">拓荆科技 <span class="stock-code">688072</span></div>
-                <div class="res-detail">
-                    <span class="mini-tag">北向+10.28亿</span>
-                    <span class="mini-tag">机构+48.59亿</span>
-                </div>
-                <div class="res-strength">共振强度 <b>+58.87亿</b></div>
             </div>
         </div>
     </div>

@@ -515,6 +515,14 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
     if nb_resonance_html:
         resonance_section = f'<div class="section-label">🤝 北向+机构共振</div>\n            {nb_resonance_html}'
 
+    # 共振列专用变量
+    resonance_section_html = nb_resonance_html if nb_resonance_html else '<div style="color:#6e7681;font-size:12px;text-align:center;padding:20px 0;">暂无共振数据</div>'
+    res_count = len(nb_insight.get("resonance", [])) if nb_insight.get("resonance") else 0
+    if res_count > 0:
+        resonance_conclusion = f"今日机游+北向共振标的共{res_count}只，资金合力明显，重点关注共振强度高的龙头。"
+    else:
+        resonance_conclusion = "今日暂无明显的机游+北向共振标的，建议以单边方向为主，谨慎参与。"
+
     html = f"""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -658,15 +666,18 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
         .metric-value.up {{ color: #f85149; }}
         .metric-value.down {{ color: #3fb950; }}
 
-        /* 双列 */
+        /* 三列 */
         .columns {{
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 14px;
             margin-top: 16px;
             margin-bottom: 14px;
         }}
-        @media (max-width: 768px) {{
+        @media (max-width: 1024px) {{
+            .columns {{ grid-template-columns: 1fr 1fr; }}
+        }}
+        @media (max-width: 640px) {{
             .columns {{ grid-template-columns: 1fr; }}
         }}
         .column-card {{
@@ -691,6 +702,14 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
             border-radius: 10px;
             background: rgba(248, 81, 73, 0.15);
             color: #f85149;
+            font-weight: 500;
+        }}
+        .tag-mid {{
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: rgba(255, 122, 0, 0.15);
+            color: #ff7a00;
             font-weight: 500;
         }}
         .tag-long {{
@@ -998,7 +1017,7 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
         {focus_html}
     </div>
 
-    <!-- 双列 -->
+    <!-- 三列 -->
     <div class="columns">
         <!-- 短线·机游共振 -->
         <div class="column-card">
@@ -1017,6 +1036,20 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
             {relay_section}
         </div>
 
+        <!-- 机游+北向共振 -->
+        <div class="column-card">
+            <div class="column-title">
+                🤝 共振方向
+                <span class="tag-mid">共振</span>
+            </div>
+            <div class="column-conclusion">
+                {resonance_conclusion}
+            </div>
+
+            <div class="section-label">🎯 核心共振标的</div>
+            {resonance_section_html}
+        </div>
+
         <!-- 中长线·北向资金 -->
         <div class="column-card">
             <div class="column-title">
@@ -1030,8 +1063,6 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
 
             <div class="section-label">💎 连续加仓龙头</div>
             {nb_continuous_html}
-
-            {resonance_section}
         </div>
     </div>
 
