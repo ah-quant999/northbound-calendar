@@ -1776,13 +1776,10 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
 
         var html = '';
         // 机构
+        if (ind.has_industry_data && instTop.length > 0) {
         html += '<div class="industry-box">';
         html += '<div class="industry-box-title">🏢 机构净买TOP行业</div>';
-        if (!ind.has_industry_data) {
-            html += '';
-        } else if (instTop.length === 0) {
-            html += '<div class="empty">暂无数据</div>';
-        } else {
+        for (var i = 0; i < instTop.length; i++) {
             for (var i = 0; i < instTop.length; i++) {
                 var it = instTop[i];
                 var pct = maxInst > 0 ? (Math.abs(it.net_buy_wan) / maxInst * 100) : 0;
@@ -1795,17 +1792,15 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
                 html += '<div class="industry-amount ' + amtCls + '">' + sign + fmtAmount(it.net_buy_wan) + '</div>';
                 html += '</div>';
             }
-        }
+            }
         html += '</div>';
+        }
 
         // 游资
+        if (ind.has_industry_data && youziTop.length > 0) {
         html += '<div class="industry-box">';
         html += '<div class="industry-box-title">⚡ 游资净买TOP行业</div>';
-        if (!ind.has_industry_data) {
-            html += '';
-        } else if (youziTop.length === 0) {
-            html += '<div class="empty">暂无数据</div>';
-        } else {
+        for (var i = 0; i < youziTop.length; i++) {
             for (var i = 0; i < youziTop.length; i++) {
                 var it = youziTop[i];
                 var pct = maxYouzi > 0 ? (Math.abs(it.net_buy_wan) / maxYouzi * 100) : 0;
@@ -1818,8 +1813,9 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
                 html += '<div class="industry-amount ' + amtCls + '">' + sign + fmtAmount(it.net_buy_wan) + '</div>';
                 html += '</div>';
             }
-        }
+            }
         html += '</div>';
+        }
 
         container.innerHTML = html;
     }
