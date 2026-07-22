@@ -19,7 +19,7 @@ from datetime import datetime
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, SCRIPT_DIR)
 
-from update_jiyou_resonance_calendar import (
+from update_jiyou_resonance_gha import (
     build_daily_data,
     update_html,
     format_amount,
@@ -160,12 +160,12 @@ def main():
             results.append({
                 "date": date_str,
                 "ok": ok,
-                "inst_top5": len(daily_data.institution_top5),
-                "inst_sell_top5": len(daily_data.institution_sell_top5),
-                "resonance": len(daily_data.resonance),
+                "inst_top5": len(daily_data["institution_top5"]),
+                "inst_sell_top5": len(daily_data["institution_sell_top5"]),
+                "resonance": len(daily_data["resonance"]),
             })
-            print(f"✅ {date_str} 处理完成: 机构TOP5={len(daily_data.institution_top5)}, "
-                  f"卖出TOP5={len(daily_data.institution_sell_top5)}, 共振={len(daily_data.resonance)}")
+            print(f"✅ {date_str} 处理完成: 机构TOP5={len(daily_data["institution_top5"])}, "
+                  f"卖出TOP5={len(daily_data["institution_sell_top5"])}, 共振={len(daily_data["resonance"])}")
         except Exception as e:
             import traceback
             traceback.print_exc()
