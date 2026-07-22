@@ -1759,69 +1759,7 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
     // ========== 渲染：行业板块 ==========
     function renderIndustry(data) {
         var container = document.getElementById('industry-grid');
-        var ind = data.industry || {};
-        var instTop = ind.inst_top10 || [];
-        var youziTop = ind.youzi_top10 || [];
-
-        var maxInst = 0;
-        for (var i = 0; i < instTop.length; i++) {
-            var abs = Math.abs(instTop[i].net_buy_wan);
-            if (abs > maxInst) maxInst = abs;
-        }
-        var maxYouzi = 0;
-        for (var i = 0; i < youziTop.length; i++) {
-            var abs = Math.abs(youziTop[i].net_buy_wan);
-            if (abs > maxYouzi) maxYouzi = abs;
-        }
-
-        var html = '';
-        // 机构
-        html += '<div class="industry-box">';
-        html += '<div class="industry-box-title">🏢 机构净买TOP行业</div>';
-        if (!ind.has_industry_data) {
-            html += '<div class="empty">行业数据接口接入中...</div>';
-        } else if (instTop.length === 0) {
-            html += '<div class="empty">暂无数据</div>';
-        } else {
-            for (var i = 0; i < instTop.length; i++) {
-                var it = instTop[i];
-                var pct = maxInst > 0 ? (Math.abs(it.net_buy_wan) / maxInst * 100) : 0;
-                var cls = it.net_buy_wan > 0 ? 'buy' : 'sell';
-                var amtCls = it.net_buy_wan > 0 ? 'up' : 'down';
-                var sign = it.net_buy_wan > 0 ? '+' : '';
-                html += '<div class="industry-item">';
-                html += '<div class="industry-name" title="' + it.industry + '">' + it.industry + '</div>';
-                html += '<div class="industry-bar"><div class="industry-bar-fill ' + cls + '" style="width:' + pct + '%;"></div></div>';
-                html += '<div class="industry-amount ' + amtCls + '">' + sign + fmtAmount(it.net_buy_wan) + '</div>';
-                html += '</div>';
-            }
-        }
-        html += '</div>';
-
-        // 游资
-        html += '<div class="industry-box">';
-        html += '<div class="industry-box-title">⚡ 游资净买TOP行业</div>';
-        if (!ind.has_industry_data) {
-            html += '<div class="empty">行业数据接口接入中...</div>';
-        } else if (youziTop.length === 0) {
-            html += '<div class="empty">暂无数据</div>';
-        } else {
-            for (var i = 0; i < youziTop.length; i++) {
-                var it = youziTop[i];
-                var pct = maxYouzi > 0 ? (Math.abs(it.net_buy_wan) / maxYouzi * 100) : 0;
-                var cls = it.net_buy_wan > 0 ? 'youzi-buy' : 'sell';
-                var amtCls = it.net_buy_wan > 0 ? 'up' : 'down';
-                var sign = it.net_buy_wan > 0 ? '+' : '';
-                html += '<div class="industry-item">';
-                html += '<div class="industry-name" title="' + it.industry + '">' + it.industry + '</div>';
-                html += '<div class="industry-bar"><div class="industry-bar-fill ' + cls + '" style="width:' + pct + '%;"></div></div>';
-                html += '<div class="industry-amount ' + amtCls + '">' + sign + fmtAmount(it.net_buy_wan) + '</div>';
-                html += '</div>';
-            }
-        }
-        html += '</div>';
-
-        container.innerHTML = html;
+        container.innerHTML = '';
     }
 
     // ========== 渲染：知名游资 ==========
