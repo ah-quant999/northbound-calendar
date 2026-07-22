@@ -942,6 +942,8 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
         .deep-link.jiyou-link:hover {{ box-shadow: 0 4px 15px rgba(232, 136, 160, 0.25); }}
         .deep-link.nb-link {{ border-color: #6cb6ff; }}
         .deep-link.nb-link:hover {{ box-shadow: 0 4px 15px rgba(108, 182, 255, 0.25); }}
+        .deep-link.backtest-link {{ border-color: #a78bfa; }}
+        .deep-link.backtest-link:hover {{ box-shadow: 0 4px 15px rgba(167, 139, 250, 0.25); }}
         .deep-link-icon {{
             font-size: 28px;
             flex-shrink: 0;
@@ -1081,6 +1083,14 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
             <div class="deep-link-text">
                 <div class="deep-link-title">北向资金详细分析</div>
                 <div class="deep-link-desc">行业趋势 + 连续加仓 + 北向机构共振 · 中线价值视角</div>
+            </div>
+            <div class="deep-link-arrow">→</div>
+        </a>
+        <a href="resonance-backtest.html" class="deep-link backtest-link">
+            <div class="deep-link-icon">📊</div>
+            <div class="deep-link-text">
+                <div class="deep-link-title">共振胜率回测</div>
+                <div class="deep-link-desc">三方/两方共振 · T+1/T+3/T+5 · 6个月历史回测</div>
             </div>
             <div class="deep-link-arrow">→</div>
         </a>
