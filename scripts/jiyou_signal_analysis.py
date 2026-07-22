@@ -702,7 +702,7 @@ def compute_signals_for_date(date_str: str) -> Dict:
 
     result = {
         "date": date_str,
-        "update_time": datetime.utcnow() + timedelta(hours=8).strftime("%Y-%m-%d %H:%M"),
+        "update_time": (datetime.utcnow() + timedelta(hours=8)).strftime("%Y-%m-%d %H:%M"),
         "stats": stats,
         "basic_signals": basic_signals,
         "industry": industry,
@@ -2434,7 +2434,7 @@ def main():
             return
     else:
         # 默认今天
-        today = datetime.utcnow() + timedelta(hours=8).strftime("%Y-%m-%d")
+        today = (datetime.utcnow() + timedelta(hours=8)).strftime("%Y-%m-%d")
         if is_trading_day(today):
             target_dates = [today]
         else:
