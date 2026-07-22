@@ -139,9 +139,26 @@ def fetch_tencent_quotes(codes: List[str]) -> Dict[str, Dict]:
     return results
 
 
-def get_stock_industry(code: str, name: str) -> str:
-    """获取股票行业（暂未接入行业API，返回空）"""
-    return ""
+from stock_industry import load_cache, get_industry, fill_missing  # noqa: E402
+
+# 全局行业缓存（进程内复用）
+_industry_cache: Dict[str, str] = {}
+
+
+def _init_industry_cache() -> Dict[str, str]:
+    """初始化行业缓存（懒加载）"""
+    global _industry_cache
+    if not _industry_cache:
+        _industry_cache = load_cache()
+    return _industry_cache
+
+
+def get_stock_industry(code: str, name: str, cache: Dict = None,
+                       auto_fill: bool = True) -> str:
+    """获取股票行业（从本地映射表，缺失时自动补查）"""
+    if cache is None:
+        cache = _init_industry_cache()
+    return get_industry(code, cache, auto_fill=auto_fill) or ""
 
 
 # ========== 北向单日数据获取 ==========
@@ -1118,6 +1135,12 @@ def build_northbound_analysis(dates: List[str]) -> Dict:
             log_info(f"  成功获取 {len(quotes)} 只股票行情")
         except Exception as e:
             log_warn(f"行情数据获取失败: {e}")
+
+    # 3.5 补查行业映射
+    log_info(f"检查 {len(all_codes)} 只股票行业映射 ...")
+    global _industry_cache
+    _industry_cache = fill_missing(list(all_codes), cache=_industry_cache)
+    log_info(f"  行业映射表共 {len(_industry_cache)} 只")
 
     # 4. 计算各周期分析数据
     sorted_dates = sorted(nb_data.keys())
