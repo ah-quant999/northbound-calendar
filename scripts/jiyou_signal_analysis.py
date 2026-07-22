@@ -1779,7 +1779,7 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
         html += '<div class="industry-box">';
         html += '<div class="industry-box-title">🏢 机构净买TOP行业</div>';
         if (!ind.has_industry_data) {
-            html += '<div class="empty">行业数据接口接入中...</div>';
+            html += '';
         } else if (instTop.length === 0) {
             html += '<div class="empty">暂无数据</div>';
         } else {
@@ -1802,7 +1802,7 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
         html += '<div class="industry-box">';
         html += '<div class="industry-box-title">⚡ 游资净买TOP行业</div>';
         if (!ind.has_industry_data) {
-            html += '<div class="empty">行业数据接口接入中...</div>';
+            html += '';
         } else if (youziTop.length === 0) {
             html += '<div class="empty">暂无数据</div>';
         } else {
