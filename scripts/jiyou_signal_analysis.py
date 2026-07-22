@@ -1614,15 +1614,7 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- 二、行业板块追踪 -->
-            <div class="section">
-                <div class="section-title">🏭 行业板块追踪（当日）</div>
-                <div class="industry-grid" id="industry-grid">
-                    <!-- JS动态渲染 -->
-                </div>
-            </div>
-
-            <!-- 三、知名游资追踪 -->
+            <!-- 二、知名游资追踪 -->
             <div class="section">
                 <div class="section-title">🏦 知名游资追踪（当日）</div>
                 <div class="youzi-grid" id="youzi-grid">
@@ -1630,7 +1622,7 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- 四、细分信号 -->
+            <!-- 三、细分信号 -->
             <div class="section">
                 <div class="section-title">⚡ 细分信号</div>
                 <div id="sub-signals">
@@ -2178,7 +2170,6 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
             document.getElementById('current-date').textContent = dateStr;
             document.getElementById('update-time').textContent = '暂无数据';
             document.getElementById('signal-cards').innerHTML = '<div class="empty" style="grid-column:1/-1;padding:40px;">该日期暂无信号数据</div>';
-            document.getElementById('industry-grid').innerHTML = '';
             document.getElementById('youzi-grid').innerHTML = '';
             document.getElementById('sub-signals').innerHTML = '';
             return;
@@ -2186,7 +2177,6 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
         document.getElementById('current-date').textContent = dateStr;
         document.getElementById('update-time').textContent = '更新于 ' + (data.update_time || '--');
         renderSignalCards(data);
-        renderIndustry(data);
         renderFamousYouzi(data);
         renderSubSignals(data);
     }
