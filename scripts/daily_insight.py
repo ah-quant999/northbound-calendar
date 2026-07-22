@@ -1090,7 +1090,7 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
             <div class="deep-link-icon">📊</div>
             <div class="deep-link-text">
                 <div class="deep-link-title">共振胜率回测</div>
-                <div class="deep-link-desc">三方/两方共振 · T+1/T+3/T+5 · 6个月历史回测</div>
+                <div class="deep-link-desc">三方/两方共振 · T+1~T+90 8周期 · 6个月历史回测</div>
             </div>
             <div class="deep-link-arrow">→</div>
         </a>
