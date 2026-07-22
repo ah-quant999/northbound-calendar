@@ -1582,7 +1582,7 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
     <div class="container">
         <div class="header">
             <div class="breadcrumb">
-                <a href="机游共振日历.html">机游共振日历</a>
+                <a href="jiyou-resonance.html">机游共振日历</a>
                 <span>›</span>
                 <span class="current">信号分析</span>
             </div>
@@ -2406,7 +2406,7 @@ def main():
                         help="输出HTML文件路径")
     parser.add_argument("--add-entry", default="",
                         help="在指定主页面加入口链接（主页面路径）")
-    parser.add_argument("--main-html", default="机游共振日历.html",
+    parser.add_argument("--main-html", default="jiyou-resonance.html",
                         help="机游主页面路径（用于添加入口链接）")
     parser.add_argument("--repo-dir", default=".",
                         help="仓库根目录")
