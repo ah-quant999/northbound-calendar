@@ -67,7 +67,7 @@ jobs:
 
             # 执行更新脚本
             python3 scripts/daily_update_jiyou_gha.py \
-              --html "机游共振日历.html" \
+              --html "jiyou-resonance.html" \
               --repo-dir "." \
               $DATE_ARG \
               $LOOKBACK_ARG \
