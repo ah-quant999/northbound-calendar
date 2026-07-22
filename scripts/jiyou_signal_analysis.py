@@ -1614,15 +1614,7 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- 二、行业板块追踪 -->
-            <div class="section">
-                <div class="section-title">🏭 行业板块追踪（当日）</div>
-                <div class="industry-grid" id="industry-grid">
-                    <!-- JS动态渲染 -->
-                </div>
-            </div>
-
-            <!-- 三、知名游资追踪 -->
+            <!-- 二、知名游资追踪 -->
             <div class="section">
                 <div class="section-title">🏦 知名游资追踪（当日）</div>
                 <div class="youzi-grid" id="youzi-grid">
@@ -1630,7 +1622,7 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- 四、细分信号 -->
+            <!-- 三、细分信号 -->
             <div class="section">
                 <div class="section-title">⚡ 细分信号</div>
                 <div id="sub-signals">
@@ -1753,74 +1745,6 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
             }
             html += '</div>';
         }
-        container.innerHTML = html;
-    }
-
-    // ========== 渲染：行业板块 ==========
-    function renderIndustry(data) {
-        var container = document.getElementById('industry-grid');
-        var ind = data.industry || {};
-        var instTop = ind.inst_top10 || [];
-        var youziTop = ind.youzi_top10 || [];
-
-        var maxInst = 0;
-        for (var i = 0; i < instTop.length; i++) {
-            var abs = Math.abs(instTop[i].net_buy_wan);
-            if (abs > maxInst) maxInst = abs;
-        }
-        var maxYouzi = 0;
-        for (var i = 0; i < youziTop.length; i++) {
-            var abs = Math.abs(youziTop[i].net_buy_wan);
-            if (abs > maxYouzi) maxYouzi = abs;
-        }
-
-        var html = '';
-        // 机构
-        html += '<div class="industry-box">';
-        html += '<div class="industry-box-title">🏢 机构净买TOP行业</div>';
-        if (!ind.has_industry_data) {
-            html += '<div class="empty">行业数据接口接入中...</div>';
-        } else if (instTop.length === 0) {
-            html += '<div class="empty">暂无数据</div>';
-        } else {
-            for (var i = 0; i < instTop.length; i++) {
-                var it = instTop[i];
-                var pct = maxInst > 0 ? (Math.abs(it.net_buy_wan) / maxInst * 100) : 0;
-                var cls = it.net_buy_wan > 0 ? 'buy' : 'sell';
-                var amtCls = it.net_buy_wan > 0 ? 'up' : 'down';
-                var sign = it.net_buy_wan > 0 ? '+' : '';
-                html += '<div class="industry-item">';
-                html += '<div class="industry-name" title="' + it.industry + '">' + it.industry + '</div>';
-                html += '<div class="industry-bar"><div class="industry-bar-fill ' + cls + '" style="width:' + pct + '%;"></div></div>';
-                html += '<div class="industry-amount ' + amtCls + '">' + sign + fmtAmount(it.net_buy_wan) + '</div>';
-                html += '</div>';
-            }
-        }
-        html += '</div>';
-
-        // 游资
-        html += '<div class="industry-box">';
-        html += '<div class="industry-box-title">⚡ 游资净买TOP行业</div>';
-        if (!ind.has_industry_data) {
-            html += '<div class="empty">行业数据接口接入中...</div>';
-        } else if (youziTop.length === 0) {
-            html += '<div class="empty">暂无数据</div>';
-        } else {
-            for (var i = 0; i < youziTop.length; i++) {
-                var it = youziTop[i];
-                var pct = maxYouzi > 0 ? (Math.abs(it.net_buy_wan) / maxYouzi * 100) : 0;
-                var cls = it.net_buy_wan > 0 ? 'youzi-buy' : 'sell';
-                var amtCls = it.net_buy_wan > 0 ? 'up' : 'down';
-                var sign = it.net_buy_wan > 0 ? '+' : '';
-                html += '<div class="industry-item">';
-                html += '<div class="industry-name" title="' + it.industry + '">' + it.industry + '</div>';
-                html += '<div class="industry-bar"><div class="industry-bar-fill ' + cls + '" style="width:' + pct + '%;"></div></div>';
-                html += '<div class="industry-amount ' + amtCls + '">' + sign + fmtAmount(it.net_buy_wan) + '</div>';
-                html += '</div>';
-            }
-        }
-        html += '</div>';
-
         container.innerHTML = html;
     }
 
@@ -2178,7 +2102,6 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
             document.getElementById('current-date').textContent = dateStr;
             document.getElementById('update-time').textContent = '暂无数据';
             document.getElementById('signal-cards').innerHTML = '<div class="empty" style="grid-column:1/-1;padding:40px;">该日期暂无信号数据</div>';
-            document.getElementById('industry-grid').innerHTML = '';
             document.getElementById('youzi-grid').innerHTML = '';
             document.getElementById('sub-signals').innerHTML = '';
             return;
@@ -2186,7 +2109,6 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
         document.getElementById('current-date').textContent = dateStr;
         document.getElementById('update-time').textContent = '更新于 ' + (data.update_time || '--');
         renderSignalCards(data);
-        renderIndustry(data);
         renderFamousYouzi(data);
         renderSubSignals(data);
     }
