@@ -334,26 +334,6 @@
             color: #3fb950;
         }
 
-        /* 接力项 */
-        .relay-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 0;
-            border-bottom: 1px solid #21262d;
-            font-size: 12px;
-        }
-        .relay-item:last-child { border-bottom: none; }
-        .relay-name { flex: 1; color: #c9d1d9; }
-        .relay-badge {
-            font-size: 10px;
-            padding: 1px 6px;
-            border-radius: 3px;
-            background: rgba(248, 81, 73, 0.12);
-            color: #f85149;
-        }
-        .relay-net { font-weight: 600; font-size: 11px; }
-        .relay-net.up { color: #f85149; }
 
         /* 行业高亮 */
         .industry-highlight {
@@ -548,7 +528,7 @@
         <h1>📊 每日市场洞察</h1>
         <div class="subtitle">短线+中长线双视角 · 机游共振 × 北向资金</div>
     </div>
-    <div class="update-time">数据日期：2026-07-21 | 每日固定更新：18:30 | 本次更新：2026-07-21 11:38</div>
+    <div class="update-time">数据日期：2026-07-21 | 每日固定更新：18:30 | 本次更新：2026-07-22 08:06</div>
 
     <!-- 图例 -->
     <div class="legend">
@@ -655,15 +635,19 @@
 
             <div class="section-label">🔄 游资接力</div>
             
-            <div class="relay-item">
-                <span class="relay-name">埃斯顿</span>
-                <span class="relay-badge">接力5天</span>
-                <span class="relay-net up">+6.19亿</span>
+            <div class="stock-item">
+                <div class="stock-name">埃斯顿</div>
+                <div class="stock-detail">
+                    <span class="tag streak">接力5天</span>
+                    <span class="tag up">+6.19亿</span>
+                </div>
             </div>
-            <div class="relay-item">
-                <span class="relay-name">东山精密</span>
-                <span class="relay-badge">接力4天</span>
-                <span class="relay-net up">+30.10亿</span>
+            <div class="stock-item">
+                <div class="stock-name">东山精密</div>
+                <div class="stock-detail">
+                    <span class="tag streak">接力4天</span>
+                    <span class="tag up">+30.10亿</span>
+                </div>
             </div>
         </div>
 
