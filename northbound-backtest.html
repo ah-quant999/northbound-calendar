@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>北向资金回测 - 龙虎榜北向席位</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #0d1117; color: #e6edf3; padding: 16px; }
+.container { max-width: 1200px; margin: 0 auto; }
+.breadcrumb { margin-bottom: 16px; font-size: 13px; color: #8b949e; }
+.breadcrumb a { color: #58a6ff; text-decoration: none; }
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid #30363d; }
+.header h1 { font-size: 20px; font-weight: 600; }
+.update-time { color: #8b949e; font-size: 12px; }
+.section { background: #161b22; border-radius: 8px; padding: 16px; margin-bottom: 20px; border: 1px solid #30363d; }
+.section h2 { font-size: 16px; margin-bottom: 12px; }
+.section .subtitle { font-size: 12px; color: #8b949e; margin-bottom: 12px; }
+
+/* 参数卡片 */
+.params { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 12px; }
+.param-item { background: #21262d; padding: 8px 14px; border-radius: 6px; font-size: 13px; }
+.param-item .label { color: #8b949e; margin-right: 6px; }
+.param-item .value { font-weight: 500; }
+
+/* 表格 */
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table th { padding: 10px 8px; text-align: right; background: #21262d; color: #8b949e; font-weight: 500; border-bottom: 1px solid #30363d; white-space: nowrap; }
+.data-table th:first-child { text-align: left; }
+.data-table td { padding: 8px; border-bottom: 1px solid #21262d; text-align: right; }
+.data-table td:first-child { text-align: left; }
+.data-table tbody tr:hover { background: #1f252d; }
+.up { color: #f85149; }
+.down { color: #3fb950; }
+.ind-name { font-weight: 500; }
+
+/* 双栏图表 */
+.chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+.chart-card { background: #161b22; border-radius: 8px; padding: 16px; border: 1px solid #30363d; }
+.chart-card h3 { font-size: 14px; margin-bottom: 12px; }
+.bar-chart { display: flex; align-items: flex-end; height: 200px; gap: 8px; padding: 0 8px; border-bottom: 1px solid #30363d; justify-content: center; }
+.bar-item { flex: 1; display: flex; flex-direction: column; align-items: center; min-width: 0; max-width: 60px; }
+.bar { width: 100%; max-width: 36px; border-radius: 3px 3px 0 0; min-height: 3px; }
+.bar.up { background: #f85149; }
+.bar.down { background: #3fb950; }
+.bar-val { font-size: 11px; margin-top: 6px; font-weight: 500; }
+.bar-label { font-size: 10px; color: #8b949e; margin-top: 4px; }
+
+/* 折叠 */
+.collapsible-header { cursor: pointer; display: flex; align-items: center; gap: 8px; user-select: none; }
+.collapsible-header .arrow { transition: transform 0.2s; font-size: 12px; color: #8b949e; }
+.collapsible-header.open .arrow { transform: rotate(90deg); }
+.collapsible-content { display: none; margin-top: 12px; }
+.collapsible-content.open { display: block; }
+
+.table-wrap { overflow-x: auto; }
+
+@media (max-width: 768px) {
+    .chart-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="breadcrumb">
+        <a href="portal.html">← 返回首页</a>
+    </div>
+    <div class="header">
+        <h1>📈 北向资金回测（龙虎榜北向席位）</h1>
+        <div class="update-time">更新于 2026-07-23 15:29:50</div>
+    </div>
+
+    <div class="section">
+        <div class="params">
+            <div class="param-item"><span class="label">回测区间</span><span class="value">2026-01-01 ~ 2026-07-21</span></div>
+            <div class="param-item"><span class="label">买入门槛</span><span class="value">北向净买入≥1000万</span></div>
+            <div class="param-item"><span class="label">总信号数</span><span class="value">3213</span></div>
+            <div class="param-item"><span class="label">持有周期</span><span class="value">T+5/10/20/30/60/90</span></div>
+        </div>
+    </div>
+
+    <div class="chart-grid">
+        <div class="chart-card">
+            <h3>各周期胜率</h3>
+            <div class="bar-chart">
+                <div class="bar-item"><div class="bar down" style="height:63px"></div><div class="bar-val">42.1%</div><div class="bar-label">T+5</div></div><div class="bar-item"><div class="bar down" style="height:57px"></div><div class="bar-val">38.2%</div><div class="bar-label">T+10</div></div><div class="bar-item"><div class="bar down" style="height:53px"></div><div class="bar-val">34.7%</div><div class="bar-label">T+20</div></div><div class="bar-item"><div class="bar down" style="height:52px"></div><div class="bar-val">34.2%</div><div class="bar-label">T+30</div></div><div class="bar-item"><div class="bar down" style="height:47px"></div><div class="bar-val">31.1%</div><div class="bar-label">T+60</div></div><div class="bar-item"><div class="bar down" style="height:38px"></div><div class="bar-val">24.4%</div><div class="bar-label">T+90</div></div>
+            </div>
+        </div>
+        <div class="chart-card">
+            <h3>各周期平均收益率</h3>
+            <div class="bar-chart">
+                <div class="bar-item"><div class="bar down" style="height:21px"></div><div class="bar-val">-0.8%</div><div class="bar-label">T+5</div></div><div class="bar-item"><div class="bar down" style="height:46px"></div><div class="bar-val">-2.0%</div><div class="bar-label">T+10</div></div><div class="bar-item"><div class="bar down" style="height:58px"></div><div class="bar-val">-2.6%</div><div class="bar-label">T+20</div></div><div class="bar-item"><div class="bar down" style="height:62px"></div><div class="bar-val">-2.8%</div><div class="bar-label">T+30</div></div><div class="bar-item"><div class="bar down" style="height:45px"></div><div class="bar-val">-2.0%</div><div class="bar-label">T+60</div></div><div class="bar-item"><div class="bar down" style="height:144px"></div><div class="bar-val">-6.8%</div><div class="bar-label">T+90</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>📊 总体统计</h2>
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>周期</th><th>样本数</th><th>胜率</th><th>平均收益</th>
+                        <th>中位数</th><th>盈亏比</th><th>最大收益</th><th>最大亏损</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+            <td>T+5</td>
+            <td>3090</td>
+            <td class="down">42.14%</td>
+            <td class="down">-0.81%</td>
+            <td class="down">-2.69%</td>
+            <td>1.19</td>
+            <td class="up">+149.84%</td>
+            <td class="down">-40.99%</td>
+        </tr><tr>
+            <td>T+10</td>
+            <td>2958</td>
+            <td class="down">38.20%</td>
+            <td class="down">-2.02%</td>
+            <td class="down">-4.81%</td>
+            <td>1.23</td>
+            <td class="up">+112.45%</td>
+            <td class="down">-45.76%</td>
+        </tr><tr>
+            <td>T+20</td>
+            <td>2644</td>
+            <td class="down">34.68%</td>
+            <td class="down">-2.63%</td>
+            <td class="down">-8.31%</td>
+            <td>1.44</td>
+            <td class="up">+183.03%</td>
+            <td class="down">-58.60%</td>
+        </tr><tr>
+            <td>T+30</td>
+            <td>2291</td>
+            <td class="down">34.18%</td>
+            <td class="down">-2.83%</td>
+            <td class="down">-9.77%</td>
+            <td>1.49</td>
+            <td class="up">+184.94%</td>
+            <td class="down">-53.69%</td>
+        </tr><tr>
+            <td>T+60</td>
+            <td>1559</td>
+            <td class="down">31.05%</td>
+            <td class="down">-1.99%</td>
+            <td class="down">-15.13%</td>
+            <td>1.96</td>
+            <td class="up">+336.00%</td>
+            <td class="down">-67.96%</td>
+        </tr><tr>
+            <td>T+90</td>
+            <td>1086</td>
+            <td class="down">24.40%</td>
+            <td class="down">-6.81%</td>
+            <td class="down">-26.19%</td>
+            <td>2.20</td>
+            <td class="up">+431.29%</td>
+            <td class="down">-80.59%</td>
+        </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="collapsible-header" onclick="this.classList.toggle('open'); this.nextElementSibling.classList.toggle('open')">
+            <span class="arrow">▶</span>
+            <h2>🏭 分行业统计（按T+20胜率排序，样本≥5）</h2>
+        </div>
+        <div class="collapsible-content">
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>#</th><th>行业</th><th>T+20样本</th>
+                            <th>T+5胜率</th><th>T+5收益</th>
+                            <th>T+10胜率</th><th>T+10收益</th>
+                            <th>T+20胜率</th><th>T+20收益</th>
+                            <th>T+60胜率</th><th>T+60收益</th>
+                            <th>T+90胜率</th><th>T+90收益</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+            <td>1</td>
+            <td class="ind-name">电气设备</td>
+            <td>15</td>
+            <td class="down">43.8%</td>
+            <td class="down">-1.10%</td>
+            <td class="down">46.7%</td>
+            <td class="up">+2.06%</td>
+            <td class="up">66.7%</td>
+            <td class="up">+5.69%</td>
+            <td class="up">66.7%</td>
+            <td class="up">+23.07%</td>
+            <td class="up">100.0%</td>
+            <td class="up">+122.44%</td>
+        </tr><tr>
+            <td>2</td>
+            <td class="ind-name">电子设备</td>
+            <td>81</td>
+            <td class="down">48.4%</td>
+            <td class="down">-0.39%</td>
+            <td class="up">53.9%</td>
+            <td class="up">+4.97%</td>
+            <td class="up">66.7%</td>
+            <td class="up">+13.26%</td>
+            <td class="up">80.0%</td>
+            <td class="up">+56.59%</td>
+            <td class="up">88.9%</td>
+            <td class="up">+80.09%</td>
+        </tr><tr>
+            <td>3</td>
+            <td class="ind-name">食品饮料</td>
+            <td>10</td>
+            <td class="down">36.4%</td>
+            <td class="down">-3.21%</td>
+            <td class="up">60.0%</td>
+            <td class="up">+4.58%</td>
+            <td class="up">60.0%</td>
+            <td class="up">+7.84%</td>
+            <td class="up">100.0%</td>
+            <td class="up">+109.22%</td>
+            <td class="down">0.0%</td>
+            <td class="">0.00%</td>
+        </tr><tr>
+            <td>4</td>
+            <td class="ind-name">基础化工</td>
+            <td>40</td>
+            <td class="up">63.5%</td>
+            <td class="up">+6.09%</td>
+            <td class="up">64.4%</td>
+            <td class="up">+10.88%</td>
+            <td class="up">57.5%</td>
+            <td class="up">+26.13%</td>
+            <td class="up">82.3%</td>
+            <td class="up">+49.55%</td>
+            <td class="up">85.7%</td>
+            <td class="up">+128.47%</td>
+        </tr><tr>
+            <td>5</td>
+            <td class="ind-name">建筑</td>
+            <td>9</td>
+            <td class="up">64.7%</td>
+            <td class="up">+4.23%</td>
+            <td class="down">43.8%</td>
+            <td class="up">+3.54%</td>
+            <td class="down">44.4%</td>
+            <td class="up">+11.49%</td>
+            <td class="down">0.0%</td>
+            <td class="down">-10.52%</td>
+            <td class="down">0.0%</td>
+            <td class="down">-28.71%</td>
+        </tr><tr>
+            <td>6</td>
+            <td class="ind-name">机械设备</td>
+            <td>32</td>
+            <td class="down">47.6%</td>
+            <td class="down">-1.11%</td>
+            <td class="down">46.1%</td>
+            <td class="up">+1.30%</td>
+            <td class="down">43.8%</td>
+            <td class="down">-1.14%</td>
+            <td class="up">55.0%</td>
+            <td class="up">+4.32%</td>
+            <td class="down">21.4%</td>
+            <td class="down">-22.31%</td>
+        </tr><tr>
+            <td>7</td>
+            <td class="ind-name">医药生物</td>
+            <td>44</td>
+            <td class="down">43.4%</td>
+            <td class="down">-0.44%</td>
+            <td class="down">46.3%</td>
+            <td class="up">+1.46%</td>
+            <td class="down">43.2%</td>
+            <td class="down">-1.23%</td>
+            <td class="down">24.1%</td>
+            <td class="down">-10.33%</td>
+            <td class="down">0.0%</td>
+            <td class="down">-40.94%</td>
+        </tr><tr>
+            <td>8</td>
+            <td class="ind-name">文化传媒</td>
+            <td>5</td>
+            <td class="down">25.0%</td>
+            <td class="down">-7.37%</td>
+            <td class="down">42.9%</td>
+            <td class="down">-0.76%</td>
+            <td class="down">40.0%</td>
+            <td class="down">-2.43%</td>
+            <td class="down">0.0%</td>
+            <td class="down">-10.79%</td>
+            <td class="down">0.0%</td>
+            <td class="down">-29.22%</td>
+        </tr><tr>
+            <td>9</td>
+            <td class="ind-name">化石能源</td>
+            <td>8</td>
+            <td class="up">75.0%</td>
+            <td class="up">+9.12%</td>
+            <td class="up">62.5%</td>
+            <td class="down">-2.50%</td>
+            <td class="down">37.5%</td>
+            <td class="down">-10.65%</td>
+            <td class="down">0.0%</td>
+            <td class="down">-18.50%</td>
+            <td class="up">50.0%</td>
+            <td class="down">-5.36%</td>
+        </tr><tr>
+            <td>10</td>
+            <td class="ind-name">信息技术</td>
+            <td>24</td>
+            <td class="down">31.7%</td>
+            <td class="down">-3.65%</td>
+            <td class="down">28.1%</td>
+            <td class="down">-7.24%</td>
+            <td class="down">33.3%</td>
+            <td class="down">-0.61%</td>
+            <td class="down">46.7%</td>
+            <td class="up">+23.43%</td>
+            <td class="down">27.3%</td>
+            <td class="up">+14.78%</td>
+        </tr><tr>
+            <td>11</td>
+            <td class="ind-name">公用事业</td>
+            <td>69</td>
+            <td class="down">35.1%</td>
+            <td class="down">-4.50%</td>
+            <td class="down">24.7%</td>
+            <td class="down">-9.14%</td>
+            <td class="down">15.9%</td>
+            <td class="down">-13.72%</td>
+            <td class="down">22.7%</td>
+            <td class="down">-19.68%</td>
+            <td class="down">18.2%</td>
+            <td class="down">-16.51%</td>
+        </tr><tr>
+            <td>12</td>
+            <td class="ind-name">房地产</td>
+            <td>20</td>
+            <td class="down">36.0%</td>
+            <td class="down">-2.65%</td>
+            <td class="down">43.5%</td>
+            <td class="down">-7.02%</td>
+            <td class="down">15.0%</td>
+            <td class="down">-15.68%</td>
+            <td class="down">33.3%</td>
+            <td class="down">-3.83%</td>
+            <td class="up">66.7%</td>
+            <td class="up">+23.30%</td>
+        </tr><tr>
+            <td>13</td>
+            <td class="ind-name">国防与装备</td>
+            <td>7</td>
+            <td class="down">37.5%</td>
+            <td class="down">-2.15%</td>
+            <td class="down">42.9%</td>
+            <td class="down">-5.53%</td>
+            <td class="down">14.3%</td>
+            <td class="down">-11.80%</td>
+            <td class="down">0.0%</td>
+            <td class="down">-21.13%</td>
+            <td class="down">0.0%</td>
+            <td class="down">-26.60%</td>
+        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="collapsible-header" onclick="this.classList.toggle('open'); this.nextElementSibling.classList.toggle('open')">
+            <span class="arrow">▶</span>
+            <h2>💰 分净买入档位统计</h2>
+        </div>
+        <div class="collapsible-content">
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>档位</th><th>T+5样本</th>
+                            <th>T+5胜率</th><th>T+5收益</th>
+                            <th>T+10胜率</th><th>T+10收益</th>
+                            <th>T+20胜率</th><th>T+20收益</th>
+                            <th>T+30胜率</th><th>T+30收益</th>
+                            <th>T+60胜率</th><th>T+60收益</th>
+                            <th>T+90胜率</th><th>T+90收益</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+            <td>1000-3000万</td>
+            <td>540</td>
+            <td class="down">39.8%</td>
+            <td class="down">-1.06%</td>
+            <td class="down">35.6%</td>
+            <td class="down">-2.75%</td>
+            <td class="down">31.0%</td>
+            <td class="down">-3.69%</td>
+            <td class="down">30.1%</td>
+            <td class="down">-5.75%</td>
+            <td class="down">24.8%</td>
+            <td class="down">-7.33%</td>
+            <td class="down">22.9%</td>
+            <td class="down">-9.39%</td>
+        </tr><tr>
+            <td>3000-5000万</td>
+            <td>435</td>
+            <td class="down">39.8%</td>
+            <td class="down">-0.95%</td>
+            <td class="down">35.9%</td>
+            <td class="down">-2.82%</td>
+            <td class="down">30.5%</td>
+            <td class="down">-3.67%</td>
+            <td class="down">31.6%</td>
+            <td class="down">-3.98%</td>
+            <td class="down">30.6%</td>
+            <td class="down">-2.38%</td>
+            <td class="down">23.1%</td>
+            <td class="down">-10.00%</td>
+        </tr><tr>
+            <td>5000万-1亿</td>
+            <td>666</td>
+            <td class="down">41.4%</td>
+            <td class="down">-0.67%</td>
+            <td class="down">37.3%</td>
+            <td class="down">-1.26%</td>
+            <td class="down">35.2%</td>
+            <td class="down">-2.19%</td>
+            <td class="down">32.5%</td>
+            <td class="down">-3.41%</td>
+            <td class="down">32.0%</td>
+            <td class="down">-2.12%</td>
+            <td class="down">21.7%</td>
+            <td class="down">-9.14%</td>
+        </tr><tr>
+            <td>1亿以上</td>
+            <td>1449</td>
+            <td class="down">44.0%</td>
+            <td class="down">-0.74%</td>
+            <td class="down">40.3%</td>
+            <td class="down">-1.87%</td>
+            <td class="down">37.1%</td>
+            <td class="down">-2.13%</td>
+            <td class="down">37.5%</td>
+            <td class="down">-0.99%</td>
+            <td class="down">33.4%</td>
+            <td class="up">+0.52%</td>
+            <td class="down">26.6%</td>
+            <td class="down">-3.69%</td>
+        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
