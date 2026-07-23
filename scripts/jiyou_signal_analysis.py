@@ -1616,7 +1616,7 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
 
             <!-- 二、行业板块追踪 -->
             <div class="section">
-                <div class="section-title">🏭 行业板块追踪（当日）</div>
+                
                 <div class="industry-grid" id="industry-grid">
                     <!-- JS动态渲染 -->
                 </div>
