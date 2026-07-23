@@ -1,0 +1,493 @@
+{
+  "overall": {
+    "5": {
+      "sample_count": 439,
+      "win_rate": 46.01,
+      "avg_return_pct": -0.62,
+      "median_return_pct": -0.94,
+      "profit_loss_ratio": 1.01,
+      "max_return_pct": 42.98,
+      "min_return_pct": -27.57
+    },
+    "10": {
+      "sample_count": 439,
+      "win_rate": 41.23,
+      "avg_return_pct": -2.53,
+      "median_return_pct": -3.03,
+      "profit_loss_ratio": 0.88,
+      "max_return_pct": 41.61,
+      "min_return_pct": -35.87
+    },
+    "20": {
+      "sample_count": 439,
+      "win_rate": 35.31,
+      "avg_return_pct": -4.78,
+      "median_return_pct": -6.78,
+      "profit_loss_ratio": 0.99,
+      "max_return_pct": 81.22,
+      "min_return_pct": -53.56
+    },
+    "30": {
+      "sample_count": 439,
+      "win_rate": 30.3,
+      "avg_return_pct": -6.93,
+      "median_return_pct": -10.05,
+      "profit_loss_ratio": 1.06,
+      "max_return_pct": 76.08,
+      "min_return_pct": -49.42
+    },
+    "60": {
+      "sample_count": 439,
+      "win_rate": 22.1,
+      "avg_return_pct": -11.39,
+      "median_return_pct": -17.06,
+      "profit_loss_ratio": 1.16,
+      "max_return_pct": 139.18,
+      "min_return_pct": -49.42
+    },
+    "90": {
+      "sample_count": 439,
+      "win_rate": 18.45,
+      "avg_return_pct": -13.87,
+      "median_return_pct": -21.69,
+      "profit_loss_ratio": 1.27,
+      "max_return_pct": 194.63,
+      "min_return_pct": -51.73
+    }
+  },
+  "by_industry": {
+    "信息技术": {
+      "5": {
+        "sample_count": 48,
+        "win_rate": 45.83,
+        "avg_return_pct": -0.2,
+        "profit_loss_ratio": 1.12
+      },
+      "10": {
+        "sample_count": 48,
+        "win_rate": 39.58,
+        "avg_return_pct": -4.28,
+        "profit_loss_ratio": 0.49
+      },
+      "20": {
+        "sample_count": 48,
+        "win_rate": 20.83,
+        "avg_return_pct": -6.96,
+        "profit_loss_ratio": 1.21
+      },
+      "30": {
+        "sample_count": 48,
+        "win_rate": 29.17,
+        "avg_return_pct": -8.44,
+        "profit_loss_ratio": 0.82
+      },
+      "60": {
+        "sample_count": 48,
+        "win_rate": 16.67,
+        "avg_return_pct": -15.65,
+        "profit_loss_ratio": 0.73
+      },
+      "90": {
+        "sample_count": 48,
+        "win_rate": 10.42,
+        "avg_return_pct": -18.67,
+        "profit_loss_ratio": 1.24
+      }
+    },
+    "机械设备": {
+      "5": {
+        "sample_count": 53,
+        "win_rate": 43.4,
+        "avg_return_pct": -0.66,
+        "profit_loss_ratio": 1.09
+      },
+      "10": {
+        "sample_count": 53,
+        "win_rate": 37.74,
+        "avg_return_pct": -3.11,
+        "profit_loss_ratio": 0.93
+      },
+      "20": {
+        "sample_count": 53,
+        "win_rate": 37.74,
+        "avg_return_pct": -7.78,
+        "profit_loss_ratio": 0.56
+      },
+      "30": {
+        "sample_count": 53,
+        "win_rate": 26.42,
+        "avg_return_pct": -10.82,
+        "profit_loss_ratio": 0.71
+      },
+      "60": {
+        "sample_count": 53,
+        "win_rate": 16.98,
+        "avg_return_pct": -16.61,
+        "profit_loss_ratio": 0.45
+      },
+      "90": {
+        "sample_count": 53,
+        "win_rate": 11.32,
+        "avg_return_pct": -18.45,
+        "profit_loss_ratio": 0.93
+      }
+    },
+    "交运设备": {
+      "5": {
+        "sample_count": 10,
+        "win_rate": 60.0,
+        "avg_return_pct": 1.98,
+        "profit_loss_ratio": 1.25
+      },
+      "10": {
+        "sample_count": 10,
+        "win_rate": 60.0,
+        "avg_return_pct": -0.52,
+        "profit_loss_ratio": 0.59
+      },
+      "20": {
+        "sample_count": 10,
+        "win_rate": 40.0,
+        "avg_return_pct": -3.67,
+        "profit_loss_ratio": 0.82
+      },
+      "30": {
+        "sample_count": 10,
+        "win_rate": 40.0,
+        "avg_return_pct": -7.59,
+        "profit_loss_ratio": 0.46
+      },
+      "60": {
+        "sample_count": 10,
+        "win_rate": 10.0,
+        "avg_return_pct": -13.72,
+        "profit_loss_ratio": 0.89
+      },
+      "90": {
+        "sample_count": 10,
+        "win_rate": 10.0,
+        "avg_return_pct": -18.03,
+        "profit_loss_ratio": 0.69
+      }
+    },
+    "基础化工": {
+      "5": {
+        "sample_count": 59,
+        "win_rate": 44.07,
+        "avg_return_pct": -1.0,
+        "profit_loss_ratio": 1.0
+      },
+      "10": {
+        "sample_count": 59,
+        "win_rate": 42.37,
+        "avg_return_pct": -2.52,
+        "profit_loss_ratio": 0.86
+      },
+      "20": {
+        "sample_count": 59,
+        "win_rate": 35.59,
+        "avg_return_pct": -6.23,
+        "profit_loss_ratio": 0.82
+      },
+      "30": {
+        "sample_count": 59,
+        "win_rate": 27.12,
+        "avg_return_pct": -7.79,
+        "profit_loss_ratio": 1.18
+      },
+      "60": {
+        "sample_count": 59,
+        "win_rate": 22.03,
+        "avg_return_pct": -13.36,
+        "profit_loss_ratio": 1.0
+      },
+      "90": {
+        "sample_count": 59,
+        "win_rate": 22.03,
+        "avg_return_pct": -11.37,
+        "profit_loss_ratio": 1.55
+      }
+    },
+    "电子设备": {
+      "5": {
+        "sample_count": 85,
+        "win_rate": 58.82,
+        "avg_return_pct": 0.46,
+        "profit_loss_ratio": 0.79
+      },
+      "10": {
+        "sample_count": 85,
+        "win_rate": 56.47,
+        "avg_return_pct": 1.84,
+        "profit_loss_ratio": 1.04
+      },
+      "20": {
+        "sample_count": 85,
+        "win_rate": 51.76,
+        "avg_return_pct": 2.1,
+        "profit_loss_ratio": 1.15
+      },
+      "30": {
+        "sample_count": 85,
+        "win_rate": 42.35,
+        "avg_return_pct": 0.68,
+        "profit_loss_ratio": 1.44
+      },
+      "60": {
+        "sample_count": 85,
+        "win_rate": 30.59,
+        "avg_return_pct": -2.29,
+        "profit_loss_ratio": 1.91
+      },
+      "90": {
+        "sample_count": 85,
+        "win_rate": 28.24,
+        "avg_return_pct": -3.71,
+        "profit_loss_ratio": 1.93
+      }
+    },
+    "电气设备": {
+      "5": {
+        "sample_count": 36,
+        "win_rate": 47.22,
+        "avg_return_pct": 0.27,
+        "profit_loss_ratio": 1.21
+      },
+      "10": {
+        "sample_count": 36,
+        "win_rate": 47.22,
+        "avg_return_pct": -0.54,
+        "profit_loss_ratio": 0.98
+      },
+      "20": {
+        "sample_count": 36,
+        "win_rate": 47.22,
+        "avg_return_pct": -0.46,
+        "profit_loss_ratio": 1.04
+      },
+      "30": {
+        "sample_count": 36,
+        "win_rate": 47.22,
+        "avg_return_pct": -1.35,
+        "profit_loss_ratio": 0.94
+      },
+      "60": {
+        "sample_count": 36,
+        "win_rate": 38.89,
+        "avg_return_pct": -5.78,
+        "profit_loss_ratio": 1.07
+      },
+      "90": {
+        "sample_count": 36,
+        "win_rate": 22.22,
+        "avg_return_pct": -13.58,
+        "profit_loss_ratio": 1.45
+      }
+    },
+    "医药生物": {
+      "5": {
+        "sample_count": 28,
+        "win_rate": 35.71,
+        "avg_return_pct": -1.2,
+        "profit_loss_ratio": 1.27
+      },
+      "10": {
+        "sample_count": 28,
+        "win_rate": 46.43,
+        "avg_return_pct": -0.85,
+        "profit_loss_ratio": 0.87
+      },
+      "20": {
+        "sample_count": 28,
+        "win_rate": 32.14,
+        "avg_return_pct": -2.19,
+        "profit_loss_ratio": 1.36
+      },
+      "30": {
+        "sample_count": 28,
+        "win_rate": 32.14,
+        "avg_return_pct": -5.25,
+        "profit_loss_ratio": 0.87
+      },
+      "60": {
+        "sample_count": 28,
+        "win_rate": 28.57,
+        "avg_return_pct": -8.66,
+        "profit_loss_ratio": 0.34
+      },
+      "90": {
+        "sample_count": 28,
+        "win_rate": 32.14,
+        "avg_return_pct": -8.86,
+        "profit_loss_ratio": 0.31
+      }
+    },
+    "文化传媒": {
+      "5": {
+        "sample_count": 11,
+        "win_rate": 18.18,
+        "avg_return_pct": -6.15,
+        "profit_loss_ratio": 1.63
+      },
+      "10": {
+        "sample_count": 11,
+        "win_rate": 9.09,
+        "avg_return_pct": -11.33,
+        "profit_loss_ratio": 1.47
+      },
+      "20": {
+        "sample_count": 11,
+        "win_rate": 9.09,
+        "avg_return_pct": -14.95,
+        "profit_loss_ratio": 0.99
+      },
+      "30": {
+        "sample_count": 11,
+        "win_rate": 9.09,
+        "avg_return_pct": -21.61,
+        "profit_loss_ratio": 0.43
+      },
+      "60": {
+        "sample_count": 11,
+        "win_rate": 0.0,
+        "avg_return_pct": -22.99,
+        "profit_loss_ratio": 0.0
+      },
+      "90": {
+        "sample_count": 11,
+        "win_rate": 0.0,
+        "avg_return_pct": -33.64,
+        "profit_loss_ratio": 0.0
+      }
+    },
+    "有色金属": {
+      "5": {
+        "sample_count": 45,
+        "win_rate": 42.22,
+        "avg_return_pct": 0.16,
+        "profit_loss_ratio": 1.41
+      },
+      "10": {
+        "sample_count": 45,
+        "win_rate": 33.33,
+        "avg_return_pct": -4.53,
+        "profit_loss_ratio": 0.95
+      },
+      "20": {
+        "sample_count": 45,
+        "win_rate": 35.56,
+        "avg_return_pct": -5.4,
+        "profit_loss_ratio": 1.04
+      },
+      "30": {
+        "sample_count": 45,
+        "win_rate": 24.44,
+        "avg_return_pct": -8.72,
+        "profit_loss_ratio": 1.33
+      },
+      "60": {
+        "sample_count": 45,
+        "win_rate": 20.0,
+        "avg_return_pct": -13.32,
+        "profit_loss_ratio": 0.83
+      },
+      "90": {
+        "sample_count": 45,
+        "win_rate": 20.0,
+        "avg_return_pct": -15.68,
+        "profit_loss_ratio": 0.62
+      }
+    },
+    "化石能源": {
+      "5": {
+        "sample_count": 10,
+        "win_rate": 50.0,
+        "avg_return_pct": -0.57,
+        "profit_loss_ratio": 0.89
+      },
+      "10": {
+        "sample_count": 10,
+        "win_rate": 20.0,
+        "avg_return_pct": -7.28,
+        "profit_loss_ratio": 0.61
+      },
+      "20": {
+        "sample_count": 10,
+        "win_rate": 30.0,
+        "avg_return_pct": -8.31,
+        "profit_loss_ratio": 0.86
+      },
+      "30": {
+        "sample_count": 10,
+        "win_rate": 20.0,
+        "avg_return_pct": -13.66,
+        "profit_loss_ratio": 0.36
+      },
+      "60": {
+        "sample_count": 10,
+        "win_rate": 0.0,
+        "avg_return_pct": -24.12,
+        "profit_loss_ratio": 0.0
+      },
+      "90": {
+        "sample_count": 10,
+        "win_rate": 0.0,
+        "avg_return_pct": -31.03,
+        "profit_loss_ratio": 0.0
+      }
+    },
+    "公用事业": {
+      "5": {
+        "sample_count": 26,
+        "win_rate": 53.85,
+        "avg_return_pct": -0.55,
+        "profit_loss_ratio": 0.75
+      },
+      "10": {
+        "sample_count": 26,
+        "win_rate": 42.31,
+        "avg_return_pct": -4.1,
+        "profit_loss_ratio": 0.69
+      },
+      "20": {
+        "sample_count": 26,
+        "win_rate": 23.08,
+        "avg_return_pct": -11.19,
+        "profit_loss_ratio": 0.37
+      },
+      "30": {
+        "sample_count": 26,
+        "win_rate": 26.92,
+        "avg_return_pct": -11.02,
+        "profit_loss_ratio": 0.43
+      },
+      "60": {
+        "sample_count": 26,
+        "win_rate": 19.23,
+        "avg_return_pct": -13.51,
+        "profit_loss_ratio": 0.68
+      },
+      "90": {
+        "sample_count": 26,
+        "win_rate": 11.54,
+        "avg_return_pct": -16.42,
+        "profit_loss_ratio": 0.57
+      }
+    }
+  },
+  "config": {
+    "start_date": "2026-01-01",
+    "end_date": "2026-07-21",
+    "min_stock_per_industry": 3,
+    "hold_periods": [
+      5,
+      10,
+      20,
+      30,
+      60,
+      90
+    ],
+    "top_n_industries": 10
+  },
+  "update_time": "2026-07-23 16:16:57"
+}
