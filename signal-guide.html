@@ -513,7 +513,8 @@
                     <ul class="toc-list sub">
                         <li><a href="#sec4-1" class="toc-link">信号使用流程</a></li>
                         <li><a href="#sec4-2" class="toc-link">不同市场环境下的权重</a></li>
-                        <li><a href="#sec4-3" class="toc-link">风险提示</a></li>
+                        <li><a href="#sec4-3" class="toc-link">胜率与期望值参考</a></li>
+                        <li><a href="#sec4-4" class="toc-link">风险提示</a></li>
                     </ul>
                 </li>
                 <li><a href="#sec5" class="toc-link">五、数据来源说明</a>
@@ -929,7 +930,56 @@
                 </tbody>
             </table>
 
-            <h3 id="sec4-3">⚠️ 风险提示</h3>
+            <h3 id="sec4-3">📊 胜率与期望值参考</h3>
+            <p>信号质量不能只看胜率，核心是<strong>胜率 × 盈亏比</strong>的组合能否覆盖交易成本。以下为不同策略类型的参考门槛：</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>策略类型</th>
+                        <th>胜率门槛</th>
+                        <th>盈亏比</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>高频/日内</strong></td>
+                        <td>55%+</td>
+                        <td>~1:1</td>
+                        <td>次数多，薄利快进快出</td>
+                    </tr>
+                    <tr>
+                        <td><strong>短线（T+1~5）</strong></td>
+                        <td>50%~55%</td>
+                        <td>1.2:1以上</td>
+                        <td>A股T+1限制，靠盈亏比拉升</td>
+                    </tr>
+                    <tr>
+                        <td><strong>波段/中长线</strong></td>
+                        <td>40%~45%</td>
+                        <td>2:1以上</td>
+                        <td>胜率低但盈利单吃大行情</td>
+                    </tr>
+                    <tr>
+                        <td><strong>趋势跟踪</strong></td>
+                        <td>30%~40%</td>
+                        <td>3:1以上</td>
+                        <td>三年不开张，开张吃三年</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p><strong>实用判断标准：</strong></p>
+            <ul>
+                <li><strong>期望值 = 胜率×平均盈利 - (1-胜率)×平均亏损</strong>，必须大于交易成本×2才有钱赚</li>
+                <li>A股单边手续费+滑点约千二到千五，短线策略胜率没50%以上基本白给</li>
+                <li>回测样本少于200个的，胜率数字没意义，可能是运气</li>
+            </ul>
+            <div class="tip-box">
+                <div class="tip-title">💡 当前回测结论</div>
+                <p><strong>北向资金单因子（行业+个股维度）胜率不足，不构成独立交易信号。</strong>需叠加机构共振、连续加仓、行业景气度等条件筛选，才能提升胜率至可交易水平。</p>
+            </div>
+
+            <h3 id="sec4-4">⚠️ 风险提示</h3>
             <div class="warning-box">
                 <div class="warning-title">🚨 重要风险提示</div>
                 <p><strong>1. 龙虎榜数据有滞后性：</strong>龙虎榜盘后公布，你看到的时候交易已经发生。第二天买入可能正好给别人抬轿子。</p>
