@@ -1170,6 +1170,26 @@ body {
     border-radius: 2px;
 }
 
+
+.collapsible-header {
+    cursor: pointer;
+    user-select: none;
+}
+.collapsible-header .arrow {
+    font-size: 12px;
+    transition: transform 0.2s;
+    display: inline-block;
+}
+.collapsible-header.open .arrow {
+    transform: rotate(90deg);
+}
+.collapsible-content {
+    display: none;
+}
+.collapsible-content.open {
+    display: block;
+}
+
 .two-col {
     display: grid;
     grid-template-columns: 1fr 1fr;
