@@ -461,12 +461,16 @@
         }
         
         .monthly-summary {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
+            display: flex;
+            justify-content: flex-start;
+            gap: 15px;
             margin-bottom: 30px;
+            flex-wrap: wrap;
         }
         .summary-box {
+            flex: 1;
+            min-width: 0;
+            max-width: calc(20% - 12px);
             background: #21262d;
             border-radius: 8px;
             padding: 20px;
