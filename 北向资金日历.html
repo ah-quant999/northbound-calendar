@@ -299,9 +299,12 @@
             color: #c9d1d9;
         }
         .week-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            display: flex;
             gap: 12px;
+        }
+        .week-box {
+            flex: 1;
+            min-width: 0;
         }
         .week-box {
             background: #21262d;
@@ -401,8 +404,8 @@
         }
         .rank-num.top { background: #8dd0c0; color: #fff; }
         .rank-num.other { background: #30363d; color: #8b949e; }
-        .rank-name { flex: 1; color: #c9d1d9; }
-        .rank-code { color: #6e7681; font-size: 11px; margin-right: 8px; }
+        .rank-name { color: #c9d1d9; margin-right: 6px; }
+        .rank-code { color: #6e7681; font-size: 11px; margin-right: 6px; }
         .rank-amount { font-weight: 600; }
         .rank-amount.buy { color: #f85149; }
         .rank-amount.sell { color: #3fb950; }
