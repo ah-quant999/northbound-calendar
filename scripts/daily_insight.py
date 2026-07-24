@@ -384,6 +384,112 @@ HIGH_END_MFG_KEYWORDS = [
     "PCB", "pcb", "芯", "微电", "集成",
 ]
 
+# 概念标签映射（股票代码→主要概念，用于展示）
+CONCEPT_TAGS = {
+    # 半导体/芯片
+    "603986": "存储芯片、半导体",
+    "688048": "光芯片、激光雷达",
+    "688728": "半导体设备、刻蚀",
+    "688072": "半导体设备、薄膜沉积",
+    "688008": "芯片设计、AI芯片",
+    "600667": "半导体材料、封装基板",
+    "603256": "半导体设备、CMP",
+    "688630": "光刻设备、半导体",
+    "300666": "靶材、半导体材料",
+    "600584": "封测、半导体",
+    # 光通信/光模块
+    "300231": "光模块、数据中心",
+    "000988": "光通信、激光设备",
+    "300620": "光器件、光纤激光",
+    "688167": "激光雷达、光学",
+    "688618": "工业通信、物联网",
+    "600776": "通信设备",
+    "002436": "PCB、半导体",
+    # 消费电子/汽车电子
+    "603936": "汽车电子、消费电子",
+    "603629": "消费电子、结构件",
+    "603283": "消费电子、自动化设备",
+    "002475": "消费电子、汽车电子",
+    # 新能源/新材料
+    "600176": "玻纤、新材料",
+    "600869": "储能、智能电网",
+    "300782": "射频芯片、5G",
+    # 其他科技
+    "688027": "量子科技、信息安全",
+    "603679": "智慧城市、智慧交通",
+    "688766": "存储芯片、MCU",
+    "300783": "AIoT、传感器",
+    "603005": "MEMS、传感器",
+}
+
+# 根据代码判断板块
+def get_sector(code):
+    if code.startswith("68"):
+        return "科创板"
+    elif code.startswith("30"):
+        return "创业板"
+    elif code.startswith("60"):
+        return "沪市主板"
+    elif code.startswith("00"):
+        return "深市主板"
+    elif code.startswith(("4", "8")):
+        return "北交所"
+    return "主板"
+
+# 获取概念标签
+def get_concept(code, name=""):
+    if code in CONCEPT_TAGS:
+        return CONCEPT_TAGS[code]
+    # 从名称推导
+    if any(k in name for k in ["半导", "芯", "集成", "存储"]):
+        return "半导体"
+    if any(k in name for k in ["光", "通信"]):
+        return "光通信"
+    if any(k in name for k in ["新能", "锂", "光伏"]):
+        return "新能源"
+    if "材料" in name:
+        return "新材料"
+    return ""
+
+# 股票名首字母缩写（简单拼音首字母映射）
+NAME_PINYIN = {
+    "兆易创新": "ZYCX",
+    "澜起科技": "LQKJ",
+    "长光华芯": "CGHX",
+    "博敏电子": "PMDZ",
+    "华工科技": "HGKJ",
+    "中国巨石": "ZGJS",
+    "金山办公": "JSBG",
+    "金山股份": "JSGF",
+    "太极实业": "TJSY",
+    "芯源微": "XYW",
+    "赛腾股份": "STGF",
+    "江丰电子": "JFDZ",
+    "兴森科技": "XSKJ",
+    "芯海科技": "XHKJ",
+    "东方通信": "DFTX",
+    "万兴科技": "WXKJ",
+    "卓胜微": "ZSW",
+    "春秋电子": "CQDZ",
+    "华峰测控": "HFCK",
+    "精测电子": "JCDZ",
+    "盛美上海": "SM SH",
+    "立讯精密": "LXJM",
+    "利通电子": "LTDZ",
+    "普冉股份": "PRGF",
+    "远东股份": "YDGF",
+    "炬光科技": "JGKJ",
+    "国盾量子": "GDLZ",
+    "华体科技": "HTKJ",
+    "三旺通信": "SWTX",
+    "光库科技": "GKKJ",
+    "芯碁微装": "XQWZ",
+}
+
+def get_name_pinyin(name):
+    return NAME_PINYIN.get(name, "")
+
+
 # 历史大牛股池（回测T90盈利>50%的核心标的）
 HISTORY_BULL_STOCKS = {
     "603629": "利通电子",
@@ -413,7 +519,8 @@ HISTORY_BULL_STOCKS = {
 }
 
 
-def compute_bull_hunter(nb_analysis: dict, signal_data: dict, latest_date: str) -> dict:
+def compute_bull_hunter(nb_analysis: dict, signal_data: dict, latest_date: str,
+                        industry_cache: dict = None) -> dict:
     """
     大牛股猎手 — 三栏版：
       1. 新赛道发现（左侧布局）：持仓环比变化大的行业，发现资金刚进场的新方向
@@ -426,6 +533,9 @@ def compute_bull_hunter(nb_analysis: dict, signal_data: dict, latest_date: str) 
     continuous_buy = week.get("continuous_buy", [])
     holding_change = week.get("holding_change", {})
     hc_top = holding_change.get("top_buy", [])
+
+    # 行业缓存（从stock_industry.json加载）
+    ind_cache = industry_cache or {}
 
     # ════════════════════════════════════════════
     # 1. 新赛道发现 — 持仓变动TOP行业
@@ -499,6 +609,7 @@ def compute_bull_hunter(nb_analysis: dict, signal_data: dict, latest_date: str) 
             # 高端制造优先
             is_high_end = any(kw in name for kw in HIGH_END_MFG_KEYWORDS)
             score = total * (1.5 if is_high_end else 1.0)
+            industry = ind_cache.get(s["code"], "")
             early_signals.append({
                 "code": s["code"],
                 "name": name,
@@ -507,6 +618,9 @@ def compute_bull_hunter(nb_analysis: dict, signal_data: dict, latest_date: str) 
                 "amount": fmt_wan(total),
                 "change_pct": f"{s.get('change_pct', 0):+.2f}%",
                 "is_high_end": is_high_end,
+                "industry": industry,
+                "sector": get_sector(s["code"]),
+                "concept": get_concept(s["code"], name),
                 "score": score,
             })
 
@@ -518,6 +632,7 @@ def compute_bull_hunter(nb_analysis: dict, signal_data: dict, latest_date: str) 
             is_high_end = any(kw in name for kw in HIGH_END_MFG_KEYWORDS)
             # 不重复添加
             if not any(e["code"] == s["code"] for e in early_signals):
+                industry = ind_cache.get(s["code"], "")
                 early_signals.append({
                     "code": s["code"],
                     "name": name,
@@ -526,6 +641,9 @@ def compute_bull_hunter(nb_analysis: dict, signal_data: dict, latest_date: str) 
                     "amount": fmt_wan(net),
                     "change_pct": "—",
                     "is_high_end": is_high_end,
+                    "industry": industry,
+                    "sector": get_sector(s["code"]),
+                    "concept": get_concept(s["code"], name),
                     "score": net * (1.5 if is_high_end else 1.0),
                 })
 
@@ -543,6 +661,7 @@ def compute_bull_hunter(nb_analysis: dict, signal_data: dict, latest_date: str) 
         # 游资大买 + 高端制造 = 题材早期
         if youzi >= 10000 and is_high_end:
             if not any(e["code"] == s["code"] for e in early_signals):
+                industry = ind_cache.get(s["code"], "")
                 early_signals.append({
                     "code": s["code"],
                     "name": name,
@@ -551,6 +670,9 @@ def compute_bull_hunter(nb_analysis: dict, signal_data: dict, latest_date: str) 
                     "amount": fmt_wan(youzi),
                     "change_pct": f"{s.get('change_pct', 0):+.2f}%",
                     "is_high_end": True,
+                    "industry": industry,
+                    "sector": get_sector(s["code"]),
+                    "concept": get_concept(s["code"], name),
                     "score": youzi * 1.2,
                 })
 
@@ -586,6 +708,7 @@ def compute_bull_hunter(nb_analysis: dict, signal_data: dict, latest_date: str) 
             res_type = "北向关注"
             res_cls = "nb-focus"
 
+        industry = ind_cache.get(r["code"], "")
         core_targets.append({
             "code": r["code"],
             "name": name,
@@ -594,10 +717,57 @@ def compute_bull_hunter(nb_analysis: dict, signal_data: dict, latest_date: str) 
             "strength": fmt_wan(strength),
             "res_type": res_type,
             "res_cls": res_cls,
+            "industry": industry,
+            "sector": get_sector(r["code"]),
+            "concept": get_concept(r["code"], name),
         })
 
     core_targets.sort(key=lambda x: x["strength"], reverse=True)
     core_targets = core_targets[:6]
+
+    # ════════════════════════════════════════════
+    # 为每个新赛道匹配推荐股票（从早期信号+核心标的+持仓变动+共振中找同行业的）
+    # ════════════════════════════════════════════
+    all_candidates = []
+    # 早期信号
+    for s in early_signals:
+        all_candidates.append({
+            "code": s["code"], "name": s["name"], "industry": s["industry"],
+            "score": s["score"],
+        })
+    # 核心标的
+    for s in core_targets:
+        if not any(c["code"] == s["code"] for c in all_candidates):
+            # strength是带单位的字符串，用个默认分数
+            all_candidates.append({
+                "code": s["code"], "name": s["name"], "industry": s["industry"],
+                "score": 999999,  # 核心标的优先级最高
+            })
+    # 持仓变动
+    for s in hc_top[:15]:
+        if not any(c["code"] == s["code"] for c in all_candidates):
+            industry = ind_cache.get(s["code"], "")
+            all_candidates.append({
+                "code": s["code"], "name": s.get("name", ""), "industry": industry,
+                "score": s.get("net_wan", 0),
+            })
+    # 共振列表
+    for r in nb_resonance[:10]:
+        if not any(c["code"] == r["code"] for c in all_candidates):
+            industry = ind_cache.get(r["code"], "")
+            all_candidates.append({
+                "code": r["code"], "name": r.get("name", ""), "industry": industry,
+                "score": r.get("resonance_strength", 0),
+            })
+
+    for sector in new_sectors:
+        matched = [c for c in all_candidates if c["industry"] == sector["industry"]]
+        matched.sort(key=lambda x: x["score"], reverse=True)
+        top2 = matched[:2]
+        sector["top_stocks"] = [
+            {"code": s["code"], "name": s["name"], "pinyin": get_name_pinyin(s["name"])}
+            for s in top2
+        ]
 
     # ════════════════════════════════════════════
     # 结论
@@ -781,6 +951,12 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
     sectors = bull_hunter.get("new_sectors", [])
     if sectors:
         for s in sectors:
+            top_stocks_html = ""
+            top_stocks = s.get("top_stocks", [])
+            if top_stocks:
+                for stk in top_stocks:
+                    pinyin_tag = f' <span class="stock-pinyin">{stk["pinyin"]}</span>' if stk.get("pinyin") else ""
+                    top_stocks_html += f"""<span class="sector-stock">{stk['name']}{pinyin_tag}</span>"""
             bull_sectors_html += f"""
                     <div class="bull-sector-item">
                         <div class="bull-sector-head">
@@ -801,6 +977,10 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
                                 <span class="bull-metric-val strength">{s['ratio']}</span>
                             </div>
                         </div>
+                        <div class="bull-sector-stocks">
+                            <span class="sector-stocks-label">推荐：</span>
+                            {top_stocks_html}
+                        </div>
                     </div>"""
     else:
         bull_sectors_html = '<div class="empty-text">暂无明显新赛道信号</div>'
@@ -811,11 +991,19 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
     if early_list:
         for e in early_list:
             high_end_badge = '<span class="bull-high-end-badge">高制</span>' if e.get("is_high_end") else ""
+            sector_tag = f'<span class="stock-sector-tag">{e["sector"]}</span>' if e.get("sector") else ""
+            concept_text = f'<span class="stock-concept">{e["concept"]}</span>' if e.get("concept") else ""
+            industry_text = f'<span class="stock-industry">{e["industry"]}</span>' if e.get("industry") else ""
             bull_early_html += f"""
                     <div class="bull-early-item">
                         <div class="bull-early-head">
                             <span class="bull-stock-name">{e['name']} <span class="bull-stock-code">{e['code']}</span></span>
                             {high_end_badge}
+                            {sector_tag}
+                        </div>
+                        <div class="bull-early-meta">
+                            {industry_text}
+                            {concept_text}
                         </div>
                         <div class="bull-early-body">
                             <span class="bull-early-signal {e['signal_cls']}">{e['signal']}</span>
@@ -830,11 +1018,19 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
     core_list = bull_hunter.get("core_targets", [])
     if core_list:
         for c in core_list:
+            sector_tag = f'<span class="stock-sector-tag">{c["sector"]}</span>' if c.get("sector") else ""
+            concept_text = f'<span class="stock-concept">{c["concept"]}</span>' if c.get("concept") else ""
+            industry_text = f'<span class="stock-industry">{c["industry"]}</span>' if c.get("industry") else ""
             bull_core_html += f"""
                     <div class="bull-core-item">
                         <div class="bull-stock-head">
                             <span class="bull-stock-name">{c['name']} <span class="bull-stock-code">{c['code']}</span></span>
                             <span class="bull-tag {c['res_cls']}">{c['res_type']}</span>
+                            {sector_tag}
+                        </div>
+                        <div class="bull-core-meta">
+                            {industry_text}
+                            {concept_text}
                         </div>
                         <div class="bull-stock-body">
                             <div class="bull-metric">
@@ -1418,6 +1614,57 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
             color: #ff7a00;
         }}
 
+        /* 新赛道推荐股票 */
+        .bull-sector-stocks {{
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed #21262d;
+            font-size: 12px;
+            line-height: 1.6;
+        }}
+        .sector-stocks-label {{
+            color: #6e7681;
+            margin-right: 6px;
+        }}
+        .sector-stock {{
+            display: inline-block;
+            background: rgba(255, 122, 0, 0.08);
+            color: #ff7a00;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-right: 6px;
+            margin-bottom: 4px;
+        }}
+        .stock-pinyin {{
+            color: #8b949e;
+            font-size: 11px;
+            margin-left: 3px;
+            font-family: monospace;
+        }}
+
+        /* 股票行业/概念标签 */
+        .bull-early-meta, .bull-core-meta {{
+            font-size: 11px;
+            margin: 4px 0 6px 0;
+            line-height: 1.5;
+        }}
+        .stock-industry {{
+            color: #58a6ff;
+            margin-right: 8px;
+        }}
+        .stock-concept {{
+            color: #a371f7;
+        }}
+        .stock-sector-tag {{
+            font-size: 10px;
+            padding: 1px 5px;
+            border-radius: 3px;
+            background: rgba(88, 166, 255, 0.12);
+            color: #58a6ff;
+            margin-left: 6px;
+            font-weight: 500;
+        }}
+
         /* 早期信号项 */
         .bull-early-item {{
             background: #161b22;
@@ -1881,7 +2128,16 @@ def main():
     print(f"  关注点: {len(focus_points)} 条")
 
     log_info("计算大牛股猎手数据 ...")
-    bull_hunter = compute_bull_hunter(nb_analysis or {}, signal_data, latest_date)
+    # 加载行业缓存
+    industry_cache = {}
+    industry_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "stock_industry.json")
+    if os.path.exists(industry_file):
+        with open(industry_file, "r", encoding="utf-8") as f:
+            industry_cache = json.load(f)
+        print(f"  ✅ 行业缓存已加载: {len(industry_cache)} 只")
+    else:
+        print("  ⚠️  行业缓存文件不存在，跳过")
+    bull_hunter = compute_bull_hunter(nb_analysis or {}, signal_data, latest_date, industry_cache)
     print(f"  新赛道: {bull_hunter['sector_count']} 个")
     print(f"  早期信号: {bull_hunter['early_count']} 只")
     print(f"  核心标的: {bull_hunter['core_count']} 只")

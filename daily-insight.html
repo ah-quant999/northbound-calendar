@@ -626,6 +626,57 @@
             color: #ff7a00;
         }
 
+        /* 新赛道推荐股票 */
+        .bull-sector-stocks {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed #21262d;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        .sector-stocks-label {
+            color: #6e7681;
+            margin-right: 6px;
+        }
+        .sector-stock {
+            display: inline-block;
+            background: rgba(255, 122, 0, 0.08);
+            color: #ff7a00;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-right: 6px;
+            margin-bottom: 4px;
+        }
+        .stock-pinyin {
+            color: #8b949e;
+            font-size: 11px;
+            margin-left: 3px;
+            font-family: monospace;
+        }
+
+        /* 股票行业/概念标签 */
+        .bull-early-meta, .bull-core-meta {
+            font-size: 11px;
+            margin: 4px 0 6px 0;
+            line-height: 1.5;
+        }
+        .stock-industry {
+            color: #58a6ff;
+            margin-right: 8px;
+        }
+        .stock-concept {
+            color: #a371f7;
+        }
+        .stock-sector-tag {
+            font-size: 10px;
+            padding: 1px 5px;
+            border-radius: 3px;
+            background: rgba(88, 166, 255, 0.12);
+            color: #58a6ff;
+            margin-left: 6px;
+            font-weight: 500;
+        }
+
         /* 早期信号项 */
         .bull-early-item {
             background: #161b22;
@@ -833,7 +884,7 @@
         <h1>📊 每日市场洞察</h1>
         <div class="subtitle">短线+中长线双视角 · 机游共振 × 北向资金</div>
     </div>
-    <div class="update-time">数据日期：2026-07-22 | 每日固定更新：18:30 | 本次更新：2026-07-24 09:25</div>
+    <div class="update-time">数据日期：2026-07-22 | 每日固定更新：18:30 | 本次更新：2026-07-24 09:41</div>
 
     <!-- 图例 -->
     <div class="legend">
@@ -1059,6 +1110,10 @@
                                 <span class="bull-metric-val strength">100%</span>
                             </div>
                         </div>
+                        <div class="bull-sector-stocks">
+                            <span class="sector-stocks-label">推荐：</span>
+                            <span class="sector-stock">长光华芯 <span class="stock-pinyin">CGHX</span></span><span class="sector-stock">格科微</span>
+                        </div>
                     </div>
                     <div class="bull-sector-item">
                         <div class="bull-sector-head">
@@ -1078,6 +1133,10 @@
                                 <span class="bull-metric-label">占比</span>
                                 <span class="bull-metric-val strength">100%</span>
                             </div>
+                        </div>
+                        <div class="bull-sector-stocks">
+                            <span class="sector-stocks-label">推荐：</span>
+                            <span class="sector-stock">中国巨石 <span class="stock-pinyin">ZGJS</span></span><span class="sector-stock">宏和科技</span>
                         </div>
                     </div>
                     <div class="bull-sector-item">
@@ -1099,6 +1158,10 @@
                                 <span class="bull-metric-val strength">100%</span>
                             </div>
                         </div>
+                        <div class="bull-sector-stocks">
+                            <span class="sector-stocks-label">推荐：</span>
+                            <span class="sector-stock">华电辽能</span>
+                        </div>
                     </div>
                     <div class="bull-sector-item">
                         <div class="bull-sector-head">
@@ -1118,6 +1181,10 @@
                                 <span class="bull-metric-label">占比</span>
                                 <span class="bull-metric-val strength">100%</span>
                             </div>
+                        </div>
+                        <div class="bull-sector-stocks">
+                            <span class="sector-stocks-label">推荐：</span>
+                            <span class="sector-stock">大元泵业</span>
                         </div>
                     </div>
                     <div class="bull-sector-item">
@@ -1139,6 +1206,10 @@
                                 <span class="bull-metric-val strength">100%</span>
                             </div>
                         </div>
+                        <div class="bull-sector-stocks">
+                            <span class="sector-stocks-label">推荐：</span>
+                            <span class="sector-stock">有研新材</span><span class="sector-stock">博迁新材</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1155,6 +1226,11 @@
                         <div class="bull-early-head">
                             <span class="bull-stock-name">兆易创新 <span class="bull-stock-code">603986</span></span>
                             
+                            <span class="stock-sector-tag">沪市主板</span>
+                        </div>
+                        <div class="bull-early-meta">
+                            <span class="stock-industry">电子设备</span>
+                            <span class="stock-concept">存储芯片、半导体</span>
                         </div>
                         <div class="bull-early-body">
                             <span class="bull-early-signal sig-hc">周度持仓大增</span>
@@ -1165,6 +1241,11 @@
                         <div class="bull-early-head">
                             <span class="bull-stock-name">中国巨石 <span class="bull-stock-code">600176</span></span>
                             
+                            <span class="stock-sector-tag">沪市主板</span>
+                        </div>
+                        <div class="bull-early-meta">
+                            <span class="stock-industry">基础化工</span>
+                            <span class="stock-concept">玻纤、新材料</span>
                         </div>
                         <div class="bull-early-body">
                             <span class="bull-early-signal sig-nb">北向连加2天</span>
@@ -1175,6 +1256,11 @@
                         <div class="bull-early-head">
                             <span class="bull-stock-name">澜起科技 <span class="bull-stock-code">688008</span></span>
                             <span class="bull-high-end-badge">高制</span>
+                            <span class="stock-sector-tag">科创板</span>
+                        </div>
+                        <div class="bull-early-meta">
+                            <span class="stock-industry">电子设备</span>
+                            <span class="stock-concept">芯片设计、AI芯片</span>
                         </div>
                         <div class="bull-early-body">
                             <span class="bull-early-signal sig-hc">周度持仓大增</span>
@@ -1184,6 +1270,11 @@
                     <div class="bull-early-item">
                         <div class="bull-early-head">
                             <span class="bull-stock-name">华电辽能 <span class="bull-stock-code">600396</span></span>
+                            
+                            <span class="stock-sector-tag">沪市主板</span>
+                        </div>
+                        <div class="bull-early-meta">
+                            <span class="stock-industry">公用事业</span>
                             
                         </div>
                         <div class="bull-early-body">
@@ -1195,6 +1286,11 @@
                         <div class="bull-early-head">
                             <span class="bull-stock-name">太极实业 <span class="bull-stock-code">600667</span></span>
                             
+                            <span class="stock-sector-tag">沪市主板</span>
+                        </div>
+                        <div class="bull-early-meta">
+                            <span class="stock-industry">建筑</span>
+                            <span class="stock-concept">半导体材料、封装基板</span>
                         </div>
                         <div class="bull-early-body">
                             <span class="bull-early-signal sig-nb">北向连加2天</span>
@@ -1205,6 +1301,11 @@
                         <div class="bull-early-head">
                             <span class="bull-stock-name">宏和科技 <span class="bull-stock-code">603256</span></span>
                             <span class="bull-high-end-badge">高制</span>
+                            <span class="stock-sector-tag">沪市主板</span>
+                        </div>
+                        <div class="bull-early-meta">
+                            <span class="stock-industry">基础化工</span>
+                            <span class="stock-concept">半导体设备、CMP</span>
                         </div>
                         <div class="bull-early-body">
                             <span class="bull-early-signal sig-hc">周度持仓大增</span>
@@ -1226,6 +1327,11 @@
                         <div class="bull-stock-head">
                             <span class="bull-stock-name">长光华芯 <span class="bull-stock-code">688048</span></span>
                             <span class="bull-tag triple">三方共振</span>
+                            <span class="stock-sector-tag">科创板</span>
+                        </div>
+                        <div class="bull-core-meta">
+                            <span class="stock-industry">电子设备</span>
+                            <span class="stock-concept">光芯片、激光雷达</span>
                         </div>
                         <div class="bull-stock-body">
                             <div class="bull-metric">
@@ -1246,6 +1352,11 @@
                         <div class="bull-stock-head">
                             <span class="bull-stock-name">格科微 <span class="bull-stock-code">688728</span></span>
                             <span class="bull-tag triple">三方共振</span>
+                            <span class="stock-sector-tag">科创板</span>
+                        </div>
+                        <div class="bull-core-meta">
+                            <span class="stock-industry">电子设备</span>
+                            <span class="stock-concept">半导体设备、刻蚀</span>
                         </div>
                         <div class="bull-stock-body">
                             <div class="bull-metric">
@@ -1266,6 +1377,11 @@
                         <div class="bull-stock-head">
                             <span class="bull-stock-name">博敏电子 <span class="bull-stock-code">603936</span></span>
                             <span class="bull-tag triple">三方共振</span>
+                            <span class="stock-sector-tag">沪市主板</span>
+                        </div>
+                        <div class="bull-core-meta">
+                            <span class="stock-industry">电子设备</span>
+                            <span class="stock-concept">汽车电子、消费电子</span>
                         </div>
                         <div class="bull-stock-body">
                             <div class="bull-metric">
@@ -1286,6 +1402,11 @@
                         <div class="bull-stock-head">
                             <span class="bull-stock-name">拓荆科技 <span class="bull-stock-code">688072</span></span>
                             <span class="bull-tag triple">三方共振</span>
+                            <span class="stock-sector-tag">科创板</span>
+                        </div>
+                        <div class="bull-core-meta">
+                            <span class="stock-industry">电子设备</span>
+                            <span class="stock-concept">半导体设备、薄膜沉积</span>
                         </div>
                         <div class="bull-stock-body">
                             <div class="bull-metric">
@@ -1306,6 +1427,11 @@
                         <div class="bull-stock-head">
                             <span class="bull-stock-name">银信科技 <span class="bull-stock-code">300231</span></span>
                             <span class="bull-tag triple">三方共振</span>
+                            <span class="stock-sector-tag">创业板</span>
+                        </div>
+                        <div class="bull-core-meta">
+                            <span class="stock-industry">信息技术</span>
+                            <span class="stock-concept">光模块、数据中心</span>
                         </div>
                         <div class="bull-stock-body">
                             <div class="bull-metric">
@@ -1326,6 +1452,11 @@
                         <div class="bull-stock-head">
                             <span class="bull-stock-name">华工科技 <span class="bull-stock-code">000988</span></span>
                             <span class="bull-tag triple">三方共振</span>
+                            <span class="stock-sector-tag">深市主板</span>
+                        </div>
+                        <div class="bull-core-meta">
+                            <span class="stock-industry">电子设备</span>
+                            <span class="stock-concept">光通信、激光设备</span>
                         </div>
                         <div class="bull-stock-body">
                             <div class="bull-metric">
