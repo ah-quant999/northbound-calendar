@@ -1,11 +1,11 @@
 name: 机游共振日历每日更新
 
 # 触发方式：
-#   - cron: 北京时间 17:30 每个工作日 = UTC 09:30 周一到周五
+#   - cron: 北京时间 17:00 每个工作日 = UTC 09:00 周一到周五
 #   - workflow_dispatch: 手动触发
 on:
   schedule:
-    - cron: '30 9 * * 1-5'
+    - cron: '0 9 * * 1-5'
   workflow_dispatch:
     inputs:
       date:
