@@ -396,7 +396,7 @@
         }
         .week-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            grid-template-columns: repeat(5, minmax(0, 1fr));
             gap: 15px;
         }
         .week-box {
@@ -433,7 +433,8 @@
             flex-shrink: 0;
         }
         .week-stock-name {
-            flex: 1;
+            margin-right: 6px;
+            
             color: #c9d1d9;
         }
         .week-stock-amount {
@@ -458,12 +459,14 @@
         }
         
         .monthly-summary {
+            justify-content: center;
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
             gap: 30px;
             margin-bottom: 30px;
         }
         .summary-box {
+            max-width: 320px;
             background: #21262d;
             border-radius: 8px;
             padding: 20px;
@@ -496,7 +499,7 @@
         }
         .rank-num.top { background: #e8a0b0; color: #fff; }
         .rank-num.other { background: #30363d; color: #8b949e; }
-        .rank-name { flex: 1; color: #c9d1d9; }
+        .rank-name { color: #c9d1d9; margin-right: 6px; }
         .rank-name.resonance { color: #ffd700; font-weight: 600; }
         .rank-amount { font-weight: 600; }
         .rank-amount.buy { color: #f85149; }
@@ -550,7 +553,8 @@
             .day-cell .stock-list { font-size: 9px; }
             .day-cell .stock-name { font-size: 9px; }
             .day-cell .stock-amount { font-size: 9px; }
-            .monthly-summary { grid-template-columns: 1fr; }
+            .monthly-summary {
+            justify-content: center; grid-template-columns: 1fr; }
         }
     
         /* 多月份切换 */
@@ -706,7 +710,7 @@
     }
     .signals-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
         gap: 12px;
     }
     .signal-group {
