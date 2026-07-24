@@ -523,6 +523,8 @@
                         <li><a href="#sec5-1" class="toc-link">东方财富龙虎榜API</a></li>
                         <li><a href="#sec5-2" class="toc-link">腾讯gtimg行情接口</a></li>
                         <li><a href="#sec5-3" class="toc-link">数据局限性</a></li>
+                        <li><a href="#sec5-4" class="toc-link">洞察页模块数据源</a></li>
+                        <li><a href="#sec5-5" class="toc-link">更新时间与调度</a></li>
                     </ul>
                 </li>
             </ul>
@@ -1144,6 +1146,98 @@
                 <li><strong>北向席位口径：</strong>北向资金是龙虎榜上的沪股通/深股通专用席位数据，与每日北向资金净流入额口径不同（后者是全口径）。</li>
                 <li><strong>不构成投资建议：</strong>所有数据和分析仅供学习研究，不构成任何投资建议。</li>
             </ul>
+
+            <h3 id="sec5-4">📊 洞察页模块数据源</h3>
+            <p>每日洞察页（daily-insight.html）共四个核心模块，各模块数据来源不同，更新时间也有差异：</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>模块</th>
+                        <th>数据来源</th>
+                        <th>依赖机游</th>
+                        <th>依赖北向</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>🌡️ 市场温度</strong></td>
+                        <td>机游信号 + 北向资金综合评分</td>
+                        <td>✅ 是</td>
+                        <td>✅ 是</td>
+                    </tr>
+                    <tr>
+                        <td><strong>⚡ 机游短线</strong></td>
+                        <td>龙虎榜机构/游资席位数据</td>
+                        <td>✅ 是</td>
+                        <td>❌ 否</td>
+                    </tr>
+                    <tr>
+                        <td><strong>💹 北向中长线</strong></td>
+                        <td>北向龙虎榜沪股通/深股通专用席位</td>
+                        <td>❌ 否</td>
+                        <td>✅ 是</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🦬 大牛股猎手</strong></td>
+                        <td>北向行业资金 + 机构净买入榜 + 行业分类</td>
+                        <td>❌ 否（仅用机构榜）</td>
+                        <td>✅ 是</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="tip-box">
+                <div class="tip-title">💡 关键说明</div>
+                <p><strong>大牛股猎手不需要游资数据。</strong>它的筛选逻辑是北向行业资金流向 + 机构买入标的，属于中长线发现逻辑，游资短线炒作不在筛选范围内。因此即使机游数据未更新，只要北向和机构榜数据出了，大牛股猎手模块就能正常产出。</p>
+                <p><strong>三方共振标签需要机构+北向双数据。</strong>核心共振标的中的"三方共振"标签（机构净买≥1亿 + 北向净买≥5000万）依赖两个数据源，任何一个未更新都会影响标签准确性。</p>
+            </div>
+
+            <h3 id="sec5-5">⏰ 更新时间与调度</h3>
+            <p>所有数据均为盘后更新，执行顺序经过精心安排，确保下游模块读取的是上游最新数据：</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>任务</th>
+                        <th>触发时间（工作日）</th>
+                        <th>产出</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>机游共振更新</strong></td>
+                        <td>17:30</td>
+                        <td>机游日历 + 信号分析页</td>
+                        <td>龙虎榜数据16:30-17:00陆续出，17:30基本完整</td>
+                    </tr>
+                    <tr>
+                        <td><strong>北向资金更新</strong></td>
+                        <td>18:10</td>
+                        <td>北向日历 + 分析页 + 每日洞察</td>
+                        <td>比机游晚40分钟，确保洞察读到当天最新机游数据</td>
+                    </tr>
+                    <tr>
+                        <td><strong>T+1早间兜底</strong></td>
+                        <td>次日 07:30（周二~周六）</td>
+                        <td>数据完整性校验 + 补跑</td>
+                        <td>前一日漏跑或数据不全时自动补跑并重生成洞察</td>
+                    </tr>
+                    <tr>
+                        <td><strong>行业缓存刷新</strong></td>
+                        <td>每周日 08:00</td>
+                        <td>stock_industry.json</td>
+                        <td>全量刷新242只股票的行业分类，避免盘中调用</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="highlight-box blue">
+                <div class="highlight-box-title">📐 调度顺序设计原则</div>
+                <p><strong>机游先跑，北向后跑。</strong>原因：每日洞察页由北向流程生成，其中市场温度、机游短线等模块依赖机游数据。如果北向先跑、机游后跑，洞察里的机游部分就会是前一天的旧数据。</p>
+                <p><strong>时间差留足40分钟。</strong>机游17:30启动，通常5-10分钟跑完；北向18:10启动时，机游数据已经推送完毕，洞察页可以读到完整的当日机游数据。</p>
+            </div>
+            <div class="tip-box">
+                <div class="tip-title">⚠️ GitHub Actions 调度提示</div>
+                <p>GitHub Actions 的 schedule 触发<strong>不保证准时</strong>，高峰时段可能延迟几分钟甚至跳过。如果到点半小时还没更新，大概率是调度延迟，数据本身没问题。T+1早间兜底会在次日早7:30自动校验补跑。</p>
+            </div>
 
             <div style="margin-top:40px;padding-top:20px;border-top:1px solid #30363d;text-align:center;color:#6e7681;font-size:12px;">
                 <p>本页面内容由AI生成，仅供学习参考，不构成投资建议。</p>
