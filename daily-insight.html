@@ -144,11 +144,11 @@
             background: linear-gradient(135deg, #161b22 0%, #1c2128 100%);
             border: 1px solid #ff7a00;
             border-radius: 12px;
-            padding: 18px 24px;
+            padding: 12px 18px;
             margin-bottom: 14px;
             display: flex;
             align-items: center;
-            gap: 24px;
+            gap: 18px;
             box-shadow: 0 0 15px rgba(255, 122, 0, 0.08);
         }
         .temp-score {
@@ -173,17 +173,24 @@
             color: #8b949e;
             margin-top: 2px;
         }
-        .temp-info { flex: 1; }
+        .temp-info { flex: 1; min-width: 0; }
         .temp-info .summary {
-            font-size: 15px;
+            font-size: 14px;
             color: #f0f6fc;
-            margin-bottom: 10px;
-            line-height: 1.5;
+            margin-bottom: 8px;
+            line-height: 1.4;
         }
-        .metrics-row {
+        .temp-info .metrics-row {
             display: flex;
-            gap: 12px;
+            gap: 8px;
             flex-wrap: wrap;
+        }
+        .temp-card .metric-card {
+            background: #0d1117;
+            border: 1px solid #21262d;
+            border-radius: 6px;
+            padding: 6px 10px;
+            min-width: 80px;
         }
         .metric-card {
             background: #0d1117;
@@ -826,7 +833,7 @@
         <h1>📊 每日市场洞察</h1>
         <div class="subtitle">短线+中长线双视角 · 机游共振 × 北向资金</div>
     </div>
-    <div class="update-time">数据日期：2026-07-22 | 每日固定更新：18:30 | 本次更新：2026-07-24 09:20</div>
+    <div class="update-time">数据日期：2026-07-22 | 每日固定更新：18:30 | 本次更新：2026-07-24 09:25</div>
 
     <!-- 图例 -->
     <div class="legend">

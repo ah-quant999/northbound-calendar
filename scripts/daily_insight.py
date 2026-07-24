@@ -936,11 +936,11 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
             background: linear-gradient(135deg, #161b22 0%, #1c2128 100%);
             border: 1px solid #ff7a00;
             border-radius: 12px;
-            padding: 18px 24px;
+            padding: 12px 18px;
             margin-bottom: 14px;
             display: flex;
             align-items: center;
-            gap: 24px;
+            gap: 18px;
             box-shadow: 0 0 15px rgba(255, 122, 0, 0.08);
         }}
         .temp-score {{
@@ -965,17 +965,24 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
             color: #8b949e;
             margin-top: 2px;
         }}
-        .temp-info {{ flex: 1; }}
+        .temp-info {{ flex: 1; min-width: 0; }}
         .temp-info .summary {{
-            font-size: 15px;
+            font-size: 14px;
             color: #f0f6fc;
-            margin-bottom: 10px;
-            line-height: 1.5;
+            margin-bottom: 8px;
+            line-height: 1.4;
         }}
-        .metrics-row {{
+        .temp-info .metrics-row {{
             display: flex;
-            gap: 12px;
+            gap: 8px;
             flex-wrap: wrap;
+        }}
+        .temp-card .metric-card {{
+            background: #0d1117;
+            border: 1px solid #21262d;
+            border-radius: 6px;
+            padding: 6px 10px;
+            min-width: 80px;
         }}
         .metric-card {{
             background: #0d1117;
