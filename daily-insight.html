@@ -139,6 +139,40 @@
             font-size: 11px;
             margin-bottom: 14px;
         }
+        /* 顶部两列布局 */
+        .top-two-col {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+        .top-two-col .temp-card {
+            flex: 1.2;
+            margin-bottom: 0;
+        }
+        .top-two-col .focus-card {
+            flex: 1;
+        }
+        .top-two-col .temp-info { flex: 1; min-width: 0; }
+        .top-two-col .temp-info .summary {
+            font-size: 13px;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+        .top-two-col .metrics-row {
+            gap: 6px;
+        }
+        .top-two-col .metric-card {
+            padding: 4px 8px;
+            min-width: 70px;
+        }
+        .top-two-col .metric-value {
+            font-size: 13px;
+        }
+        .top-two-col .metric-label {
+            font-size: 10px;
+            margin-bottom: 1px;
+        }
+
         /* 市场温度 */
         .temp-card {
             background: linear-gradient(135deg, #161b22 0%, #1c2128 100%);
@@ -884,7 +918,7 @@
         <h1>📊 每日市场洞察</h1>
         <div class="subtitle">短线+中长线双视角 · 机游共振 × 北向资金</div>
     </div>
-    <div class="update-time">数据日期：2026-07-22 | 每日固定更新：18:30 | 本次更新：2026-07-24 09:41</div>
+    <div class="update-time">数据日期：2026-07-22 | 每日固定更新：18:30 | 本次更新：2026-07-24 10:17</div>
 
     <!-- 图例 -->
     <div class="legend">
@@ -896,15 +930,16 @@
         <div class="legend-item"><span style="color:#3fb950;font-weight:600;">绿色=下跌/卖出</span></div>
     </div>
 
-    <!-- 市场温度 -->
-    <div class="temp-card">
-        <div class="temp-score">
-            <div class="num">70</div>
-            <div class="label">☀️ 偏暖</div>
-        </div>
-        <div class="temp-info">
-            <div class="summary">市场情绪偏暖，结构性机会较多，建议顺势而为。</div>
-            <div class="metrics-row">
+    <!-- 顶部两列：温度 + 关注 -->
+    <div class="top-two-col">
+        <div class="temp-card">
+            <div class="temp-score">
+                <div class="num">70</div>
+                <div class="label">☀️ 偏暖</div>
+            </div>
+            <div class="temp-info">
+                <div class="summary">市场情绪偏暖，结构性机会较多，建议顺势而为。</div>
+                <div class="metrics-row">
             <div class="metric-card">
                 <div class="metric-label">北向净买入</div>
                 <div class="metric-value up">+23.75亿</div>
@@ -917,14 +952,12 @@
                 <div class="metric-label">龙虎榜个股</div>
                 <div class="metric-value ">75只</div>
             </div>
+                </div>
             </div>
         </div>
-    </div>
-
-    <!-- 明日关注点 -->
-    <div class="focus-card">
-        <div class="focus-title-bar">🎯 明日关注点</div>
-        
+        <div class="focus-card">
+            <div class="focus-title-bar">🎯 明日关注点</div>
+            
             <div class="focus-item">
                 <div class="focus-icon">⚡</div>
                 <div class="focus-content">
@@ -939,6 +972,7 @@
                     <div class="focus-desc">中岩大地(003001)出现<span class="amt down">机游共振卖出</span>，机构-802万 游资-9,841万，警惕回调风险。</div>
                 </div>
             </div>
+        </div>
     </div>
 
     <!-- 三列 -->

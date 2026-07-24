@@ -1127,6 +1127,40 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
             font-size: 11px;
             margin-bottom: 14px;
         }}
+        /* 顶部两列布局 */
+        .top-two-col {{
+            display: flex;
+            gap: 14px;
+            margin-bottom: 14px;
+        }}
+        .top-two-col .temp-card {{
+            flex: 1.2;
+            margin-bottom: 0;
+        }}
+        .top-two-col .focus-card {{
+            flex: 1;
+        }}
+        .top-two-col .temp-info {{ flex: 1; min-width: 0; }}
+        .top-two-col .temp-info .summary {{
+            font-size: 13px;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }}
+        .top-two-col .metrics-row {{
+            gap: 6px;
+        }}
+        .top-two-col .metric-card {{
+            padding: 4px 8px;
+            min-width: 70px;
+        }}
+        .top-two-col .metric-value {{
+            font-size: 13px;
+        }}
+        .top-two-col .metric-label {{
+            font-size: 10px;
+            margin-bottom: 1px;
+        }}
+
         /* 市场温度 */
         .temp-card {{
             background: linear-gradient(135deg, #161b22 0%, #1c2128 100%);
@@ -1870,23 +1904,23 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
         <div class="legend-item"><span style="color:#3fb950;font-weight:600;">绿色=下跌/卖出</span></div>
     </div>
 
-    <!-- 市场温度 -->
-    <div class="temp-card">
-        <div class="temp-score">
-            <div class="num">{market_temp['score']}</div>
-            <div class="label">{market_temp['label']}</div>
-        </div>
-        <div class="temp-info">
-            <div class="summary">{market_temp['summary']}</div>
-            <div class="metrics-row">{metrics_html}
+    <!-- 顶部两列：温度 + 关注 -->
+    <div class="top-two-col">
+        <div class="temp-card">
+            <div class="temp-score">
+                <div class="num">{market_temp['score']}</div>
+                <div class="label">{market_temp['label']}</div>
+            </div>
+            <div class="temp-info">
+                <div class="summary">{market_temp['summary']}</div>
+                <div class="metrics-row">{metrics_html}
+                </div>
             </div>
         </div>
-    </div>
-
-    <!-- 明日关注点 -->
-    <div class="focus-card">
-        <div class="focus-title-bar">🎯 明日关注点</div>
-        {focus_html}
+        <div class="focus-card">
+            <div class="focus-title-bar">🎯 明日关注点</div>
+            {focus_html}
+        </div>
     </div>
 
     <!-- 三列 -->
