@@ -514,7 +514,8 @@
                         <li><a href="#sec4-1" class="toc-link">信号使用流程</a></li>
                         <li><a href="#sec4-2" class="toc-link">不同市场环境下的权重</a></li>
                         <li><a href="#sec4-3" class="toc-link">胜率与期望值参考</a></li>
-                        <li><a href="#sec4-4" class="toc-link">风险提示</a></li>
+                        <li><a href="#sec4-4" class="toc-link">大牛股猎手三栏详解</a></li>
+                        <li><a href="#sec4-5" class="toc-link">风险提示</a></li>
                     </ul>
                 </li>
                 <li><a href="#sec5" class="toc-link">五、数据来源说明</a>
@@ -979,7 +980,119 @@
                 <p><strong>北向资金单因子（行业+个股维度）胜率不足，不构成独立交易信号。</strong>需叠加机构共振、连续加仓、行业景气度等条件筛选，才能提升胜率至可交易水平。</p>
             </div>
 
-            <h3 id="sec4-4">⚠️ 风险提示</h3>
+            <h3 id="sec4-4">🦬 大牛股猎手三栏详解</h3>
+            <p>大牛股猎手是洞察页的核心模块，用三栏递进结构从"发现方向"到"早期信号"再到"核心标的"，层层筛选，帮你从海量数据里锁定有大牛股潜质的标的。</p>
+
+            <h4 id="sec4-4-1">📈 第一栏：新赛道发现</h4>
+            <p><strong>定位：</strong>发现北向资金刚进场的新兴行业，找出市场还没充分定价的新方向。</p>
+            <p><strong>数据来源：</strong>北向分析页周度 / 月度行业净流入（底层 = 东方财富龙虎榜沪股通 + 深股通专用席位成交数据）。</p>
+            <p><strong>筛选逻辑：</strong></p>
+            <ul>
+                <li><strong>门槛：</strong>周度北向净流入 ≥ 5亿，金额太小的行业不纳入</li>
+                <li><strong>核心指标：</strong>ratio = 本周净流入 / 本月净流入。比例越高，说明资金越集中在近期进场</li>
+                <li><strong>排序：</strong>按周净流入金额降序，取前5个行业</li>
+            </ul>
+
+            <p><strong>三档标签含义：</strong></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>标签</th>
+                        <th>条件</th>
+                        <th>含义</th>
+                        <th>关注级别</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>🔥 加速流入</strong></td>
+                        <td>ratio ≥ 80%</td>
+                        <td>本月80%以上的买入集中在本周，资金突然加速进场，很可能是新行情启动初期</td>
+                        <td>★★★★★ 最高优先级</td>
+                    </tr>
+                    <tr>
+                        <td><strong>📈 持续加仓</strong></td>
+                        <td>50% ≤ ratio < 80%</td>
+                        <td>本周买入占本月一半左右，资金在稳步推进中</td>
+                        <td>★★★☆☆ 关注</td>
+                    </tr>
+                    <tr>
+                        <td><strong>📊 稳步布局</strong></td>
+                        <td>ratio < 50%</td>
+                        <td>本月前期就在买，本周只是延续，属于老方向</td>
+                        <td>★★☆☆☆ 观察</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p><strong>推荐股票怎么来的：</strong>从早期信号、核心标的、北向持仓变动、机游共振列表中，找与该行业匹配的股票，按资金强度排序取TOP2，并标注拼音首字母缩写，方便快速识别。</p>
+
+            <div class="tip-box">
+                <div class="tip-title">💡 新赛道使用要点</div>
+                <p>加速流入的行业最值得跟踪——北向资金通常提前布局，行业刚启动时介入性价比最高。但要注意：单看北向行业流入不够，还要结合第二、三栏看有没有具体个股信号共振。</p>
+            </div>
+
+            <h4 id="sec4-4-2">🎯 第二栏：早期信号雷达</h4>
+            <p><strong>定位：</strong>苗头阶段的标的——资金刚开始建仓，股价可能还没大涨，是"埋伏"的好时机。</p>
+            <p><strong>三类筛选来源：</strong></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>来源</th>
+                        <th>筛选条件</th>
+                        <th>信号特征</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>北向早期建仓</strong></td>
+                        <td>连续加仓 2~3 天 + 累计净流入 ≥ 2亿</td>
+                        <td>北向刚开始买，天数不多但金额大，说明不是小打小闹</td>
+                    </tr>
+                    <tr>
+                        <td><strong>持仓变动榜</strong></td>
+                        <td>北向 / 机构新进入持仓变动前列</td>
+                        <td>仓位变化幅度大，可能是新资金第一次进场</td>
+                    </tr>
+                    <tr>
+                        <td><strong>高端制造 + 游资介入</strong></td>
+                        <td>名称含高端制造关键词 + 有游资介入苗头（机构卖游资买也算题材启动）</td>
+                        <td>政策支持方向 + 游资开始点火，容易出大牛股</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p><strong>标签体系：</strong></p>
+            <ul>
+                <li><strong>行业标签：</strong>来自东方财富F10东财三级行业分类（数据存于 stock_industry.json，每周五全量刷新）</li>
+                <li><strong>板块标签：</strong>按股票代码前缀判定 — 68=科创板、60=沪市主板、30=创业板、00=深市主板、4/8=北交所</li>
+                <li><strong>概念标签：</strong>内置概念映射字典 + 名称关键词推导，用于快速识别题材方向（辅助参考，非官方分类）</li>
+            </ul>
+
+            <div class="tip-box">
+                <div class="tip-title">💡 早期信号使用要点</div>
+                <p>早期信号胜率不如核心共振高，但赔率大——买对了就是底部介入。建议配合行业逻辑一起看：如果一个"加速流入"的行业里同时出现多只早期信号股票，说明这个方向的共识在形成，值得重点关注。</p>
+            </div>
+
+            <h4 id="sec4-4-3">⭐ 第三栏：核心共振标的</h4>
+            <p><strong>定位：</strong>机构 + 北向强共振，已经形成资金合力的龙头股，是"确定性最高"的一档。</p>
+            <p><strong>入选条件（满足核心共振）：</strong></p>
+            <ul>
+                <li>北向资金持续买入（连续加仓天数多 + 累计金额大）</li>
+                <li>同时有机构资金净买入（龙虎榜机构专用席位）</li>
+                <li>最好叠加游资参与，形成"三方合力"</li>
+            </ul>
+            <p>每只股票同样标注<strong>行业、板块、概念</strong>三维标签，方便快速判断是否符合你的投研方向。</p>
+
+            <div class="highlight-box green">
+                <div class="highlight-box-title">✅ 三栏递进使用法</div>
+                <p><strong>第一步（选方向）：</strong>看新赛道发现，找"加速流入"的行业，确定当前市场最热的资金方向。</p>
+                <p><strong>第二步（挖标的）：</strong>在早期信号里找同行业的股票，这些是埋伏型标的，赔率高。</p>
+                <p><strong>第三步（重仓候选）：</strong>核心共振标的是确定性最高的，可以作为重点跟踪和配置对象。</p>
+                <p><strong>交叉验证：</strong>如果一个行业同时出现在新赛道 + 多只早期信号 + 有核心共振标的，那就是高概率机会。</p>
+            </div>
+
+            <h3 id="sec4-5">⚠️ 风险提示</h3>
             <div class="warning-box">
                 <div class="warning-title">🚨 重要风险提示</div>
                 <p><strong>1. 龙虎榜数据有滞后性：</strong>龙虎榜盘后公布，你看到的时候交易已经发生。第二天买入可能正好给别人抬轿子。</p>
