@@ -305,6 +305,7 @@
         .week-box {
             flex: 1;
             min-width: 0;
+            overflow: hidden;
         }
         .week-box {
             background: #21262d;
@@ -325,6 +326,7 @@
             display: flex;
             align-items: center;
             padding: 4px 0;
+            overflow: hidden;
         }
         .week-stock-rank {
             width: 16px;
@@ -342,6 +344,9 @@
         .week-stock-name {
             color: #c9d1d9;
             margin-right: 6px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .week-stock-amount {
             font-weight: 500;
@@ -368,7 +373,7 @@
         .monthly-summary {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 30px;
+            gap: 15px;
             margin-bottom: 30px;
         }
         .summary-box {
@@ -404,7 +409,7 @@
         }
         .rank-num.top { background: #8dd0c0; color: #fff; }
         .rank-num.other { background: #30363d; color: #8b949e; }
-        .rank-name { color: #c9d1d9; margin-right: 6px; }
+        .rank-name { color: #c9d1d9; margin-right: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .rank-code { color: #6e7681; font-size: 11px; margin-right: 6px; }
         .rank-amount { font-weight: 600; }
         .rank-amount.buy { color: #f85149; }

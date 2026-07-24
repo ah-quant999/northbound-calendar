@@ -400,6 +400,8 @@
             gap: 15px;
         }
         .week-box {
+            min-width: 0;
+            overflow: hidden;
             background: #21262d;
             border-radius: 8px;
             padding: 15px;
@@ -418,6 +420,7 @@
             display: flex;
             align-items: center;
             padding: 4px 0;
+            overflow: hidden;
         }
         .week-stock-rank {
             width: 16px;
@@ -435,6 +438,9 @@
         .week-stock-name {
             color: #c9d1d9;
             margin-right: 6px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .week-stock-amount {
             font-weight: 500;
@@ -496,7 +502,7 @@
         }
         .rank-num.top { background: #e8a0b0; color: #fff; }
         .rank-num.other { background: #30363d; color: #8b949e; }
-        .rank-name { color: #c9d1d9; margin-right: 6px; }
+        .rank-name { color: #c9d1d9; margin-right: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .rank-name.resonance { color: #ffd700; font-weight: 600; }
         .rank-amount { font-weight: 600; }
         .rank-amount.buy { color: #f85149; }
