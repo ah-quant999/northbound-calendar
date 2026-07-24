@@ -451,6 +451,178 @@
         .focus-desc .amt.up { color: #f85149; font-weight: 600; }
         .focus-desc .amt.down { color: #3fb950; font-weight: 600; }
 
+        /* 大牛股猎手 */
+        .bull-hunter-card {
+            background: linear-gradient(135deg, #1c2333 0%, #161b22 100%);
+            border: 1px solid #ff7a00;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin: 20px 0;
+            box-shadow: 0 0 20px rgba(255, 122, 0, 0.08);
+        }
+        .bull-hunter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .bull-hunter-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ff7a00;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .bull-icon {
+            font-size: 20px;
+        }
+        .bull-sub {
+            font-size: 12px;
+            font-weight: 400;
+            color: #8b949e;
+            margin-left: 8px;
+        }
+        .bull-hunter-conclusion {
+            font-size: 13px;
+            color: #c9d1d9;
+            background: rgba(255, 122, 0, 0.1);
+            border-left: 3px solid #ff7a00;
+            padding: 8px 12px;
+            border-radius: 0 6px 6px 0;
+            max-width: 520px;
+            line-height: 1.6;
+        }
+        .bull-hunter-body {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 900px) {
+            .bull-hunter-body { grid-template-columns: 1fr; }
+        }
+        .bull-section-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #c9d1d9;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #30363d;
+        }
+        .bull-stock-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        @media (max-width: 600px) {
+            .bull-stock-grid { grid-template-columns: 1fr; }
+        }
+        .bull-stock-item {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 10px 12px;
+            transition: all 0.2s;
+        }
+        .bull-stock-item:hover {
+            border-color: #ff7a00;
+            transform: translateY(-1px);
+        }
+        .bull-stock-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .bull-stock-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #e6edf3;
+        }
+        .bull-stock-code {
+            font-size: 11px;
+            color: #6e7681;
+            font-weight: 400;
+        }
+        .bull-tag {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .bull-tag.triple {
+            background: rgba(255, 122, 0, 0.15);
+            color: #ff7a00;
+        }
+        .bull-tag.inst-nb {
+            background: rgba(88, 166, 255, 0.15);
+            color: #58a6ff;
+        }
+        .bull-tag.inst-dominant {
+            background: rgba(63, 185, 80, 0.15);
+            color: #3fb950;
+        }
+        .bull-tag.nb-focus {
+            background: rgba(163, 113, 247, 0.15);
+            color: #a371f7;
+        }
+        .bull-stock-body {
+            display: flex;
+            gap: 8px;
+        }
+        .bull-metric {
+            flex: 1;
+            text-align: center;
+        }
+        .bull-metric-label {
+            font-size: 10px;
+            color: #6e7681;
+            display: block;
+            margin-bottom: 2px;
+        }
+        .bull-metric-val {
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .bull-metric-val.up {
+            color: #3fb950;
+        }
+        .bull-metric-val.strength {
+            color: #ff7a00;
+        }
+        .bull-history-section {
+            background: #0d1117;
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid #30363d;
+        }
+        .bull-history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .bull-hist-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            padding: 4px 0;
+            border-bottom: 1px solid #21262d;
+        }
+        .bull-hist-item:last-child {
+            border-bottom: none;
+        }
+        .bull-hist-name {
+            color: #c9d1d9;
+        }
+        .bull-hist-strength {
+            color: #ff7a00;
+            font-weight: 600;
+            font-size: 11px;
+        }
+
         /* 底部 */
         /* 深入分析入口 */
         .deep-links {
@@ -541,7 +713,7 @@
         <h1>📊 每日市场洞察</h1>
         <div class="subtitle">短线+中长线双视角 · 机游共振 × 北向资金</div>
     </div>
-    <div class="update-time">数据日期：2026-07-23 | 每日固定更新：18:30 | 本次更新：2026-07-23 21:14</div>
+    <div class="update-time">数据日期：2026-07-23 | 每日固定更新：18:30 | 本次更新：2026-07-24 09:10</div>
 
     <!-- 图例 -->
     <div class="legend">
@@ -556,7 +728,7 @@
     <!-- 市场温度 -->
     <div class="temp-card">
         <div class="temp-score">
-            <div class="num">70</div>
+            <div class="num">60</div>
             <div class="label">☀️ 偏暖</div>
         </div>
         <div class="temp-info">
@@ -564,7 +736,7 @@
             <div class="metrics-row">
             <div class="metric-card">
                 <div class="metric-label">北向净买入</div>
-                <div class="metric-value up">+25.11亿</div>
+                <div class="metric-value down">0万</div>
             </div>
             <div class="metric-card">
                 <div class="metric-label">机游共振买入</div>
@@ -677,12 +849,12 @@
             <div class="section-label">🎯 核心共振标的</div>
             
             <div class="resonance-item">
-                <div class="res-name">哈药股份 <span class="stock-code">600664</span></div>
+                <div class="res-name">光迅科技 <span class="stock-code">002281</span></div>
                 <div class="res-detail">
-                    <span class="mini-tag">北向+7.80亿</span>
-                    <span class="mini-tag">机构+24.22亿</span>
+                    <span class="mini-tag">北向+2.22亿</span>
+                    <span class="mini-tag">机构+20.71亿</span>
                 </div>
-                <div class="res-strength">共振强度 <b>+32.02亿</b></div>
+                <div class="res-strength">共振强度 <b>+22.93亿</b></div>
             </div>
         </div>
 
@@ -692,37 +864,192 @@
                 📈 北向方向
                 <span class="tag-long">中长线</span>
             </div>
-            <div class="column-conclusion">北向资金小幅净流入+25.11亿，中长线资金态度偏暖，精选优质标的布局。</div>
+            <div class="column-conclusion">北向资金小幅净流出0万，中长线资金小幅调仓，关注结构性机会。</div>
 
             <div class="section-label industry">🏭 最强行业</div>
             
             <div class="industry-highlight">
                 <div class="industry-name">电子设备</div>
-                <div class="industry-net up">周净买入 +144.55亿</div>
+                <div class="industry-net up">周净买入 +139.45亿</div>
             </div>
 
             <div class="section-label">💎 连续加仓龙头</div>
             
             <div class="stock-item">
-                <div class="stock-name">华电辽能 <span class="stock-code">600396</span></div>
+                <div class="stock-name">哈药股份 <span class="stock-code">600664</span></div>
                 <div class="stock-detail">
                     <span class="tag streak">连续加仓4天</span>
-                    <span class="tag up">累计+17.31亿</span>
+                    <span class="tag up">累计+7.89亿</span>
                 </div>
                 <div class="stock-meta">
                     <span>当日涨跌</span>
-                    <span class="change-pct up">+9.99%</span>
+                    <span class="change-pct up">+2.40%</span>
                 </div>
             </div>
             <div class="stock-item">
-                <div class="stock-name">共进股份 <span class="stock-code">603118</span></div>
+                <div class="stock-name">华电辽能 <span class="stock-code">600396</span></div>
                 <div class="stock-detail">
-                    <span class="tag streak">连续加仓4天</span>
-                    <span class="tag up">累计+9.59亿</span>
+                    <span class="tag streak">连续加仓3天</span>
+                    <span class="tag up">累计+15.61亿</span>
                 </div>
                 <div class="stock-meta">
                     <span>当日涨跌</span>
-                    <span class="change-pct up">+1.10%</span>
+                    <span class="change-pct up">+10.03%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 大牛股猎手 -->
+    <div class="bull-hunter-card">
+        <div class="bull-hunter-header">
+            <div class="bull-hunter-title">
+                <span class="bull-icon">🎯</span>
+                <span>大牛股猎手</span>
+                <span class="bull-sub">高端制造赛道 · 机构+北向共振跟踪</span>
+            </div>
+            <div class="bull-hunter-conclusion">本周高端制造赛道共振强烈，6只标的出现机构+北向合力，6只达到三方共振强度，重点关注头部标的中期机会。</div>
+        </div>
+        <div class="bull-hunter-body">
+            <div class="bull-main-section">
+                <div class="bull-section-label">🔥 本周高端制造共振标的</div>
+                <div class="bull-stock-grid">
+                    
+                    <div class="bull-stock-item">
+                        <div class="bull-stock-head">
+                            <span class="bull-stock-name">光迅科技 <span class="bull-stock-code">002281</span></span>
+                            <span class="bull-tag triple">三方共振</span>
+                        </div>
+                        <div class="bull-stock-body">
+                            <div class="bull-metric">
+                                <span class="bull-metric-label">机构</span>
+                                <span class="bull-metric-val up">+20.71亿</span>
+                            </div>
+                            <div class="bull-metric">
+                                <span class="bull-metric-label">北向</span>
+                                <span class="bull-metric-val up">+2.22亿</span>
+                            </div>
+                            <div class="bull-metric">
+                                <span class="bull-metric-label">共振强度</span>
+                                <span class="bull-metric-val strength">+22.93亿</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bull-stock-item">
+                        <div class="bull-stock-head">
+                            <span class="bull-stock-name">长光华芯 <span class="bull-stock-code">688048</span></span>
+                            <span class="bull-tag triple">三方共振</span>
+                        </div>
+                        <div class="bull-stock-body">
+                            <div class="bull-metric">
+                                <span class="bull-metric-label">机构</span>
+                                <span class="bull-metric-val up">+6.02亿</span>
+                            </div>
+                            <div class="bull-metric">
+                                <span class="bull-metric-label">北向</span>
+                                <span class="bull-metric-val up">+2.19亿</span>
+                            </div>
+                            <div class="bull-metric">
+                                <span class="bull-metric-label">共振强度</span>
+                                <span class="bull-metric-val strength">+8.21亿</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bull-stock-item">
+                        <div class="bull-stock-head">
+                            <span class="bull-stock-name">格科微 <span class="bull-stock-code">688728</span></span>
+                            <span class="bull-tag triple">三方共振</span>
+                        </div>
+                        <div class="bull-stock-body">
+                            <div class="bull-metric">
+                                <span class="bull-metric-label">机构</span>
+                                <span class="bull-metric-val up">+6.21亿</span>
+                            </div>
+                            <div class="bull-metric">
+                                <span class="bull-metric-label">北向</span>
+                                <span class="bull-metric-val up">+6,495万</span>
+                            </div>
+                            <div class="bull-metric">
+                                <span class="bull-metric-label">共振强度</span>
+                                <span class="bull-metric-val strength">+6.86亿</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bull-stock-item">
+                        <div class="bull-stock-head">
+                            <span class="bull-stock-name">博敏电子 <span class="bull-stock-code">603936</span></span>
+                            <span class="bull-tag triple">三方共振</span>
+                        </div>
+                        <div class="bull-stock-body">
+                            <div class="bull-metric">
+                                <span class="bull-metric-label">机构</span>
+                                <span class="bull-metric-val up">+5.08亿</span>
+                            </div>
+                            <div class="bull-metric">
+                                <span class="bull-metric-label">北向</span>
+                                <span class="bull-metric-val up">+1.65亿</span>
+                            </div>
+                            <div class="bull-metric">
+                                <span class="bull-metric-label">共振强度</span>
+                                <span class="bull-metric-val strength">+6.73亿</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bull-stock-item">
+                        <div class="bull-stock-head">
+                            <span class="bull-stock-name">拓荆科技 <span class="bull-stock-code">688072</span></span>
+                            <span class="bull-tag triple">三方共振</span>
+                        </div>
+                        <div class="bull-stock-body">
+                            <div class="bull-metric">
+                                <span class="bull-metric-label">机构</span>
+                                <span class="bull-metric-val up">+2.11亿</span>
+                            </div>
+                            <div class="bull-metric">
+                                <span class="bull-metric-label">北向</span>
+                                <span class="bull-metric-val up">+4.23亿</span>
+                            </div>
+                            <div class="bull-metric">
+                                <span class="bull-metric-label">共振强度</span>
+                                <span class="bull-metric-val strength">+6.34亿</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bull-stock-item">
+                        <div class="bull-stock-head">
+                            <span class="bull-stock-name">银信科技 <span class="bull-stock-code">300231</span></span>
+                            <span class="bull-tag triple">三方共振</span>
+                        </div>
+                        <div class="bull-stock-body">
+                            <div class="bull-metric">
+                                <span class="bull-metric-label">机构</span>
+                                <span class="bull-metric-val up">+3.68亿</span>
+                            </div>
+                            <div class="bull-metric">
+                                <span class="bull-metric-label">北向</span>
+                                <span class="bull-metric-val up">+6,095万</span>
+                            </div>
+                            <div class="bull-metric">
+                                <span class="bull-metric-label">共振强度</span>
+                                <span class="bull-metric-val strength">+4.29亿</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bull-history-section">
+                <div class="bull-section-label">📊 历史大牛股本周跟踪</div>
+                <div class="bull-history-list">
+                    
+                        <div class="bull-hist-item">
+                            <span class="bull-hist-name">长光华芯 <span class="bull-stock-code">688048</span></span>
+                            <span class="bull-hist-strength">+8.21亿</span>
+                        </div>
+                        <div class="bull-hist-item">
+                            <span class="bull-hist-name">博敏电子 <span class="bull-stock-code">603936</span></span>
+                            <span class="bull-hist-strength">+6.73亿</span>
+                        </div>
                 </div>
             </div>
         </div>
