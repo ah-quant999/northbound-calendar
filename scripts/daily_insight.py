@@ -1405,7 +1405,7 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
             font-weight: 600;
         }}
         .bull-metric-val.up {{
-            color: #3fb950;
+            color: #f85149;
         }}
         .bull-metric-val.strength {{
             color: #ff7a00;
