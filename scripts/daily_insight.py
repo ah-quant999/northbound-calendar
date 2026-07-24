@@ -415,29 +415,164 @@ HISTORY_BULL_STOCKS = {
 
 def compute_bull_hunter(nb_analysis: dict, signal_data: dict, latest_date: str) -> dict:
     """
-    大牛股猎手：从北向机构共振中筛选高端制造赛道优质标的
+    大牛股猎手 — 三栏版：
+      1. 新赛道发现（左侧布局）：持仓环比变化大的行业，发现资金刚进场的新方向
+      2. 早期信号雷达（苗头阶段）：北向连续加仓天数少但金额大 + 机构首次介入
+      3. 核心共振标的（确认持有）：机构+北向强共振，已形成合力的龙头
     """
     week = (nb_analysis or {}).get("week", {})
-    resonance = week.get("resonance", [])
+    month = (nb_analysis or {}).get("month", {})
+    nb_resonance = week.get("resonance", [])
+    continuous_buy = week.get("continuous_buy", [])
+    holding_change = week.get("holding_change", {})
+    hc_top = holding_change.get("top_buy", [])
 
-    # 1. 高端制造筛选
-    high_end = []
-    for r in resonance:
+    # ════════════════════════════════════════════
+    # 1. 新赛道发现 — 持仓变动TOP行业
+    #    逻辑：周度持仓净买入占比高 = 近期边际变化大 = 新资金刚进场
+    # ════════════════════════════════════════════
+    week_industry = {x["industry"]: x["net_buy_wan"] for x in week.get("industry_trend", {}).get("top_buy", []) if x.get("industry") and x["industry"] != "未分类"}
+    month_industry = {x["industry"]: x["net_buy_wan"] for x in month.get("industry_trend", {}).get("top_buy", []) if x.get("industry") and x["industry"] != "未分类"}
+
+    new_sectors = []
+    for ind, w_val in week_industry.items():
+        if w_val <= 0 or ind == "未分类":
+            continue
+        m_val = month_industry.get(ind, 0)
+        # 用持仓变动榜数据交叉验证
+        hc_match = None
+        for h in hc_top:
+            # 这里用个股持仓变化近似判断行业热度，后面再细化
+            pass
+
+        # 加速信号：周占月比例高（近期买入集中在本周），或绝对金额大
+        if m_val > 0:
+            ratio = w_val / m_val
+        else:
+            ratio = 1.0  # 只有本周数据，视为新方向
+
+        # 绝对金额门槛（亿）
+        abs_threshold = 50000  # 5亿
+
+        if w_val >= abs_threshold:
+            # 判断标签
+            if ratio >= 0.8:
+                tag = "加速流入"
+                tag_cls = "tag-accel"
+            elif ratio >= 0.5:
+                tag = "持续加仓"
+                tag_cls = "tag-cont"
+            else:
+                tag = "稳步布局"
+                tag_cls = "tag-steady"
+
+            new_sectors.append({
+                "industry": ind,
+                "week_net": fmt_wan(w_val),
+                "month_net": fmt_wan(m_val) if m_val > 0 else "—",
+                "ratio": f"{ratio*100:.0f}%",
+                "tag": tag,
+                "tag_cls": tag_cls,
+                "week_val": w_val,
+            })
+
+    # 按周净流入降序，取前5
+    new_sectors.sort(key=lambda x: x["week_val"], reverse=True)
+    new_sectors = new_sectors[:5]
+
+    # ════════════════════════════════════════════
+    # 2. 早期信号雷达 — 苗头阶段标的
+    #    筛选条件（满足任一）：
+    #    a) 北向连续加仓2-3天（天数不多但刚开始）+ 累计金额大
+    #    b) 持仓变动榜前列（机构/北向新进入）
+    #    c) 高端制造 + 有游资介入苗头（inst_sell_youzi_buy也算题材启动）
+    # ════════════════════════════════════════════
+    early_signals = []
+
+    # 2a: 连续加仓早期（2-3天）+ 金额较大
+    for s in continuous_buy:
+        days = s.get("streak_days", 0)
+        total = s.get("total_net_wan", 0)
+        name = s.get("name", "")
+        # 早期 = 连续2-3天 + 累计>2亿（说明不是小打小闹）
+        if 2 <= days <= 3 and total >= 20000:
+            # 高端制造优先
+            is_high_end = any(kw in name for kw in HIGH_END_MFG_KEYWORDS)
+            score = total * (1.5 if is_high_end else 1.0)
+            early_signals.append({
+                "code": s["code"],
+                "name": name,
+                "signal": f"北向连加{days}天",
+                "signal_cls": "sig-nb",
+                "amount": fmt_wan(total),
+                "change_pct": f"{s.get('change_pct', 0):+.2f}%",
+                "is_high_end": is_high_end,
+                "score": score,
+            })
+
+    # 2b: 持仓变动榜（新增大仓）
+    for s in hc_top[:10]:
+        name = s.get("name", "")
+        net = s.get("net_wan", 0)
+        if net >= 50000:  # 5亿以上视为大动作
+            is_high_end = any(kw in name for kw in HIGH_END_MFG_KEYWORDS)
+            # 不重复添加
+            if not any(e["code"] == s["code"] for e in early_signals):
+                early_signals.append({
+                    "code": s["code"],
+                    "name": name,
+                    "signal": "周度持仓大增",
+                    "signal_cls": "sig-hc",
+                    "amount": fmt_wan(net),
+                    "change_pct": "—",
+                    "is_high_end": is_high_end,
+                    "score": net * (1.5 if is_high_end else 1.0),
+                })
+
+    # 2c: 机游信号里的早期苗头（机构大卖游资大买 = 题材启动初期，游资先动手）
+    latest_day = signal_data.get(latest_date, {}) if signal_data else {}
+    basic = latest_day.get("basic_signals", {})
+    sub = latest_day.get("sub_signals", {})
+    # 机构卖出游资买入（游资启动题材，后续可能传导到机构）
+    inst_sell_ybuy = basic.get("inst_sell_youzi_buy", [])
+    for s in inst_sell_ybuy[:5]:
+        name = s.get("name", "")
+        youzi = s.get("youzi_net_wan", 0)
+        inst = abs(s.get("inst_net_wan", 0))
+        is_high_end = any(kw in name for kw in HIGH_END_MFG_KEYWORDS)
+        # 游资大买 + 高端制造 = 题材早期
+        if youzi >= 10000 and is_high_end:
+            if not any(e["code"] == s["code"] for e in early_signals):
+                early_signals.append({
+                    "code": s["code"],
+                    "name": name,
+                    "signal": "游资启动题材",
+                    "signal_cls": "sig-youzi",
+                    "amount": fmt_wan(youzi),
+                    "change_pct": f"{s.get('change_pct', 0):+.2f}%",
+                    "is_high_end": True,
+                    "score": youzi * 1.2,
+                })
+
+    # 按分数排序，取前6
+    early_signals.sort(key=lambda x: x["score"], reverse=True)
+    early_signals = early_signals[:6]
+
+    # ════════════════════════════════════════════
+    # 3. 核心共振标的 — 已确认合力
+    #    机构+北向共振强度TOP的高端制造标的
+    # ════════════════════════════════════════════
+    core_targets = []
+    for r in nb_resonance:
         name = r.get("name", "")
-        if any(kw in name for kw in HIGH_END_MFG_KEYWORDS):
-            high_end.append(r)
+        is_high_end = any(kw in name for kw in HIGH_END_MFG_KEYWORDS)
+        if not is_high_end:
+            continue
 
-    # 按共振强度降序
-    high_end.sort(key=lambda x: x.get("resonance_strength", 0), reverse=True)
-
-    # 取前6只
-    top_stocks = []
-    for r in high_end[:6]:
         nb_net = r.get("nb_net_wan", 0)
         inst_net = r.get("inst_net_wan", 0)
         strength = r.get("resonance_strength", 0)
 
-        # 判断共振类型
         if nb_net >= 5000 and inst_net >= 10000:
             res_type = "三方共振"
             res_cls = "triple"
@@ -451,9 +586,9 @@ def compute_bull_hunter(nb_analysis: dict, signal_data: dict, latest_date: str) 
             res_type = "北向关注"
             res_cls = "nb-focus"
 
-        top_stocks.append({
+        core_targets.append({
             "code": r["code"],
-            "name": r["name"],
+            "name": name,
             "nb_net": fmt_wan(nb_net),
             "inst_net": fmt_wan(inst_net),
             "strength": fmt_wan(strength),
@@ -461,44 +596,33 @@ def compute_bull_hunter(nb_analysis: dict, signal_data: dict, latest_date: str) 
             "res_cls": res_cls,
         })
 
-    # 2. 历史大牛股本周表现
-    history_track = []
-    for code, name in HISTORY_BULL_STOCKS.items():
-        for r in resonance:
-            if r["code"] == code:
-                nb_net = r.get("nb_net_wan", 0)
-                inst_net = r.get("inst_net_wan", 0)
-                strength = r.get("resonance_strength", 0)
-                if strength >= 10000:
-                    history_track.append({
-                        "code": code,
-                        "name": name,
-                        "nb_net": fmt_wan(nb_net),
-                        "inst_net": fmt_wan(inst_net),
-                        "strength": fmt_wan(strength),
-                    })
-                break
+    core_targets.sort(key=lambda x: x["strength"], reverse=True)
+    core_targets = core_targets[:6]
 
-    history_track.sort(key=lambda x: x["strength"], reverse=True)
-    history_track = history_track[:4]
+    # ════════════════════════════════════════════
+    # 结论
+    # ════════════════════════════════════════════
+    sector_count = len(new_sectors)
+    early_count = len(early_signals)
+    core_count = len(core_targets)
 
-    # 3. 结论
-    count = len(top_stocks)
-    triple_count = sum(1 for s in top_stocks if s["res_cls"] == "triple")
-    if count >= 5 and triple_count >= 2:
-        conclusion = f"本周高端制造赛道共振强烈，{count}只标的出现机构+北向合力，{triple_count}只达到三方共振强度，重点关注头部标的中期机会。"
-    elif count >= 3:
-        conclusion = f"本周高端制造赛道有{count}只标的获机构与北向共同关注，资金聚焦明显，可择优布局。"
-    elif count >= 1:
-        conclusion = f"本周高端制造赛道仅{count}只标的出现共振，机会偏少，需耐心等待更好买点。"
+    if sector_count >= 3 and core_count >= 3:
+        conclusion = f"本周{sector_count}个赛道获资金重点布局，{core_count}只高端制造标的已形成共振合力，左侧机会集中在新赛道，右侧持有核心龙头。"
+    elif early_count >= 4:
+        conclusion = f"早期信号活跃，{early_count}只标的处于资金进场初期，重点关注新赛道+高金额组合，适合提前布局。"
+    elif core_count >= 2:
+        conclusion = f"市场聚焦明确，{core_count}只核心标的共振强度突出，持有为主，等待新信号出现。"
     else:
-        conclusion = "本周高端制造赛道暂无明显共振标的，建议观望为主。"
+        conclusion = "当前赛道轮动较快，明确信号偏少，建议观望等待更好的布局时点。"
 
     return {
         "conclusion": conclusion,
-        "top_stocks": top_stocks,
-        "history_track": history_track,
-        "track_count": len(history_track),
+        "new_sectors": new_sectors,
+        "early_signals": early_signals,
+        "core_targets": core_targets,
+        "sector_count": sector_count,
+        "early_count": early_count,
+        "core_count": core_count,
     }
 
 
@@ -651,53 +775,84 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
     else:
         resonance_conclusion = "今日暂无明显的机游+北向共振标的，建议以单边方向为主，谨慎参与。"
 
-    # ── 大牛股猎手HTML生成 ──
-    bull_stocks_html = ""
-    bull_stocks = bull_hunter.get("top_stocks", [])
-    if bull_stocks:
-        for s in bull_stocks:
-            bull_stocks_html += f"""
-                    <div class="bull-stock-item">
-                        <div class="bull-stock-head">
-                            <span class="bull-stock-name">{s['name']} <span class="bull-stock-code">{s['code']}</span></span>
-                            <span class="bull-tag {s['res_cls']}">{s['res_type']}</span>
+    # ── 大牛股猎手HTML生成（三栏版）──
+    # 1. 新赛道发现
+    bull_sectors_html = ""
+    sectors = bull_hunter.get("new_sectors", [])
+    if sectors:
+        for s in sectors:
+            bull_sectors_html += f"""
+                    <div class="bull-sector-item">
+                        <div class="bull-sector-head">
+                            <span class="bull-sector-name">{s['industry']}</span>
+                            <span class="bull-sector-tag {s['tag_cls']}">{s['tag']}</span>
                         </div>
-                        <div class="bull-stock-body">
+                        <div class="bull-sector-body">
                             <div class="bull-metric">
-                                <span class="bull-metric-label">机构</span>
-                                <span class="bull-metric-val up">{s['inst_net']}</span>
+                                <span class="bull-metric-label">本周</span>
+                                <span class="bull-metric-val up">{s['week_net']}</span>
                             </div>
                             <div class="bull-metric">
-                                <span class="bull-metric-label">北向</span>
-                                <span class="bull-metric-val up">{s['nb_net']}</span>
+                                <span class="bull-metric-label">月度</span>
+                                <span class="bull-metric-val">{s['month_net']}</span>
                             </div>
                             <div class="bull-metric">
-                                <span class="bull-metric-label">共振强度</span>
-                                <span class="bull-metric-val strength">{s['strength']}</span>
+                                <span class="bull-metric-label">占比</span>
+                                <span class="bull-metric-val strength">{s['ratio']}</span>
                             </div>
                         </div>
                     </div>"""
     else:
-        bull_stocks_html = '<div class="empty-text">本周暂无高端制造共振标的</div>'
+        bull_sectors_html = '<div class="empty-text">暂无明显新赛道信号</div>'
 
-    # 历史大牛股跟踪
-    bull_history_section = ""
-    hist_list = bull_hunter.get("history_track", [])
-    if hist_list:
-        hist_items_html = ""
-        for h in hist_list:
-            hist_items_html += f"""
-                        <div class="bull-hist-item">
-                            <span class="bull-hist-name">{h['name']} <span class="bull-stock-code">{h['code']}</span></span>
-                            <span class="bull-hist-strength">{h['strength']}</span>
-                        </div>"""
-        bull_history_section = f"""
-            <div class="bull-history-section">
-                <div class="bull-section-label">📊 历史大牛股本周跟踪</div>
-                <div class="bull-history-list">
-                    {hist_items_html}
-                </div>
-            </div>"""
+    # 2. 早期信号雷达
+    bull_early_html = ""
+    early_list = bull_hunter.get("early_signals", [])
+    if early_list:
+        for e in early_list:
+            high_end_badge = '<span class="bull-high-end-badge">高制</span>' if e.get("is_high_end") else ""
+            bull_early_html += f"""
+                    <div class="bull-early-item">
+                        <div class="bull-early-head">
+                            <span class="bull-stock-name">{e['name']} <span class="bull-stock-code">{e['code']}</span></span>
+                            {high_end_badge}
+                        </div>
+                        <div class="bull-early-body">
+                            <span class="bull-early-signal {e['signal_cls']}">{e['signal']}</span>
+                            <span class="bull-early-amount">{e['amount']}</span>
+                        </div>
+                    </div>"""
+    else:
+        bull_early_html = '<div class="empty-text">暂无早期信号</div>'
+
+    # 3. 核心共振标的
+    bull_core_html = ""
+    core_list = bull_hunter.get("core_targets", [])
+    if core_list:
+        for c in core_list:
+            bull_core_html += f"""
+                    <div class="bull-core-item">
+                        <div class="bull-stock-head">
+                            <span class="bull-stock-name">{c['name']} <span class="bull-stock-code">{c['code']}</span></span>
+                            <span class="bull-tag {c['res_cls']}">{c['res_type']}</span>
+                        </div>
+                        <div class="bull-stock-body">
+                            <div class="bull-metric">
+                                <span class="bull-metric-label">机构</span>
+                                <span class="bull-metric-val up">{c['inst_net']}</span>
+                            </div>
+                            <div class="bull-metric">
+                                <span class="bull-metric-label">北向</span>
+                                <span class="bull-metric-val up">{c['nb_net']}</span>
+                            </div>
+                            <div class="bull-metric">
+                                <span class="bull-metric-label">共振</span>
+                                <span class="bull-metric-val strength">{c['strength']}</span>
+                            </div>
+                        </div>
+                    </div>"""
+    else:
+        bull_core_html = '<div class="empty-text">暂无核心共振标的</div>'
 
     html = f"""<!DOCTYPE html>
 <html lang="zh-CN">
@@ -1132,49 +1287,151 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
             max-width: 520px;
             line-height: 1.6;
         }}
-        .bull-hunter-body {{
+        .bull-three-cols {{
             display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 14px;
         }}
-        @media (max-width: 900px) {{
-            .bull-hunter-body {{ grid-template-columns: 1fr; }}
+        @media (max-width: 1100px) {{
+            .bull-three-cols {{ grid-template-columns: 1fr 1fr; }}
         }}
-        .bull-section-label {{
-            font-size: 13px;
-            font-weight: 600;
-            color: #c9d1d9;
-            margin-bottom: 10px;
-            padding-bottom: 6px;
-            border-bottom: 1px solid #30363d;
+        @media (max-width: 700px) {{
+            .bull-three-cols {{ grid-template-columns: 1fr; }}
         }}
-        .bull-stock-grid {{
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }}
-        @media (max-width: 600px) {{
-            .bull-stock-grid {{ grid-template-columns: 1fr; }}
-        }}
-        .bull-stock-item {{
+        .bull-col {{
             background: #0d1117;
             border: 1px solid #30363d;
+            border-radius: 10px;
+            overflow: hidden;
+        }}
+        .bull-col-header {{
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #e6edf3;
+            border-bottom: 1px solid #30363d;
+        }}
+        .bull-col-header.left {{
+            background: linear-gradient(90deg, rgba(63,185,80,0.15) 0%, transparent 100%);
+            border-left: 3px solid #3fb950;
+        }}
+        .bull-col-header.mid {{
+            background: linear-gradient(90deg, rgba(255,122,0,0.15) 0%, transparent 100%);
+            border-left: 3px solid #ff7a00;
+        }}
+        .bull-col-header.right {{
+            background: linear-gradient(90deg, rgba(88,166,255,0.15) 0%, transparent 100%);
+            border-left: 3px solid #58a6ff;
+        }}
+        .bull-col-icon {{
+            font-size: 16px;
+        }}
+        .bull-col-title {{
+            flex: 1;
+        }}
+        .bull-col-tag {{
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.06);
+            color: #8b949e;
+            font-weight: 400;
+        }}
+        .bull-col-body {{
+            padding: 10px;
+            max-height: 380px;
+            overflow-y: auto;
+        }}
+
+        /* 新赛道项 */
+        .bull-sector-item {{
+            background: #161b22;
+            border: 1px solid #21262d;
             border-radius: 8px;
-            padding: 10px 12px;
-            transition: all 0.2s;
+            padding: 8px 10px;
+            margin-bottom: 8px;
         }}
-        .bull-stock-item:hover {{
-            border-color: #ff7a00;
-            transform: translateY(-1px);
+        .bull-sector-item:last-child {{
+            margin-bottom: 0;
         }}
-        .bull-stock-head {{
+        .bull-sector-head {{
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+        }}
+        .bull-sector-name {{
+            font-size: 13px;
+            font-weight: 600;
+            color: #3fb950;
+        }}
+        .bull-sector-tag {{
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }}
+        .bull-sector-tag.tag-accel {{
+            background: rgba(63,185,80,0.15);
+            color: #3fb950;
+        }}
+        .bull-sector-tag.tag-cont {{
+            background: rgba(255,122,0,0.15);
+            color: #ff7a00;
+        }}
+        .bull-sector-tag.tag-steady {{
+            background: rgba(139,148,158,0.15);
+            color: #8b949e;
+        }}
+        .bull-sector-body {{
+            display: flex;
+            gap: 6px;
+        }}
+        .bull-metric {{
+            flex: 1;
+            text-align: center;
+        }}
+        .bull-metric-label {{
+            font-size: 10px;
+            color: #6e7681;
+            display: block;
+            margin-bottom: 2px;
+        }}
+        .bull-metric-val {{
+            font-size: 12px;
+            font-weight: 600;
+        }}
+        .bull-metric-val.up {{
+            color: #3fb950;
+        }}
+        .bull-metric-val.strength {{
+            color: #ff7a00;
+        }}
+
+        /* 早期信号项 */
+        .bull-early-item {{
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 8px;
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }}
+        .bull-early-item:last-child {{
+            margin-bottom: 0;
+        }}
+        .bull-early-head {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }}
         .bull-stock-name {{
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             color: #e6edf3;
         }}
@@ -1182,6 +1439,60 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
             font-size: 11px;
             color: #6e7681;
             font-weight: 400;
+        }}
+        .bull-high-end-badge {{
+            font-size: 9px;
+            padding: 1px 4px;
+            border-radius: 3px;
+            background: rgba(255,122,0,0.15);
+            color: #ff7a00;
+            font-weight: 600;
+        }}
+        .bull-early-body {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }}
+        .bull-early-signal {{
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+        }}
+        .bull-early-signal.sig-nb {{
+            background: rgba(88,166,255,0.15);
+            color: #58a6ff;
+        }}
+        .bull-early-signal.sig-hc {{
+            background: rgba(163,113,247,0.15);
+            color: #a371f7;
+        }}
+        .bull-early-signal.sig-youzi {{
+            background: rgba(248,81,73,0.15);
+            color: #f85149;
+        }}
+        .bull-early-amount {{
+            font-size: 12px;
+            font-weight: 600;
+            color: #3fb950;
+        }}
+
+        /* 核心标的项 */
+        .bull-core-item {{
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 8px;
+            padding: 8px 10px;
+            margin-bottom: 8px;
+        }}
+        .bull-core-item:last-child {{
+            margin-bottom: 0;
+        }}
+        .bull-stock-head {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
         }}
         .bull-tag {{
             font-size: 10px;
@@ -1207,60 +1518,17 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
         }}
         .bull-stock-body {{
             display: flex;
-            gap: 8px;
-        }}
-        .bull-metric {{
-            flex: 1;
-            text-align: center;
-        }}
-        .bull-metric-label {{
-            font-size: 10px;
-            color: #6e7681;
-            display: block;
-            margin-bottom: 2px;
-        }}
-        .bull-metric-val {{
-            font-size: 12px;
-            font-weight: 600;
-        }}
-        .bull-metric-val.up {{
-            color: #3fb950;
-        }}
-        .bull-metric-val.strength {{
-            color: #ff7a00;
-        }}
-        .bull-history-section {{
-            background: #0d1117;
-            border-radius: 8px;
-            padding: 12px;
-            border: 1px solid #30363d;
-        }}
-        .bull-history-list {{
-            display: flex;
-            flex-direction: column;
             gap: 6px;
         }}
-        .bull-hist-item {{
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+
+        .empty-text {{
+            text-align: center;
+            color: #6e7681;
             font-size: 12px;
-            padding: 4px 0;
-            border-bottom: 1px solid #21262d;
-        }}
-        .bull-hist-item:last-child {{
-            border-bottom: none;
-        }}
-        .bull-hist-name {{
-            color: #c9d1d9;
-        }}
-        .bull-hist-strength {{
-            color: #ff7a00;
-            font-weight: 600;
-            font-size: 11px;
+            padding: 20px 0;
         }}
 
-        /* 底部 */
+        /* 底部 */        /* 底部 */
         /* 深入分析入口 */
         .deep-links {{
             display: grid;
@@ -1422,22 +1690,48 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
             <div class="bull-hunter-title">
                 <span class="bull-icon">🎯</span>
                 <span>大牛股猎手</span>
-                <span class="bull-sub">高端制造赛道 · 机构+北向共振跟踪</span>
+                <span class="bull-sub">新赛道发现 + 早期信号 + 核心共振</span>
             </div>
             <div class="bull-hunter-conclusion">{bull_hunter['conclusion']}</div>
         </div>
-        <div class="bull-hunter-body">
-            <div class="bull-main-section">
-                <div class="bull-section-label">🔥 本周高端制造共振标的</div>
-                <div class="bull-stock-grid">
-                    {bull_stocks_html}
+        <div class="bull-three-cols">
+            <!-- 新赛道发现 -->
+            <div class="bull-col">
+                <div class="bull-col-header left">
+                    <span class="bull-col-icon">🆕</span>
+                    <span class="bull-col-title">新赛道发现</span>
+                    <span class="bull-col-tag">左侧布局</span>
+                </div>
+                <div class="bull-col-body">
+                    {bull_sectors_html}
                 </div>
             </div>
-            {bull_history_section}
+            <!-- 早期信号雷达 -->
+            <div class="bull-col">
+                <div class="bull-col-header mid">
+                    <span class="bull-col-icon">👶</span>
+                    <span class="bull-col-title">早期信号雷达</span>
+                    <span class="bull-col-tag">苗头阶段</span>
+                </div>
+                <div class="bull-col-body">
+                    {bull_early_html}
+                </div>
+            </div>
+            <!-- 核心共振标的 -->
+            <div class="bull-col">
+                <div class="bull-col-header right">
+                    <span class="bull-col-icon">🔥</span>
+                    <span class="bull-col-title">核心共振标的</span>
+                    <span class="bull-col-tag">确认持有</span>
+                </div>
+                <div class="bull-col-body">
+                    {bull_core_html}
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- 深入分析入口 -->
+    <!-- 深入分析入口 -->    <!-- 深入分析入口 -->
     <div class="deep-links">
         <a href="jiyou-signal-analysis.html" class="deep-link jiyou-link">
             <div class="deep-link-icon">⚡</div>
@@ -1581,8 +1875,9 @@ def main():
 
     log_info("计算大牛股猎手数据 ...")
     bull_hunter = compute_bull_hunter(nb_analysis or {}, signal_data, latest_date)
-    print(f"  高端制造标的: {len(bull_hunter['top_stocks'])} 只")
-    print(f"  历史大牛跟踪: {len(bull_hunter['history_track'])} 只")
+    print(f"  新赛道: {bull_hunter['sector_count']} 个")
+    print(f"  早期信号: {bull_hunter['early_count']} 只")
+    print(f"  核心标的: {bull_hunter['core_count']} 只")
 
     # 5. 生成HTML
     log_info("生成HTML页面 ...")
