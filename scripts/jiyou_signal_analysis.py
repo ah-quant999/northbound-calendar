@@ -1447,7 +1447,7 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
             overflow: hidden;
         }
         .rank-table {
-            width: 100%;
+            width: auto;
             border-collapse: collapse;
             font-size: 13px;
         }

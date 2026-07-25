@@ -1213,18 +1213,18 @@ def _build_jiyou_month_rank_items(top_list: List[Dict], buy: bool,
 
 
 def _build_jiyou_month_active_items(items: List[Dict], top_n: int = 10) -> str:
-    """构建游资活跃月度TOP10 rank-item HTML（格式：营业部·股票）"""
+    """构建游资活跃月度TOP10 rank-item HTML（格式：股票名(youzi-stock) + 营业部(rank-dept) + 金额）"""
     out = []
     for i in range(top_n):
         if i < len(items):
             it = items[i]
             rank_class = "top" if i < 3 else "other"
             dept_simple = _simplify_dept_name(it["dept"])
-            display_name = f"{dept_simple}·{it['stock_name']}"
             out.append(
                 f'                    <li class="rank-item">'
                 f'<span class="rank-num {rank_class}">{i+1}</span>'
-                f'<span class="rank-name">{display_name}</span>'
+                f'<span class="rank-name youzi-stock">{it["stock_name"]}</span>'
+                f'<span class="rank-dept">{dept_simple}</span>'
                 f'<span class="rank-amount buy">+{format_amount(it["buy_wan"])}</span>'
                 f'</li>'
             )
