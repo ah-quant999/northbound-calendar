@@ -1579,8 +1579,6 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
         }}
         .bull-col-body {{
             padding: 10px;
-            max-height: 380px;
-            overflow-y: auto;
         }}
 
         /* 新赛道项 */
