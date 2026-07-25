@@ -344,6 +344,10 @@
             color: #3fb950;
             border-top-color: rgba(63,185,80,0.3);
         }
+        .day-cell .section-title.pure-youzi-title {
+            color: #ff7a00;
+            border-top-color: rgba(255,122,0,0.3);
+        }
         .day-cell .section-spacer {
             height: 4px;
             width: 100%;
@@ -686,6 +690,19 @@
     /* 只有机游共振独立区块的金额才是黄色 */
     #day-detail-panel .detail-section-title.resonance-title ~ .detail-item .detail-name {
         color: #ffd700 !important;
+    }
+    /* 纯游资异动区块保持红涨绿跌 */
+    #day-detail-panel .detail-section-pure-youzi .detail-item .detail-name {
+        color: #c9d1d9 !important;
+    }
+    #day-detail-panel .detail-section-pure-youzi .detail-item .detail-amount {
+        color: #f85149 !important;
+    }
+    #day-detail-panel .detail-section-pure-youzi .detail-item .detail-icon {
+        color: #ff7a00 !important;
+    }
+    #day-detail-panel .detail-section-pure-youzi .detail-section-title {
+        color: #ff7a00 !important;
     }
 
     /* ===== 每日信号精选 ===== */
@@ -2657,6 +2674,8 @@
                     // 判断列归属
                     if (titleText.indexOf('机游共振') >= 0) {
                         currentCol = 'res';
+                    } else if (titleText.indexOf('纯游资异动') >= 0) {
+                        currentCol = 'res';
                     } else if (titleText.indexOf('机构') >= 0) {
                         currentCol = 'org';
                     } else if (titleText.indexOf('游资') >= 0) {
@@ -2670,7 +2689,11 @@
                         titleClass += ' resonance-title';
                         titleStyle = ' style="color:#ffd700;"';
                     }
-                    _appendCol(currentCol, '<div class="detail-section">');
+                    var sectionCls = 'detail-section';
+                    if (titleText.indexOf('纯游资异动') >= 0) {
+                        sectionCls += ' detail-section-pure-youzi';
+                    }
+                    _appendCol(currentCol, '<div class="' + sectionCls + '">');
                     _appendCol(currentCol, '<div class="' + titleClass + '"' + titleStyle + '>' + titleText + '</div>');
                     sectionOpen = true;
                 } else if (child.classList.contains('stock-item')) {

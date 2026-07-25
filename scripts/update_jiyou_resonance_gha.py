@@ -90,6 +90,11 @@ def _is_real_business_department(dept_name: str) -> bool:
 RESONANCE_YOUZI_TOP_N = 20
 YOUZI_DISPLAY_TOP_N = 5
 
+# 纯游资异动阈值
+PURE_YOUZI_NET_BUY_THRESHOLD = 3000.0  # 游资净买入合计 ≥ 3000万
+PURE_YOUZI_INST_THRESHOLD = 1000.0     # 机构净买入绝对值 < 1000万
+PURE_YOUZI_DISPLAY_TOP_N = 5           # 展示前5只
+
 # 每日信号精选阈值
 SIGNAL_INST_ABS_THRESHOLD = 2000.0   # 机构净买卖绝对值 ≥ 2000万
 SIGNAL_YOUZI_ABS_THRESHOLD = 1500.0  # 游资净买卖绝对值 ≥ 1500万
@@ -375,6 +380,43 @@ def compute_resonance(inst_top5: List[Dict], youzi_data: Dict) -> List[Dict]:
     return resonance
 
 
+def compute_pure_youzi(inst_data: Dict, youzi_data: Dict) -> List[Dict]:
+    """
+    纯游资异动：游资净买入≥3000万 且 机构净买卖绝对值<1000万
+    按游资净买金额降序排列，取前5只。
+    数据结构与现有机游共振/游资数据保持一致。
+    """
+    inst_map = {}
+    for s in inst_data.get("buy_sorted", []) + inst_data.get("sell_sorted", []):
+        code = s["code"]
+        if code not in inst_map:
+            inst_map[code] = s
+
+    youzi_candidates = []
+    for s in youzi_data.get("buy_sorted", []):
+        youzi_net = s.get("net_buy_wan", 0.0)
+        if youzi_net < PURE_YOUZI_NET_BUY_THRESHOLD:
+            continue
+        inst = inst_map.get(s["code"], {})
+        inst_net = inst.get("net_buy_wan", 0.0)
+        if abs(inst_net) >= PURE_YOUZI_INST_THRESHOLD:
+            continue
+        youzi_candidates.append({
+            "code": s["code"],
+            "name": s["name"],
+            "youzi_net_wan": round(youzi_net, 2),
+            "inst_net_wan": round(inst_net, 2),
+        })
+
+    youzi_candidates.sort(key=lambda x: x["youzi_net_wan"], reverse=True)
+    result = youzi_candidates[:PURE_YOUZI_DISPLAY_TOP_N]
+
+    print(f"    纯游资异动: {len(result)} 只")
+    for r in result:
+        print(f"      - {r['name']}: 游资+{r['youzi_net_wan']:.0f}万, 机构{r['inst_net_wan']:+.0f}万")
+    return result
+
+
 # ========== 每日信号精选 ==========
 
 def compute_daily_signals(inst_data: Dict, youzi_data: Dict) -> Dict:
@@ -572,6 +614,9 @@ def build_daily_data(date_str: str) -> Dict:
     ]
     resonance = compute_resonance(inst_data["buy_sorted"][:5], youzi_data)
 
+    # 纯游资异动
+    pure_youzi = compute_pure_youzi(inst_data, youzi_data)
+
     # 每日信号精选
     daily_signals = compute_daily_signals(inst_data, youzi_data)
 
@@ -580,6 +625,7 @@ def build_daily_data(date_str: str) -> Dict:
         "institution_top5": inst_top5,
         "institution_sell_top5": inst_sell_top5,
         "resonance": resonance,
+        "pure_youzi": pure_youzi,
         "youzi_buy_top5": youzi_buy_top5,
         "youzi_sell_top5": youzi_sell_top5,
         "daily_signals": daily_signals,
@@ -596,6 +642,7 @@ def build_day_cell_html(data: Dict) -> str:
     inst_top5 = data["institution_top5"]
     inst_sell_top5 = data["institution_sell_top5"]
     resonance = data["resonance"]
+    pure_youzi = data.get("pure_youzi", [])
     youzi_buy_top5 = data["youzi_buy_top5"]
     youzi_sell_top5 = data["youzi_sell_top5"]
 
@@ -675,6 +722,21 @@ def build_day_cell_html(data: Dict) -> str:
                 f'<span class="stock-icon resonance">★</span>'
                 f'<span class="stock-name">{res["stock_name"]}</span>'
                 f'<span class="stock-amount resonance-amount">+{format_amount(res["youzi_amount"])}</span>'
+                f'</span>'
+            )
+        lines.append('                        </div>')
+
+    # 3.5 纯游资异动
+    if pure_youzi:
+        lines.append('                        <div class="section-title pure-youzi-title">⚡ 纯游资异动</div>')
+        lines.append('                        <div class="stock-row">')
+        for s in pure_youzi:
+            amount_str = f"+{format_amount(s['youzi_net_wan'])}"
+            lines.append(
+                f'                            <span class="stock-item">'
+                f'<span class="stock-icon up">⚡</span>'
+                f'<span class="stock-name">{s["name"]}</span>'
+                f'<span class="stock-amount up">{amount_str}</span>'
                 f'</span>'
             )
         lines.append('                        </div>')

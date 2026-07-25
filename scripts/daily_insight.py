@@ -189,6 +189,16 @@ def compute_jiyou_insight(signal_data: dict, continuous_data: dict, latest_date:
     # 最强共振（买入）
     res_buy = basic.get("resonance_buy", [])[:2]
 
+    # 纯游资异动（游资净买≥3000万 且 机构净买卖绝对值<1000万）
+    pure_youzi_list = sub.get("pure_youzi_buy", [])[:3]
+    if not pure_youzi_list:
+        # 兼容：从youzi_solo_buy里筛选（机构净买卖绝对值<1000万的）
+        for s in sub.get("youzi_solo_buy", []):
+            if abs(s.get("inst_net_wan", 0)) < 1000.0 and s.get("youzi_net_wan", 0) >= 3000.0:
+                if len(pure_youzi_list) >= 3:
+                    break
+                pure_youzi_list.append(s)
+
     # 风险警示（共振卖出 + 机构派发）
     res_sell = basic.get("resonance_sell", [])[:2]
     inst_distribute = sub.get("inst_distribute", [])[:1]
@@ -252,6 +262,16 @@ def compute_jiyou_insight(signal_data: dict, continuous_data: dict, latest_date:
                 "total_net": fmt_wan(s["total_net_wan"]),
             }
             for s in youzi_relay
+        ],
+        "pure_youzi": [
+            {
+                "code": s["code"],
+                "name": s["name"],
+                "youzi_net": fmt_wan(s["youzi_net_wan"]),
+                "change_pct": f"{s.get('change_pct', 0):+.2f}%",
+                "reason": s.get("reason", "游资异动"),
+            }
+            for s in pure_youzi_list
         ],
     }
 
@@ -854,6 +874,26 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
             </div>"""
     else:
         jiyou_risk_html = '<div class="empty-text">暂无明显风险信号</div>'
+
+    # 纯游资异动
+    pure_youzi_html = ""
+    if jiyou_insight.get("pure_youzi"):
+        for s in jiyou_insight["pure_youzi"]:
+            youzi_cls = val_sign(s['youzi_net'])
+            chg_cls = val_sign(s['change_pct'])
+            pure_youzi_html += f"""
+            <div class="stock-item">
+                <div class="stock-name">{s['name']} <span class="stock-code">{s['code']}</span></div>
+                <div class="stock-detail">
+                    <span class="tag {youzi_cls}">游资 {s['youzi_net']}</span>
+                </div>
+                <div class="stock-meta">
+                    <span>{s['reason']}</span>
+                    <span class="change-pct {chg_cls}">{s['change_pct']}</span>
+                </div>
+            </div>"""
+    else:
+        pure_youzi_html = '<div class="empty-text">暂无纯游资异动</div>'
 
     # 游资接力
     jiyou_relay_html = ""
@@ -1933,6 +1973,9 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
 
             <div class="section-label">🔥 最强共振</div>
             {jiyou_buy_html}
+
+            <div class="section-label" style="color:#ff7a00;">⚡ 纯游资异动</div>
+            {pure_youzi_html}
 
             <div class="section-label risk">⚠️ 风险警示</div>
             {jiyou_risk_html}

@@ -141,6 +141,10 @@ TENCENT_QUOTE_URL = "https://qt.gtimg.cn/q="
 # 细分信号阈值
 SIG_INST_SOLO_BUY = 5000.0       # 机构独食：机构净买≥5000万
 SIG_YOUZI_SOLO_BUY = 5000.0      # 游资独食：游资净买≥5000万
+
+# 纯游资异动：游资净买≥3000万 且 机构净买卖绝对值<1000万
+PURE_YOUZI_BUY_THRESHOLD = 3000.0
+PURE_YOUZI_INST_THRESHOLD = 1000.0
 SIG_INST_RUSH_AMOUNT = 10000.0   # 机构抢筹：机构净买≥1亿
 SIG_INST_RUSH_RATIO = 10.0       # 机构抢筹：净买占比>10%
 SIG_INST_RUSH_LIMITUP = 9.8      # 机构抢筹：涨停（涨幅≥9.8%）
@@ -466,6 +470,7 @@ def compute_sub_signals(inst_data: Dict, youzi_data: Dict, quotes: Dict[str, Dic
 
     inst_solo_buy = []     # 机构独食
     youzi_solo_buy = []    # 游资独食
+    pure_youzi_buy = []    # 纯游资异动
     inst_rush_buy = []     # 机构抢筹
     inst_distribute = []   # 机构派发
     low_suction = []       # 低吸信号
@@ -512,6 +517,11 @@ def compute_sub_signals(inst_data: Dict, youzi_data: Dict, quotes: Dict[str, Dic
             stock_info["reason"] = f"游资净买{format_amount(youzi_net)}，机构净卖{format_amount(-inst_net)}"
             youzi_solo_buy.append(stock_info)
 
+        # 2.5 纯游资异动（游资净买≥3000万 且 机构无明显动作）
+        if youzi_net >= PURE_YOUZI_BUY_THRESHOLD and abs(inst_net) < PURE_YOUZI_INST_THRESHOLD:
+            stock_info["reason"] = f"游资净买{format_amount(youzi_net)}，机构净买{format_amount(inst_net)}"
+            pure_youzi_buy.append(stock_info)
+
         # 3. 机构抢筹
         if (inst_net >= SIG_INST_RUSH_AMOUNT and
                 net_buy_ratio > SIG_INST_RUSH_RATIO and
@@ -537,6 +547,7 @@ def compute_sub_signals(inst_data: Dict, youzi_data: Dict, quotes: Dict[str, Dic
     # 排序
     inst_solo_buy.sort(key=lambda x: x["inst_net_wan"], reverse=True)
     youzi_solo_buy.sort(key=lambda x: x["youzi_net_wan"], reverse=True)
+    pure_youzi_buy.sort(key=lambda x: x["youzi_net_wan"], reverse=True)
     inst_rush_buy.sort(key=lambda x: x["inst_net_wan"], reverse=True)
     inst_distribute.sort(key=lambda x: x["inst_net_wan"])
     low_suction.sort(key=lambda x: (x["inst_net_wan"] + x["youzi_net_wan"]), reverse=True)
@@ -544,6 +555,7 @@ def compute_sub_signals(inst_data: Dict, youzi_data: Dict, quotes: Dict[str, Dic
     return {
         "inst_solo_buy": inst_solo_buy,
         "youzi_solo_buy": youzi_solo_buy,
+        "pure_youzi_buy": pure_youzi_buy,
         "inst_rush_buy": inst_rush_buy,
         "inst_distribute": inst_distribute,
         "low_suction": low_suction,
@@ -718,6 +730,7 @@ def compute_signals_for_date(date_str: str) -> Dict:
     print(f"  👑 知名游资上榜: {len(famous_youzi)} 位")
     print(f"  ⚡ 机构独食: {len(sub_signals['inst_solo_buy'])} 只")
     print(f"  ⚡ 游资独食: {len(sub_signals['youzi_solo_buy'])} 只")
+    print(f"  ⚡ 纯游资异动: {len(sub_signals['pure_youzi_buy'])} 只")
     print(f"  ⚡ 机构抢筹: {len(sub_signals['inst_rush_buy'])} 只")
     print(f"  ⚡ 机构派发: {len(sub_signals['inst_distribute'])} 只")
     print(f"  ⚡ 低吸信号: {len(sub_signals['low_suction'])} 只")
@@ -1861,6 +1874,7 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
         var defs = [
             { key: 'inst_solo_buy', title: '机构独食', desc: '机构净买≥5000万 且 游资净买卖<1500万', icon: '🏢', color: '#f85149' },
             { key: 'youzi_solo_buy', title: '游资独食', desc: '游资净买≥5000万 且 机构净卖>0', icon: '⚡', color: '#d29922' },
+            { key: 'pure_youzi_buy', title: '纯游资异动', desc: '游资净买≥3000万 且 机构无明显动作', icon: '⚡', color: '#ff7a00' },
             { key: 'inst_rush_buy', title: '机构抢筹', desc: '机构净买≥1亿 且 净买占比>10% 且 涨停', icon: '🚀', color: '#da3633' },
             { key: 'inst_distribute', title: '机构派发', desc: '机构净卖≥1亿 且 高位放量（量比>1.5，跌幅>0）', icon: '📉', color: '#238636' },
             { key: 'low_suction', title: '低吸信号', desc: '机游共振净买 且 当日收阴线（跌幅>0）', icon: '🔻', color: '#a371f7' },
