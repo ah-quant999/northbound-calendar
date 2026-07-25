@@ -8,14 +8,19 @@
 数据来源：东方财富龙虎榜营业部买卖明细
 """
 
+import argparse
 import json
 import os
 import sys
 import time
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import List, Dict
 
 import requests
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+ROOT_DIR = SCRIPT_DIR.parent
 
 EASTMONEY_API_BASE = "https://datacenter-web.eastmoney.com/api/data/v1/get"
 EASTMONEY_HEADERS = {
@@ -506,18 +511,37 @@ body {{ font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif
 
 
 def main():
-    data_path = "data/northbound_lhb.json"
-    html_path = "northbound-lhb-tracker.html"
+    parser = argparse.ArgumentParser(description="北向龙虎榜追踪更新")
+    parser.add_argument("--repo-dir", default=".",
+                        help="仓库根目录（默认当前目录）")
+    parser.add_argument("--lookback", type=int, default=7,
+                        help="回刷前N个交易日的数据（默认7）")
+    parser.add_argument("--full", action="store_true",
+                        help="全量重抓（忽略已有数据，从头抓30天）")
+    args = parser.parse_args()
+
+    repo_dir = str(Path(args.repo_dir).resolve())
+    data_path = os.path.join(repo_dir, "data", "northbound_lhb.json")
+    html_path = os.path.join(repo_dir, "northbound-lhb-tracker.html")
+
+    print("=" * 60)
+    print("🚀 北向龙虎榜追踪 — 每日更新流水线 (GHA版)")
+    print(f"📁 仓库目录: {repo_dir}")
+    print(f"📄 HTML 文件: {html_path}")
+    print(f"🔁 回刷天数: 前 {args.lookback} 个交易日")
+    print("=" * 60)
 
     data = load_existing_data(data_path)
 
-    # 确定起始日期：如果已有数据，从最后一天+1开始；否则往前推30天
-    if data["dates"]:
+    # 确定起始日期
+    if args.full or not data["dates"]:
+        print("无历史数据或指定全量，从头抓取近30天...")
+        today = datetime.now().strftime("%Y-%m-%d")
+        days_to_fetch = get_recent_trading_days(today, 30)
+    else:
         last_date = max(data["dates"].keys())
         print(f"已有数据截止: {last_date}")
-        # 从last_date的下一个交易日到今天
         today = datetime.now().strftime("%Y-%m-%d")
-        # 获取从last_date之后的所有交易日
         days_to_fetch = []
         dt = datetime.strptime(last_date, "%Y-%m-%d") + timedelta(days=1)
         end_dt = datetime.now()
@@ -528,28 +552,43 @@ def main():
             dt += timedelta(days=1)
         # 限制最多30天
         days_to_fetch = days_to_fetch[-30:]
-    else:
-        print("无历史数据，从头抓取近30天...")
-        today = datetime.now().strftime("%Y-%m-%d")
-        days_to_fetch = get_recent_trading_days(today, 30)
+        # 额外回刷前N天（允许修正数据）
+        if args.lookback > 0 and data["dates"]:
+            prev_days = get_recent_trading_days(last_date, args.lookback + 1)
+            # last_date本身也会被包含，去重后插入
+            existing_set = set(days_to_fetch)
+            for d in prev_days:
+                if d != last_date and d not in existing_set:
+                    days_to_fetch.insert(0, d)
 
+    new_dates = []
     if not days_to_fetch:
         print("没有需要更新的日期")
     else:
         print(f"需要更新 {len(days_to_fetch)} 天: {days_to_fetch}")
+        orig_dates = set(data["dates"].keys())
         for d in days_to_fetch:
             try:
                 day_data = get_northbound_lhb(d)
                 data["dates"][d] = day_data
+                new_dates.append(d)
                 time.sleep(0.5)
             except Exception as e:
                 print(f"❌ {d} 抓取失败: {e}")
 
     data["update_time"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    os.makedirs(os.path.dirname(data_path), exist_ok=True)
     save_data(data_path, data)
     print(f"💾 数据已保存: {data_path}")
 
     generate_html(data, html_path)
+
+    # GHA 标志输出
+    if new_dates:
+        print("GHA_HAS_CHANGES=true")
+        print(f"GHA_TARGET_DATE={new_dates[-1]}")
+    else:
+        print("GHA_NO_CHANGE=true")
 
 
 if __name__ == "__main__":

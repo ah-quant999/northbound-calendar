@@ -66,7 +66,7 @@ jobs:
             git fetch origin calendar-pages
             git reset --hard origin/calendar-pages
 
-            # 执行更新脚本
+            # 执行北向日历更新脚本
             python3 scripts/daily_update_northbound_gha.py \
               --html "北向资金日历.html" \
               --repo-dir "." \
@@ -74,18 +74,47 @@ jobs:
               $LOOKBACK_ARG \
               2>&1 | tee update_output.log
 
-            # 检查是否有变更
-            if ! grep -q "GHA_HAS_CHANGES=true" update_output.log; then
-              echo "ℹ️  无数据变更，跳过提交"
+            # 检查日历是否有变更
+            CAL_HAS_CHANGES=false
+            TARGET_DATE=""
+            if grep -q "GHA_HAS_CHANGES=true" update_output.log; then
+              CAL_HAS_CHANGES=true
+              TARGET_DATE=$(grep "GHA_TARGET_DATE=" update_output.log | tail -1 | sed 's/GHA_TARGET_DATE=//')
+              echo "📅 北向日历更新，目标日期: $TARGET_DATE"
+            else
+              echo "ℹ️  北向日历无数据变更"
+              # 没有目标日期时用今天
+              TARGET_DATE=$(date +"%Y-%m-%d")
+            fi
+
+            # 执行北向龙虎榜追踪更新
+            echo "📊 更新北向龙虎榜追踪页面 ..."
+            python3 scripts/northbound_lhb_tracker.py \
+              --repo-dir "." \
+              --lookback 2 \
+              2>&1 | tee lhb_output.log
+
+            LHB_HAS_CHANGES=false
+            if grep -q "GHA_HAS_CHANGES=true" lhb_output.log; then
+              LHB_HAS_CHANGES=true
+              echo "📊 北向龙虎榜追踪有新数据"
+            else
+              echo "ℹ️  北向龙虎榜追踪无新数据"
+            fi
+
+            # 如果两者都没有变更，跳过提交
+            if [ "$CAL_HAS_CHANGES" = false ] && [ "$LHB_HAS_CHANGES" = false ]; then
+              echo "ℹ️  北向日历+龙虎榜追踪均无数据变更，跳过提交"
               exit 0
             fi
 
-            TARGET_DATE=$(grep "GHA_TARGET_DATE=" update_output.log | tail -1 | sed 's/GHA_TARGET_DATE=//')
             echo "📅 目标日期: $TARGET_DATE"
 
             # 提交（git diff逐文件add，避开中文文件名编码问题）
             git diff --name-only | while read f; do git add "$f"; done
-            git commit -m "auto: $TARGET_DATE 北向资金日历每日更新 (GHA)"
+            # 额外确保data目录下新文件也被add
+            git add data/northbound_lhb.json northbound-lhb-tracker.html 2>/dev/null
+            git commit -m "auto: $TARGET_DATE 北向资金日历+龙虎榜追踪每日更新 (GHA)"
 
             # 推送
             if git push origin calendar-pages; then
