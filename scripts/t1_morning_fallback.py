@@ -183,15 +183,24 @@ def main() -> None:
         log_error(f"机游 HTML 文件不存在: {jy_html}")
         sys.exit(1)
 
-    # 判断 T 日是否为交易日
+    # 判断 T 日是否为交易日，如果不是，往前找最近一个交易日
     if not is_trading_day(target_date):
-        log_warn(f"{target_date} 是非交易日（周末或节假日），跳过兜底更新")
-        print("GHA_NO_CHANGE=true")
-        print(f"GHA_TARGET_DATE={target_date}")
-        print("ℹ️  流水线完成（非交易日跳过）")
-        sys.exit(0)
-
-    print(f"✅ {target_date} 是 A 股交易日，开始兜底更新")
+        log_info(f"{target_date} 是非交易日，往前找最近一个交易日...")
+        # 往前找 10 天内最近的一个交易日
+        from update_jiyou_resonance_gha import get_prev_trading_days
+        prev_days = get_prev_trading_days(target_date, 5)
+        if not prev_days:
+            log_warn("往前找5天也没有交易日，跳过兜底更新")
+            print("GHA_NO_CHANGE=true")
+            print(f"GHA_TARGET_DATE={target_date}")
+            print("ℹ️  流水线完成（无交易日跳过）")
+            sys.exit(0)
+        target_date = prev_days[0]
+        date_source = f"自动计算（最近交易日，原始日期为昨日）"
+        log_info(f"最近交易日: {target_date}")
+        print(f"📅 T 日（修正后）: {target_date}")
+    else:
+        print(f"✅ {target_date} 是 A 股交易日，开始兜底更新")
 
     if args.dry_run:
         log_info("Dry-run 模式，跳过实际更新")
