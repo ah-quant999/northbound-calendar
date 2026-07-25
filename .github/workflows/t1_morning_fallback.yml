@@ -7,7 +7,8 @@ name: T+1早间兜底复核
 #   - workflow_dispatch: 手动触发，可指定 T 日日期
 on:
   schedule:
-    - cron: '30 23 * * 1-5'
+    - cron: '30 23 * * 1-5'   # 北京时间周二~周六 07:30（主触发）
+    - cron: '45 23 * * 1-5'   # 北京时间周二~周六 07:45（冗余触发，防漏调度）
   workflow_dispatch:
     inputs:
       date:
