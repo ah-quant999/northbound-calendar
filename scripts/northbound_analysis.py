@@ -571,7 +571,7 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
             overflow: hidden;
         }
         .rank-table {
-            width: 100%;
+            width: auto;
             border-collapse: collapse;
             font-size: 13px;
         }
@@ -618,6 +618,11 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
         }
 
         /* 双栏表格区域 */
+        .two-col-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
         .dual-table-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -771,6 +776,7 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
             </div>
         </div>
 
+        <div class="two-col-grid">
         <!-- ② 北向连续加仓个股 -->
         <div class="section">
             <div class="section-title">📈 北向连续加仓榜 <span class="section-sub">连续2天及以上北向净买入≥1000万</span></div>
@@ -785,6 +791,7 @@ PAGE_HTML_TEMPLATE = r"""<!DOCTYPE html>
             <div class="rank-table-wrap" id="nb-inst-resonance">
                 <!-- JS动态渲染 -->
             </div>
+        </div>
         </div>
 
         <!-- ④ 北向持仓变化榜 -->

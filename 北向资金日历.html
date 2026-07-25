@@ -299,15 +299,13 @@
             color: #c9d1d9;
         }
         .week-grid {
-            display: flex;
-            gap: 12px;
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 15px;
         }
         .week-box {
-            flex: 1;
             min-width: 0;
             overflow: hidden;
-        }
-        .week-box {
             background: #21262d;
             border-radius: 8px;
             padding: 15px;
@@ -344,9 +342,9 @@
         .week-stock-name {
             color: #c9d1d9;
             margin-right: 6px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            overflow-wrap: break-word;
+            word-break: break-all;
+            line-height: 1.4;
         }
         .week-stock-amount {
             font-weight: 500;
