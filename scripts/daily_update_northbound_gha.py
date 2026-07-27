@@ -8,7 +8,7 @@
 流程：
   1. 当日数据更新
   2. 回刷前 2 个交易日（防漏更）
-  3. 同步 index.html（复制主HTML → index.html）
+  3. 北向分析页 + 每日洞察更新
   4. 有变更则输出标志（供 Actions commit/push）
 
 用法：
@@ -172,7 +172,7 @@ def main():
     # 步骤0：周五自动全量刷新行业映射表
     target_dt = datetime.strptime(target_date, "%Y-%m-%d")
     if target_dt.weekday() == 4:  # 周五
-        log_info("步骤0/6：周五全量刷新行业映射表")
+        log_info("步骤0/5：周五全量刷新行业映射表")
         industry_script = str(SCRIPT_DIR / "stock_industry.py")
         r_ind = run_cmd([
             sys.executable, industry_script,
@@ -186,7 +186,7 @@ def main():
         print(f"ℹ️  今日为周{['一','二','三','四','五','六','日'][target_dt.weekday()]}，跳过行业表全量刷新（每周五执行）")
 
     # 步骤1：逐个更新
-    log_info("步骤1/6：更新北向资金每日数据")
+    log_info("步骤1/5：更新北向资金每日数据")
     all_ok = True
     for ds in update_dates:
         print(f"\n--- 更新 {ds} ---")
@@ -198,7 +198,7 @@ def main():
         sys.exit(1)
 
     # 步骤2：更新周汇总
-    log_info("步骤2/6：更新当周汇总TOP5")
+    log_info("步骤2/5：更新当周汇总TOP5")
     try:
         northbound_update_weekly(html_path, target_date)
     except Exception as e:
@@ -207,7 +207,7 @@ def main():
         traceback.print_exc()
 
     # 步骤3：更新月度汇总
-    log_info("步骤3/6：更新月度汇总TOP10")
+    log_info("步骤3/5：更新月度汇总TOP10")
     try:
         northbound_update_monthly(html_path, target_date)
     except Exception as e:
@@ -215,13 +215,8 @@ def main():
         import traceback
         traceback.print_exc()
 
-    # 步骤4：同步 index.html
-    log_info("步骤4/6：同步 index.html")
-    shutil.copy2(html_path, index_path)
-    print(f"✅ index.html 已同步: {index_path}")
-
-    # 步骤5：更新北向分析页
-    log_info("步骤5/6：更新北向分析页面")
+    # 步骤4：更新北向分析页
+    log_info("步骤4/5：更新北向分析页面")
     analysis_html = os.path.join(os.path.dirname(html_path), "northbound-analysis.html")
     analysis_script = str(SCRIPT_DIR / "northbound_analysis.py")
     for ds in update_dates:
@@ -237,8 +232,8 @@ def main():
         if r_analysis.returncode != 0:
             log_warn(f"北向分析页更新 {ds} 失败（返回码={r_analysis.returncode}），继续后续流程")
 
-    # 步骤6：生成每日市场洞察
-    log_info("步骤6/6：生成每日市场洞察")
+    # 步骤5：生成每日市场洞察
+    log_info("步骤5/5：生成每日市场洞察")
     insight_html = os.path.join(os.path.dirname(html_path), "daily-insight.html")
     insight_script = str(SCRIPT_DIR / "daily_insight.py")
     # 机游分析页面路径
@@ -261,7 +256,7 @@ def main():
     print(f"\n📏 更新后文件大小: {size_after} 字节")
 
     # 检查 git 状态
-    changed = has_git_changes(repo_dir, [html_file, "index.html", "northbound-analysis.html", "daily-insight.html", "data/stock_industry.json"])
+    changed = has_git_changes(repo_dir, [html_file, "northbound-analysis.html", "daily-insight.html", "data/stock_industry.json"])
 
     print()
     print("=" * 60)

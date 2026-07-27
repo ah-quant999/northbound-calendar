@@ -2,11 +2,13 @@ name: 北向资金日历每日更新
 
 # 触发方式：
 #   - cron: 北京时间 18:10 每个工作日 = UTC 10:10 周一到周五
+#   - cron: 北京时间 17:55 每个工作日 = UTC 09:55 周一到周五（双 cron 冗余，防止 GitHub schedule 延迟）
 #   - workflow_dispatch: 手动触发
 #   说明：比机游共振晚40分钟，确保机游数据已更新后再生成每日洞察
 on:
   schedule:
     - cron: '10 10 * * 1-5'
+    - cron: '55 9 * * 1-5'
   workflow_dispatch:
     inputs:
       date:
