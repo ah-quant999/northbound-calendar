@@ -118,6 +118,36 @@ jobs:
             git add data/northbound_lhb.json northbound-lhb-tracker.html 2>/dev/null
             git commit -m "auto: $TARGET_DATE 北向资金日历+龙虎榜追踪每日更新 (GHA)"
 
+
+            # 执行三个回测（北向行业+共振+大牛股猎手）
+            echo "📈 开始回测更新（北向行业+共振+大牛股猎手）..."
+            
+            # 北向行业回测
+            echo "🏁 北向行业回测 ..."
+            python3 scripts/backtest_northbound_industry.py 2>&1 | tee bt_nb.log
+            python3 scripts/generate_northbound_industry_backtest_page.py
+            
+            # 共振回测
+            echo "🏁 共振回测 ..."
+            python3 scripts/backtest_resonance.py --cache-dir .backtest_cache 2>&1 | tee bt_res.log
+            
+            # 大牛股猎手回测
+            echo "🏁 大牛股猎手回测 ..."
+            python3 scripts/backtest_bull_hunter.py --cache-dir .backtest_cache 2>&1 | tee bt_bh.log
+            python3 scripts/generate_bull_hunter_backtest_page.py
+            
+            # 回测结果也一起提交
+            git diff --name-only | while read f; do git add "$f"; done
+            git add data/northbound_industry_backtest.json data/backtest_result.json data/bull_hunter_backtest.json northbound-industry-backtest.html resonance-backtest.html bull-hunter-backtest.html .backtest_cache/ 2>/dev/null
+            
+            # 重新生成commit（因为加了回测文件）
+            if git diff --cached --quiet; then
+              echo "ℹ️  回测数据未发生变化"
+            else
+              echo "📈 回测数据已更新，合并到本次提交"
+              git commit --amend --no-edit
+            fi
+
             # 推送
             if git push origin calendar-pages; then
               echo "✅ 已推送到 calendar-pages 分支"
