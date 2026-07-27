@@ -82,15 +82,24 @@ jobs:
               $END_ARG \
               2>&1 | tee backtest_res.log
 
+            # 执行大牛股猎手回测
+            echo "🏁 开始大牛股猎手回测计算 ..."
+            python3 scripts/backtest_bull_hunter.py \
+              $START_ARG \
+              $END_ARG \
+              2>&1 | tee backtest_bh.log
+            echo "🏁 大牛股猎手回测完成，生成页面 ..."
+            python3 scripts/generate_bull_hunter_backtest_page.py
+
             # 检查是否有变更（回测页面每周都视为有变更，直接提交）
-            if git diff --quiet -- northbound-backtest.html resonance-backtest.html data/northbound_backtest.json data/backtest_result.json 2>/dev/null; then
+            if git diff --quiet -- northbound-backtest.html resonance-backtest.html bull-hunter-backtest.html data/northbound_backtest.json data/backtest_result.json data/bull_hunter_backtest.json 2>/dev/null; then
               echo "ℹ️  回测数据未发生变化"
             fi
 
             # 提交（git diff逐文件add，避开中文文件名编码问题）
             git diff --name-only | while read f; do git add "$f"; done
             # 新增的文件也要add
-            git add data/northbound_backtest.json data/backtest_result.json northbound-backtest.html resonance-backtest.html 2>/dev/null
+            git add data/northbound_backtest.json data/backtest_result.json data/bull_hunter_backtest.json northbound-backtest.html resonance-backtest.html bull-hunter-backtest.html 2>/dev/null
 
             if git diff --cached --quiet; then
               echo "ℹ️  无任何变更，跳过提交"
@@ -98,7 +107,7 @@ jobs:
             fi
 
             WEEK_DATE=$(date +"%Y-%m-%d")
-            git commit -m "auto: $WEEK_DATE 回测页面周更（北向+共振）"
+            git commit -m "auto: $WEEK_DATE 回测页面周更（北向+共振+大牛股猎手）"
 
             # 推送
             if git push origin calendar-pages; then
