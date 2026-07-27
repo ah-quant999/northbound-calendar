@@ -1858,11 +1858,14 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
         /* 深入分析入口 */
         .deep-links {{
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(4, 1fr);
             gap: 14px;
             margin: 20px 0 16px;
         }}
-        @media (max-width: 768px) {{
+        @media (max-width: 1100px) {{
+            .deep-links {{ grid-template-columns: 1fr 1fr; }}
+        }}
+        @media (max-width: 600px) {{
             .deep-links {{ grid-template-columns: 1fr; }}
         }}
         .deep-link {{
@@ -2083,6 +2086,14 @@ def generate_html(market_temp: dict, jiyou_insight: dict, nb_insight: dict,
             <div class="deep-link-text">
                 <div class="deep-link-title">共振胜率回测</div>
                 <div class="deep-link-desc">三方/两方共振 · T+1~T+90 8周期 · 6个月历史回测</div>
+            </div>
+            <div class="deep-link-arrow">→</div>
+        </a>
+        <a href="bull-hunter-backtest.html" class="deep-link backtest-link">
+            <div class="deep-link-icon">🐂</div>
+            <div class="deep-link-text">
+                <div class="deep-link-title">大牛股猎手回测</div>
+                <div class="deep-link-desc">新赛道+早期信号+核心共振 · T+5/T+10/T+20 胜率收益追踪</div>
             </div>
             <div class="deep-link-arrow">→</div>
         </a>
