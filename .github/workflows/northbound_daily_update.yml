@@ -124,8 +124,8 @@ jobs:
             
             # 北向行业回测
             echo "🏁 北向行业回测 ..."
-            python3 scripts/backtest_northbound_industry.py 2>&1 | tee bt_nb.log
-            python3 scripts/generate_northbound_industry_backtest_page.py
+            python3 scripts/backtest_northbound.py 2>&1 | tee bt_nb.log
+            python3 scripts/generate_northbound_backtest_page.py
             
             # 共振回测
             echo "🏁 共振回测 ..."
