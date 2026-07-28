@@ -133,7 +133,7 @@ jobs:
             
             # 大牛股猎手回测
             echo "🏁 大牛股猎手回测 ..."
-            python3 scripts/backtest_bull_hunter.py --cache-dir .backtest_cache 2>&1 | tee bt_bh.log
+            python3 scripts/backtest_bull_hunter.py 2>&1 | tee bt_bh.log
             python3 scripts/generate_bull_hunter_backtest_page.py
             
             # 回测结果也一起提交
