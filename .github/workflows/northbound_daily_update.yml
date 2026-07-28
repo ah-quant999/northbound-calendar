@@ -131,11 +131,23 @@ jobs:
             
             # 一次性提交所有变更（北向日历+龙虎榜+回测）
             echo "📦 汇总所有变更并提交..."
-            git diff --name-only | while read f; do git add "$f"; done
-            # 额外确保data目录和回测文件也被add
-            git add data/northbound_lhb.json northbound-lhb-tracker.html 2>/dev/null
-            git add data/northbound_industry_backtest.json data/backtest_result.json data/bull_hunter_backtest.json northbound-industry-backtest.html resonance-backtest.html bull-hunter-backtest.html .backtest_cache/ 2>/dev/null
-            git commit -m "auto: $TARGET_DATE 北向资金日历+龙虎榜+回测每日更新 (GHA)"
+            echo "当前变更文件："
+            git status --short
+            
+            # add 所有已跟踪文件的变更 + 新增的回测数据/页面
+            git add -u
+            git add data/ *.html .backtest_cache/ 2>/dev/null || true
+            
+            echo "暂存区状态："
+            git diff --cached --stat
+            
+            if ! git diff --cached --quiet; then
+              git commit -m "auto: $TARGET_DATE 北向资金日历+龙虎榜+回测每日更新 (GHA)"
+              echo "✅ 提交成功"
+            else
+              echo "ℹ️  暂存区无变更，跳过提交"
+              exit 0
+            fi
 
             # 推送
             if git push origin calendar-pages; then
