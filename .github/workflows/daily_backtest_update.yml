@@ -75,12 +75,12 @@ jobs:
 
             # 执行北向行业回测
             echo "🏁 开始北向行业回测计算 ..."
-            python3 scripts/backtest_northbound_industry.py \
+            python3 scripts/backtest_northbound.py \
               $START_ARG \
               $END_ARG \
               2>&1 | tee backtest_nb.log
             echo "🏁 北向行业回测完成，生成页面 ..."
-            python3 scripts/generate_northbound_industry_backtest_page.py
+            python3 scripts/generate_northbound_backtest_page.py
 
             # 执行共振回测
             echo "🏁 开始共振回测计算 ..."
