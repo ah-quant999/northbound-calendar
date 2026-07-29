@@ -3,7 +3,7 @@
     "label": "主档",
     "params": {
       "start": "2026-01-01",
-      "end": "2026-07-28",
+      "end": "2026-07-29",
       "thresholds": {
         "inst": 10000.0,
         "youzi": 1500.0,
@@ -39069,15 +39069,63 @@
           "T90": null
         },
         "error": null
+      },
+      {
+        "date": "2026-07-29",
+        "code": "002396",
+        "name": "星网锐捷",
+        "inst_net_wan": 15952.64,
+        "youzi_net_wan": 0.0,
+        "north_net_wan": 47125.68,
+        "res_type": "inst_north",
+        "total_net_wan": 63078.32,
+        "industry": "制造业",
+        "error": "no_t1"
+      },
+      {
+        "date": "2026-07-29",
+        "code": "002558",
+        "name": "巨人网络",
+        "inst_net_wan": 16534.04,
+        "youzi_net_wan": 1958.41,
+        "north_net_wan": 15382.25,
+        "res_type": "triple",
+        "total_net_wan": 33874.7,
+        "industry": "信息传输、软件和信息技术服务业",
+        "error": "no_t1"
+      },
+      {
+        "date": "2026-07-29",
+        "code": "002498",
+        "name": "汉缆股份",
+        "inst_net_wan": 10646.53,
+        "youzi_net_wan": 0.0,
+        "north_net_wan": 17431.7,
+        "res_type": "inst_north",
+        "total_net_wan": 28078.23,
+        "industry": "制造业",
+        "error": "no_t1"
+      },
+      {
+        "date": "2026-07-29",
+        "code": "600733",
+        "name": "北汽蓝谷",
+        "inst_net_wan": 0.0,
+        "youzi_net_wan": 2264.42,
+        "north_net_wan": 19554.72,
+        "res_type": "youzi_north",
+        "total_net_wan": 21819.14,
+        "industry": "制造业",
+        "error": "no_t1"
       }
     ],
-    "generate_time": "2026-07-29 16:14:34"
+    "generate_time": "2026-07-29 17:27:48"
   },
   "select": {
     "label": "精选",
     "params": {
       "start": "2026-01-01",
-      "end": "2026-07-28",
+      "end": "2026-07-29",
       "thresholds": {
         "inst": 20000.0,
         "youzi": 1500.0,
@@ -68468,9 +68516,33 @@
           "T90": null
         },
         "error": null
+      },
+      {
+        "date": "2026-07-29",
+        "code": "600733",
+        "name": "北汽蓝谷",
+        "inst_net_wan": 0.0,
+        "youzi_net_wan": 2264.42,
+        "north_net_wan": 19554.72,
+        "res_type": "youzi_north",
+        "total_net_wan": 21819.14,
+        "industry": "制造业",
+        "error": "no_t1"
+      },
+      {
+        "date": "2026-07-29",
+        "code": "002558",
+        "name": "巨人网络",
+        "inst_net_wan": 0.0,
+        "youzi_net_wan": 1958.41,
+        "north_net_wan": 15382.25,
+        "res_type": "youzi_north",
+        "total_net_wan": 17340.66,
+        "industry": "信息传输、软件和信息技术服务业",
+        "error": "no_t1"
       }
     ],
-    "generate_time": "2026-07-29 16:27:35"
+    "generate_time": "2026-07-29 17:44:50"
   },
-  "generate_time": "2026-07-29 16:27:35"
+  "generate_time": "2026-07-29 17:44:50"
 }
