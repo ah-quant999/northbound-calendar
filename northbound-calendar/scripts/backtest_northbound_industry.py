@@ -38,11 +38,29 @@ from stock_industry import load_cache, get_industry  # noqa: E402
 
 HOLD_PERIODS = [5, 10, 20, 30, 60, 90]
 START_DATE = "2026-01-01"
-END_DATE = "2026-07-21"
 MIN_STOCK_PER_INDUSTRY = 3  # 行业内至少3只上榜股才算有效信号
 CACHE_DIR = "/tmp/nb_ind_backtest_cache"
 
 os.makedirs(CACHE_DIR, exist_ok=True)
+
+
+def _auto_end_date() -> str:
+    """自动取最近一个交易日作为结束日期（含今天，如果今天是交易日且已过收盘时间）"""
+    now = datetime.now()
+    today_str = now.strftime("%Y-%m-%d")
+    # 如果今天是交易日且已过15:00，用今天；否则往前找
+    dt = now
+    if now.hour < 15:
+        dt = now - timedelta(days=1)
+    for _ in range(10):
+        ds = dt.strftime("%Y-%m-%d")
+        if is_trading_day(ds):
+            return ds
+        dt = dt - timedelta(days=1)
+    return today_str
+
+
+END_DATE = _auto_end_date()
 
 
 def get_recent_trading_days(start: str, end: str) -> List[str]:

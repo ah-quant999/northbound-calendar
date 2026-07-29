@@ -398,7 +398,24 @@ def get_northbound_data(date_str: str) -> List[Dict]:
 # ========== 配置（回测参数 ==========
 
 DEFAULT_START = "2026-01-01"
-DEFAULT_END = "2026-07-28"
+
+
+def _auto_default_end() -> str:
+    """自动取最近一个交易日作为结束日期"""
+    from datetime import datetime, timedelta
+    now = datetime.now()
+    dt = now
+    if now.hour < 15:
+        dt = now - timedelta(days=1)
+    for _ in range(10):
+        ds = dt.strftime("%Y-%m-%d")
+        if is_trading_day(ds):
+            return ds
+        dt = dt - timedelta(days=1)
+    return now.strftime("%Y-%m-%d")
+
+
+DEFAULT_END = _auto_default_end()
 
 # 主档位阈值（机构+北向双共振）
 THRESHOLD_INST_MAIN = 10000.0
