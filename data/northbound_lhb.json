@@ -22529,13 +22529,654 @@
     },
     "2026-07-23": {
       "date": "2026-07-23",
-      "stock_count": 0,
-      "buy_count": 0,
-      "sell_count": 0,
-      "total_buy_wan": 0.0,
-      "total_sell_wan": 0.0,
-      "net_wan": 0.0,
-      "stocks": []
+      "stock_count": 40,
+      "buy_count": 21,
+      "sell_count": 19,
+      "total_buy_wan": 632839.01,
+      "total_sell_wan": 580459.3,
+      "net_wan": 52379.71,
+      "stocks": [
+        {
+          "code": "002156",
+          "name": "通富微电",
+          "change_pct": -6.78,
+          "buy_wan": 129052.51,
+          "sell_wan": 78052.39,
+          "net_wan": 51000.12,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 129052.51,
+              "sell_wan": 78052.39,
+              "net_wan": 51000.12
+            }
+          ]
+        },
+        {
+          "code": "002432",
+          "name": "九安医疗",
+          "change_pct": -10.0,
+          "buy_wan": 31719.37,
+          "sell_wan": 16884.67,
+          "net_wan": 14834.7,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 31719.37,
+              "sell_wan": 16884.67,
+              "net_wan": 14834.7
+            }
+          ]
+        },
+        {
+          "code": "000815",
+          "name": "美利云",
+          "change_pct": 9.98,
+          "buy_wan": 19102.58,
+          "sell_wan": 5761.38,
+          "net_wan": 13341.2,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 19102.58,
+              "sell_wan": 5761.38,
+              "net_wan": 13341.2
+            }
+          ]
+        },
+        {
+          "code": "000426",
+          "name": "兴业银锡",
+          "change_pct": 5.86,
+          "buy_wan": 61038.14,
+          "sell_wan": 48306.91,
+          "net_wan": 12731.23,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 61038.14,
+              "sell_wan": 48306.91,
+              "net_wan": 12731.23
+            }
+          ]
+        },
+        {
+          "code": "600711",
+          "name": "盛屯矿业",
+          "change_pct": 6.33,
+          "buy_wan": 40508.27,
+          "sell_wan": 28762.54,
+          "net_wan": 11745.73,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 40508.27,
+              "sell_wan": 28762.54,
+              "net_wan": 11745.73
+            }
+          ]
+        },
+        {
+          "code": "002558",
+          "name": "巨人网络",
+          "change_pct": -9.85,
+          "buy_wan": 17791.45,
+          "sell_wan": 10059.25,
+          "net_wan": 7732.2,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 17791.45,
+              "sell_wan": 10059.25,
+              "net_wan": 7732.2
+            }
+          ]
+        },
+        {
+          "code": "601678",
+          "name": "滨化股份",
+          "change_pct": 10.09,
+          "buy_wan": 7363.83,
+          "sell_wan": 1994.13,
+          "net_wan": 5369.7,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 7363.83,
+              "sell_wan": 1994.13,
+              "net_wan": 5369.7
+            }
+          ]
+        },
+        {
+          "code": "603619",
+          "name": "中曼石油",
+          "change_pct": 9.98,
+          "buy_wan": 9506.69,
+          "sell_wan": 4256.77,
+          "net_wan": 5249.93,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 9506.69,
+              "sell_wan": 4256.77,
+              "net_wan": 5249.93
+            }
+          ]
+        },
+        {
+          "code": "603683",
+          "name": "晶华新材",
+          "change_pct": -5.31,
+          "buy_wan": 4522.08,
+          "sell_wan": 0.0,
+          "net_wan": 4522.08,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 4522.08,
+              "sell_wan": 0.0,
+              "net_wan": 4522.08
+            }
+          ]
+        },
+        {
+          "code": "603567",
+          "name": "珍宝岛",
+          "change_pct": 9.98,
+          "buy_wan": 3974.03,
+          "sell_wan": 866.55,
+          "net_wan": 3107.48,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 3974.03,
+              "sell_wan": 866.55,
+              "net_wan": 3107.48
+            }
+          ]
+        },
+        {
+          "code": "600227",
+          "name": "赤天化",
+          "change_pct": 6.03,
+          "buy_wan": 4000.67,
+          "sell_wan": 2071.98,
+          "net_wan": 1928.69,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 4000.67,
+              "sell_wan": 2071.98,
+              "net_wan": 1928.69
+            }
+          ]
+        },
+        {
+          "code": "600219",
+          "name": "南山铝业",
+          "change_pct": 10.11,
+          "buy_wan": 9640.07,
+          "sell_wan": 7952.92,
+          "net_wan": 1687.15,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 9640.07,
+              "sell_wan": 7952.92,
+              "net_wan": 1687.15
+            }
+          ]
+        },
+        {
+          "code": "603118",
+          "name": "共进股份",
+          "change_pct": 1.1,
+          "buy_wan": 51622.44,
+          "sell_wan": 50249.99,
+          "net_wan": 1372.45,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 51622.44,
+              "sell_wan": 50249.99,
+              "net_wan": 1372.45
+            }
+          ]
+        },
+        {
+          "code": "001388",
+          "name": "信通电子",
+          "change_pct": 10.02,
+          "buy_wan": 2726.33,
+          "sell_wan": 1435.41,
+          "net_wan": 1290.92,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 2726.33,
+              "sell_wan": 1435.41,
+              "net_wan": 1290.92
+            }
+          ]
+        },
+        {
+          "code": "300643",
+          "name": "万通智控",
+          "change_pct": 4.32,
+          "buy_wan": 10663.48,
+          "sell_wan": 9394.46,
+          "net_wan": 1269.01,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 10663.48,
+              "sell_wan": 9394.46,
+              "net_wan": 1269.01
+            }
+          ]
+        },
+        {
+          "code": "301357",
+          "name": "北方长龙",
+          "change_pct": 20.0,
+          "buy_wan": 2879.03,
+          "sell_wan": 2054.68,
+          "net_wan": 824.35,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 2879.03,
+              "sell_wan": 2054.68,
+              "net_wan": 824.35
+            }
+          ]
+        },
+        {
+          "code": "300688",
+          "name": "创业黑马",
+          "change_pct": 4.28,
+          "buy_wan": 13342.28,
+          "sell_wan": 12702.41,
+          "net_wan": 639.86,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 13342.28,
+              "sell_wan": 12702.41,
+              "net_wan": 639.86
+            }
+          ]
+        },
+        {
+          "code": "600698",
+          "name": "湖南天雁",
+          "change_pct": 10.09,
+          "buy_wan": 1477.81,
+          "sell_wan": 928.11,
+          "net_wan": 549.7,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 1477.81,
+              "sell_wan": 928.11,
+              "net_wan": 549.7
+            }
+          ]
+        },
+        {
+          "code": "002240",
+          "name": "盛新锂能",
+          "change_pct": 10.02,
+          "buy_wan": 16400.31,
+          "sell_wan": 15911.12,
+          "net_wan": 489.2,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 16400.31,
+              "sell_wan": 15911.12,
+              "net_wan": 489.2
+            }
+          ]
+        },
+        {
+          "code": "600722",
+          "name": "金牛化工",
+          "change_pct": 9.99,
+          "buy_wan": 15331.03,
+          "sell_wan": 14873.35,
+          "net_wan": 457.68,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 15331.03,
+              "sell_wan": 14873.35,
+              "net_wan": 457.68
+            }
+          ]
+        },
+        {
+          "code": "603075",
+          "name": "热威股份",
+          "change_pct": -7.69,
+          "buy_wan": 254.64,
+          "sell_wan": 0.0,
+          "net_wan": 254.64,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 254.64,
+              "sell_wan": 0.0,
+              "net_wan": 254.64
+            }
+          ]
+        },
+        {
+          "code": "000596",
+          "name": "古井贡酒",
+          "change_pct": -6.83,
+          "buy_wan": 4492.87,
+          "sell_wan": 4631.61,
+          "net_wan": -138.75,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 4492.87,
+              "sell_wan": 4631.61,
+              "net_wan": -138.75
+            }
+          ]
+        },
+        {
+          "code": "600744",
+          "name": "华银电力",
+          "change_pct": -0.76,
+          "buy_wan": 9817.3,
+          "sell_wan": 9966.05,
+          "net_wan": -148.74,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 9817.3,
+              "sell_wan": 9966.05,
+              "net_wan": -148.74
+            }
+          ]
+        },
+        {
+          "code": "001337",
+          "name": "四川黄金",
+          "change_pct": 10.0,
+          "buy_wan": 15680.99,
+          "sell_wan": 15837.83,
+          "net_wan": -156.84,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 15680.99,
+              "sell_wan": 15837.83,
+              "net_wan": -156.84
+            }
+          ]
+        },
+        {
+          "code": "001258",
+          "name": "立新能源",
+          "change_pct": 9.99,
+          "buy_wan": 3876.22,
+          "sell_wan": 4066.0,
+          "net_wan": -189.78,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 3876.22,
+              "sell_wan": 4066.0,
+              "net_wan": -189.78
+            }
+          ]
+        },
+        {
+          "code": "001872",
+          "name": "招商港口",
+          "change_pct": -6.59,
+          "buy_wan": 1282.78,
+          "sell_wan": 1934.65,
+          "net_wan": -651.87,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 1282.78,
+              "sell_wan": 1934.65,
+              "net_wan": -651.87
+            }
+          ]
+        },
+        {
+          "code": "603988",
+          "name": "中电电机",
+          "change_pct": 9.99,
+          "buy_wan": 2057.12,
+          "sell_wan": 3184.29,
+          "net_wan": -1127.17,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 2057.12,
+              "sell_wan": 3184.29,
+              "net_wan": -1127.17
+            }
+          ]
+        },
+        {
+          "code": "605288",
+          "name": "凯迪股份",
+          "change_pct": 10.0,
+          "buy_wan": 2515.17,
+          "sell_wan": 3994.96,
+          "net_wan": -1479.8,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 2515.17,
+              "sell_wan": 3994.96,
+              "net_wan": -1479.8
+            }
+          ]
+        },
+        {
+          "code": "603823",
+          "name": "百合花",
+          "change_pct": -10.0,
+          "buy_wan": 1730.95,
+          "sell_wan": 3902.34,
+          "net_wan": -2171.39,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 1730.95,
+              "sell_wan": 3902.34,
+              "net_wan": -2171.39
+            }
+          ]
+        },
+        {
+          "code": "688679",
+          "name": "通源环境",
+          "change_pct": 19.99,
+          "buy_wan": 2541.61,
+          "sell_wan": 5838.34,
+          "net_wan": -3296.73,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 2541.61,
+              "sell_wan": 5838.34,
+              "net_wan": -3296.73
+            }
+          ]
+        },
+        {
+          "code": "301012",
+          "name": "扬电科技",
+          "change_pct": 7.29,
+          "buy_wan": 8575.91,
+          "sell_wan": 11967.72,
+          "net_wan": -3391.81,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 8575.91,
+              "sell_wan": 11967.72,
+              "net_wan": -3391.81
+            }
+          ]
+        },
+        {
+          "code": "300444",
+          "name": "双杰电气",
+          "change_pct": 20.0,
+          "buy_wan": 7253.0,
+          "sell_wan": 11799.04,
+          "net_wan": -4546.04,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 7253.0,
+              "sell_wan": 11799.04,
+              "net_wan": -4546.04
+            }
+          ]
+        },
+        {
+          "code": "002396",
+          "name": "星网锐捷",
+          "change_pct": -1.91,
+          "buy_wan": 37674.22,
+          "sell_wan": 42703.62,
+          "net_wan": -5029.4,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 37674.22,
+              "sell_wan": 42703.62,
+              "net_wan": -5029.4
+            }
+          ]
+        },
+        {
+          "code": "301292",
+          "name": "海科新源",
+          "change_pct": 20.0,
+          "buy_wan": 11178.76,
+          "sell_wan": 16823.76,
+          "net_wan": -5645.0,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 11178.76,
+              "sell_wan": 16823.76,
+              "net_wan": -5645.0
+            }
+          ]
+        },
+        {
+          "code": "002379",
+          "name": "宏桥控股",
+          "change_pct": 10.01,
+          "buy_wan": 5888.99,
+          "sell_wan": 11989.11,
+          "net_wan": -6100.12,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 5888.99,
+              "sell_wan": 11989.11,
+              "net_wan": -6100.12
+            }
+          ]
+        },
+        {
+          "code": "300164",
+          "name": "通源石油",
+          "change_pct": 3.05,
+          "buy_wan": 0.0,
+          "sell_wan": 6703.2,
+          "net_wan": -6703.2,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 0.0,
+              "sell_wan": 6703.2,
+              "net_wan": -6703.2
+            }
+          ]
+        },
+        {
+          "code": "600246",
+          "name": "万通发展",
+          "change_pct": -7.6,
+          "buy_wan": 15539.83,
+          "sell_wan": 23578.67,
+          "net_wan": -8038.84,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 15539.83,
+              "sell_wan": 23578.67,
+              "net_wan": -8038.84
+            }
+          ]
+        },
+        {
+          "code": "002759",
+          "name": "ST天际",
+          "change_pct": 5.15,
+          "buy_wan": 0.0,
+          "sell_wan": 8575.52,
+          "net_wan": -8575.52,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 0.0,
+              "sell_wan": 8575.52,
+              "net_wan": -8575.52
+            }
+          ]
+        },
+        {
+          "code": "000603",
+          "name": "盛达资源",
+          "change_pct": 10.01,
+          "buy_wan": 32857.92,
+          "sell_wan": 46205.04,
+          "net_wan": -13347.11,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 32857.92,
+              "sell_wan": 46205.04,
+              "net_wan": -13347.11
+            }
+          ]
+        },
+        {
+          "code": "600396",
+          "name": "华电辽能",
+          "change_pct": 9.99,
+          "buy_wan": 16958.33,
+          "sell_wan": 34238.53,
+          "net_wan": -17280.2,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 16958.33,
+              "sell_wan": 34238.53,
+              "net_wan": -17280.2
+            }
+          ]
+        }
+      ]
     },
     "2026-07-24": {
       "date": "2026-07-24",
@@ -23742,7 +24383,588 @@
           ]
         }
       ]
+    },
+    "2026-07-28": {
+      "date": "2026-07-28",
+      "stock_count": 35,
+      "buy_count": 18,
+      "sell_count": 17,
+      "total_buy_wan": 1170210.52,
+      "total_sell_wan": 1109848.67,
+      "net_wan": 60361.85,
+      "stocks": [
+        {
+          "code": "300308",
+          "name": "中际旭创",
+          "change_pct": -15.69,
+          "buy_wan": 592468.18,
+          "sell_wan": 489635.08,
+          "net_wan": 102833.11,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 592468.18,
+              "sell_wan": 489635.08,
+              "net_wan": 102833.11
+            }
+          ]
+        },
+        {
+          "code": "300502",
+          "name": "新易盛",
+          "change_pct": -17.13,
+          "buy_wan": 207141.18,
+          "sell_wan": 181672.61,
+          "net_wan": 25468.56,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 207141.18,
+              "sell_wan": 181672.61,
+              "net_wan": 25468.56
+            }
+          ]
+        },
+        {
+          "code": "688498",
+          "name": "源杰科技",
+          "change_pct": -16.77,
+          "buy_wan": 89891.48,
+          "sell_wan": 66811.88,
+          "net_wan": 23079.6,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 89891.48,
+              "sell_wan": 66811.88,
+              "net_wan": 23079.6
+            }
+          ]
+        },
+        {
+          "code": "002310",
+          "name": "东方新能",
+          "change_pct": 9.96,
+          "buy_wan": 20424.36,
+          "sell_wan": 5925.14,
+          "net_wan": 14499.22,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 20424.36,
+              "sell_wan": 5925.14,
+              "net_wan": 14499.22
+            }
+          ]
+        },
+        {
+          "code": "603118",
+          "name": "共进股份",
+          "change_pct": 6.85,
+          "buy_wan": 8709.18,
+          "sell_wan": 0.0,
+          "net_wan": 8709.18,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 8709.18,
+              "sell_wan": 0.0,
+              "net_wan": 8709.18
+            }
+          ]
+        },
+        {
+          "code": "605111",
+          "name": "新洁能",
+          "change_pct": -10.01,
+          "buy_wan": 13248.97,
+          "sell_wan": 6127.71,
+          "net_wan": 7121.26,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 13248.97,
+              "sell_wan": 6127.71,
+              "net_wan": 7121.26
+            }
+          ]
+        },
+        {
+          "code": "002309",
+          "name": "中利集团",
+          "change_pct": 10.13,
+          "buy_wan": 8106.38,
+          "sell_wan": 1408.17,
+          "net_wan": 6698.21,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 8106.38,
+              "sell_wan": 1408.17,
+              "net_wan": 6698.21
+            }
+          ]
+        },
+        {
+          "code": "603716",
+          "name": "塞力医疗",
+          "change_pct": 9.97,
+          "buy_wan": 3711.87,
+          "sell_wan": 0.0,
+          "net_wan": 3711.87,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 3711.87,
+              "sell_wan": 0.0,
+              "net_wan": 3711.87
+            }
+          ]
+        },
+        {
+          "code": "000566",
+          "name": "海南海药",
+          "change_pct": 10.0,
+          "buy_wan": 4759.69,
+          "sell_wan": 1161.97,
+          "net_wan": 3597.72,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 4759.69,
+              "sell_wan": 1161.97,
+              "net_wan": 3597.72
+            }
+          ]
+        },
+        {
+          "code": "002173",
+          "name": "创新医疗",
+          "change_pct": 10.0,
+          "buy_wan": 3140.11,
+          "sell_wan": 0.0,
+          "net_wan": 3140.11,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 3140.11,
+              "sell_wan": 0.0,
+              "net_wan": 3140.11
+            }
+          ]
+        },
+        {
+          "code": "300663",
+          "name": "科蓝软件",
+          "change_pct": 19.95,
+          "buy_wan": 4787.21,
+          "sell_wan": 1681.5,
+          "net_wan": 3105.72,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 4787.21,
+              "sell_wan": 1681.5,
+              "net_wan": 3105.72
+            }
+          ]
+        },
+        {
+          "code": "002195",
+          "name": "岩山科技",
+          "change_pct": 9.98,
+          "buy_wan": 6592.13,
+          "sell_wan": 4943.74,
+          "net_wan": 1648.39,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 6592.13,
+              "sell_wan": 4943.74,
+              "net_wan": 1648.39
+            }
+          ]
+        },
+        {
+          "code": "300802",
+          "name": "矩子科技",
+          "change_pct": -0.66,
+          "buy_wan": 6945.22,
+          "sell_wan": 5731.25,
+          "net_wan": 1213.97,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 6945.22,
+              "sell_wan": 5731.25,
+              "net_wan": 1213.97
+            }
+          ]
+        },
+        {
+          "code": "603358",
+          "name": "华达科技",
+          "change_pct": 10.01,
+          "buy_wan": 3074.97,
+          "sell_wan": 2353.76,
+          "net_wan": 721.21,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 3074.97,
+              "sell_wan": 2353.76,
+              "net_wan": 721.21
+            }
+          ]
+        },
+        {
+          "code": "002647",
+          "name": "仁东控股",
+          "change_pct": 7.29,
+          "buy_wan": 9465.74,
+          "sell_wan": 9079.21,
+          "net_wan": 386.52,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 9465.74,
+              "sell_wan": 9079.21,
+              "net_wan": 386.52
+            }
+          ]
+        },
+        {
+          "code": "603400",
+          "name": "华之杰",
+          "change_pct": 10.01,
+          "buy_wan": 1042.24,
+          "sell_wan": 681.47,
+          "net_wan": 360.77,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 1042.24,
+              "sell_wan": 681.47,
+              "net_wan": 360.77
+            }
+          ]
+        },
+        {
+          "code": "603918",
+          "name": "金桥信息",
+          "change_pct": 10.03,
+          "buy_wan": 987.11,
+          "sell_wan": 717.11,
+          "net_wan": 269.99,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 987.11,
+              "sell_wan": 717.11,
+              "net_wan": 269.99
+            }
+          ]
+        },
+        {
+          "code": "600722",
+          "name": "金牛化工",
+          "change_pct": -10.01,
+          "buy_wan": 192.42,
+          "sell_wan": 0.0,
+          "net_wan": 192.42,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 192.42,
+              "sell_wan": 0.0,
+              "net_wan": 192.42
+            }
+          ]
+        },
+        {
+          "code": "300067",
+          "name": "安诺其",
+          "change_pct": 20.09,
+          "buy_wan": 3066.37,
+          "sell_wan": 3147.82,
+          "net_wan": -81.45,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 3066.37,
+              "sell_wan": 3147.82,
+              "net_wan": -81.45
+            }
+          ]
+        },
+        {
+          "code": "600775",
+          "name": "南京熊猫",
+          "change_pct": 9.99,
+          "buy_wan": 1455.05,
+          "sell_wan": 1563.29,
+          "net_wan": -108.24,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 1455.05,
+              "sell_wan": 1563.29,
+              "net_wan": -108.24
+            }
+          ]
+        },
+        {
+          "code": "603228",
+          "name": "景旺电子",
+          "change_pct": -10.0,
+          "buy_wan": 33296.62,
+          "sell_wan": 33533.1,
+          "net_wan": -236.49,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 33296.62,
+              "sell_wan": 33533.1,
+              "net_wan": -236.49
+            }
+          ]
+        },
+        {
+          "code": "603232",
+          "name": "格尔软件",
+          "change_pct": 10.04,
+          "buy_wan": 677.36,
+          "sell_wan": 1394.06,
+          "net_wan": -716.7,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 677.36,
+              "sell_wan": 1394.06,
+              "net_wan": -716.7
+            }
+          ]
+        },
+        {
+          "code": "002969",
+          "name": "嘉美包装",
+          "change_pct": 10.03,
+          "buy_wan": 5106.14,
+          "sell_wan": 6720.66,
+          "net_wan": -1614.52,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 5106.14,
+              "sell_wan": 6720.66,
+              "net_wan": -1614.52
+            }
+          ]
+        },
+        {
+          "code": "603082",
+          "name": "北自科技",
+          "change_pct": 3.22,
+          "buy_wan": 2410.32,
+          "sell_wan": 4497.37,
+          "net_wan": -2087.05,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 2410.32,
+              "sell_wan": 4497.37,
+              "net_wan": -2087.05
+            }
+          ]
+        },
+        {
+          "code": "603690",
+          "name": "至纯科技",
+          "change_pct": 4.5,
+          "buy_wan": 10447.39,
+          "sell_wan": 13540.04,
+          "net_wan": -3092.66,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 10447.39,
+              "sell_wan": 13540.04,
+              "net_wan": -3092.66
+            }
+          ]
+        },
+        {
+          "code": "301018",
+          "name": "申菱环境",
+          "change_pct": -15.52,
+          "buy_wan": 11673.33,
+          "sell_wan": 15327.6,
+          "net_wan": -3654.27,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 11673.33,
+              "sell_wan": 15327.6,
+              "net_wan": -3654.27
+            }
+          ]
+        },
+        {
+          "code": "601606",
+          "name": "长城军工",
+          "change_pct": -4.85,
+          "buy_wan": 7983.64,
+          "sell_wan": 11682.08,
+          "net_wan": -3698.44,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 7983.64,
+              "sell_wan": 11682.08,
+              "net_wan": -3698.44
+            }
+          ]
+        },
+        {
+          "code": "001258",
+          "name": "立新能源",
+          "change_pct": -9.98,
+          "buy_wan": 0.0,
+          "sell_wan": 3807.69,
+          "net_wan": -3807.69,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 0.0,
+              "sell_wan": 3807.69,
+              "net_wan": -3807.69
+            }
+          ]
+        },
+        {
+          "code": "300825",
+          "name": "阿尔特",
+          "change_pct": 7.15,
+          "buy_wan": 14392.83,
+          "sell_wan": 20815.72,
+          "net_wan": -6422.89,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 14392.83,
+              "sell_wan": 20815.72,
+              "net_wan": -6422.89
+            }
+          ]
+        },
+        {
+          "code": "300164",
+          "name": "通源石油",
+          "change_pct": 3.05,
+          "buy_wan": 4633.38,
+          "sell_wan": 11728.25,
+          "net_wan": -7094.88,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 4633.38,
+              "sell_wan": 11728.25,
+              "net_wan": -7094.88
+            }
+          ]
+        },
+        {
+          "code": "300592",
+          "name": "华凯易佰",
+          "change_pct": -19.97,
+          "buy_wan": 4711.77,
+          "sell_wan": 12002.96,
+          "net_wan": -7291.2,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 4711.77,
+              "sell_wan": 12002.96,
+              "net_wan": -7291.2
+            }
+          ]
+        },
+        {
+          "code": "600396",
+          "name": "华电辽能",
+          "change_pct": 5.74,
+          "buy_wan": 36532.05,
+          "sell_wan": 47748.12,
+          "net_wan": -11216.07,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 36532.05,
+              "sell_wan": 47748.12,
+              "net_wan": -11216.07
+            }
+          ]
+        },
+        {
+          "code": "601208",
+          "name": "东材科技",
+          "change_pct": -10.01,
+          "buy_wan": 14006.28,
+          "sell_wan": 26270.64,
+          "net_wan": -12264.36,
+          "dept_list": [
+            {
+              "name": "沪股通专用",
+              "buy_wan": 14006.28,
+              "sell_wan": 26270.64,
+              "net_wan": -12264.36
+            }
+          ]
+        },
+        {
+          "code": "000533",
+          "name": "顺钠股份",
+          "change_pct": 9.99,
+          "buy_wan": 35129.55,
+          "sell_wan": 62505.33,
+          "net_wan": -27375.78,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 35129.55,
+              "sell_wan": 62505.33,
+              "net_wan": -27375.78
+            }
+          ]
+        },
+        {
+          "code": "002407",
+          "name": "多氟多",
+          "change_pct": 1.88,
+          "buy_wan": 0.0,
+          "sell_wan": 55633.34,
+          "net_wan": -55633.34,
+          "dept_list": [
+            {
+              "name": "深股通专用",
+              "buy_wan": 0.0,
+              "sell_wan": 55633.34,
+              "net_wan": -55633.34
+            }
+          ]
+        }
+      ]
+    },
+    "2026-07-29": {
+      "date": "2026-07-29",
+      "stock_count": 0,
+      "buy_count": 0,
+      "sell_count": 0,
+      "total_buy_wan": 0.0,
+      "total_sell_wan": 0.0,
+      "net_wan": 0.0,
+      "stocks": []
     }
   },
-  "update_time": "2026-07-27 10:57:27"
+  "update_time": "2026-07-29 10:16:49"
 }
