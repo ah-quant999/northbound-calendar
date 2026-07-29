@@ -132,7 +132,7 @@ def run_jiyou_update(repo_dir: str, target_date: str) -> bool:
     script_path = str(SCRIPT_DIR / "daily_update_jiyou_gha.py")
     cmd = [
         sys.executable, script_path,
-        "--html", "机游共振日历.html",
+        "--html", "jiyou-resonance.html",
         "--date", target_date,
         "--lookback", "0",
         "--repo-dir", repo_dir,
@@ -175,7 +175,7 @@ def main() -> None:
 
     # 检查 HTML 文件是否存在
     nb_html = os.path.join(repo_dir, "北向资金日历.html")
-    jy_html = os.path.join(repo_dir, "机游共振日历.html")
+    jy_html = os.path.join(repo_dir, "jiyou-resonance.html")
     if not os.path.isfile(nb_html):
         log_error(f"北向 HTML 文件不存在: {nb_html}")
         sys.exit(1)

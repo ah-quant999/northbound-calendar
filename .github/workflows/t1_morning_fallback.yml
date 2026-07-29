@@ -76,9 +76,11 @@ jobs:
             TARGET_DATE=$(grep "GHA_TARGET_DATE=" fallback_output.log | tail -1 | sed 's/GHA_TARGET_DATE=//')
             echo "📅 目标日期: $TARGET_DATE"
 
-            # 提交（git diff逐文件add，避开中文文件名编码问题）
-            git diff --name-only | while read f; do git add "$f"; done
-            git diff --cached --name-only | while read f; do echo "  变更文件: $f"; done
+            # 提交（使用 git add -u 跟踪文件变更 + 显式add数据文件）
+            git add -u
+            git add data/ *.html 2>/dev/null || true
+            echo "变更文件列表："
+            git diff --cached --name-only
             git commit -m "auto: $TARGET_DATE T+1早间兜底补抓 (北向+机游)"
 
             # 推送

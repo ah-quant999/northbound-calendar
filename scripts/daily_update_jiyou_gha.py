@@ -146,8 +146,8 @@ def main():
     parser = argparse.ArgumentParser(
         description="机游共振日历每日更新流水线 (GHA纯Python版)"
     )
-    parser.add_argument("--html", default="机游共振日历.html",
-                        help="主HTML文件路径（默认：机游共振日历.html）")
+    parser.add_argument("--html", default="jiyou-resonance.html",
+                        help="主HTML文件路径（默认：jiyou-resonance.html）")
     parser.add_argument("--date", default="",
                         help="目标日期（默认今天）")
     parser.add_argument("--lookback", type=int, default=2,
