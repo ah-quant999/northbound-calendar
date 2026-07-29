@@ -85,7 +85,11 @@ jobs:
             echo "📅 目标日期: $TARGET_DATE"
 
             # 提交
-            git diff --name-only | while read f; do git add "$f"; done
+            echo "📦 汇总变更并提交..."
+            git status --short
+            git add -u
+            git add data/ *.html .backtest_cache/ 2>/dev/null || true
+            git diff --cached --stat
             git commit -m "auto: $TARGET_DATE 机游共振日历每日更新 (GHA)"
 
             # 推送
