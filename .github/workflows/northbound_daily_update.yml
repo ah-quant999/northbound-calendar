@@ -111,11 +111,9 @@ jobs:
               echo "ℹ️  北向龙虎榜追踪无新数据"
             fi
 
-            # 如果两者都没有变更，跳过提交
-            if [ "$CAL_HAS_CHANGES" = false ] && [ "$LHB_HAS_CHANGES" = false ]; then
-              echo "ℹ️  北向日历+龙虎榜追踪均无数据变更，跳过提交"
-              exit 0
-            fi
+            # 临时测试：强制跑回测以验证卡死修复（验证后回退）
+            CAL_HAS_CHANGES=true
+            LHB_HAS_CHANGES=true
 
             echo "📅 目标日期: $TARGET_DATE"
 
