@@ -25,6 +25,13 @@ from datetime import datetime, timedelta
 from typing import List, Dict, Optional
 
 import requests
+import socket
+
+# 根因修复：requests 的 timeout 不覆盖 DNS 解析(getaddrinfo)。
+# CI runner DNS 中途不可达时 getaddrinfo 会无限挂起，导致整轮更新卡死
+# （北向日历/龙虎榜/回测任一网络步都可能触发）。
+# 给所有 socket 操作（含 DNS）设 20s 硬上限；本模块被多个脚本 import，一处修复全覆盖。
+socket.setdefaulttimeout(20)
 
 # ========== 配置区 ==========
 
