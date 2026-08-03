@@ -124,17 +124,17 @@ jobs:
             
             # 北向行业回测
             echo "🏁 北向行业回测 ..."
-            python3 scripts/backtest_northbound_industry.py 2>&1 | tee bt_nb.log
-            python3 scripts/generate_northbound_industry_backtest_page.py
-            
+            python3 -u scripts/backtest_northbound_industry.py 2>&1 | tee bt_nb.log
+            python3 -u scripts/generate_northbound_industry_backtest_page.py
+
             # 共振回测
             echo "🏁 共振回测 ..."
-            python3 scripts/backtest_resonance.py --cache-dir .backtest_cache 2>&1 | tee bt_res.log
-            
+            python3 -u scripts/backtest_resonance.py --cache-dir .backtest_cache 2>&1 | tee bt_res.log
+
             # 大牛股猎手回测
             echo "🏁 大牛股猎手回测 ..."
-            python3 scripts/backtest_bull_hunter.py 2>&1 | tee bt_bh.log
-            python3 scripts/generate_bull_hunter_backtest_page.py
+            python3 -u scripts/backtest_bull_hunter.py 2>&1 | tee bt_bh.log
+            python3 -u scripts/generate_bull_hunter_backtest_page.py
             
             # 一次性提交所有变更（北向日历+龙虎榜+回测）
             echo "📦 汇总所有变更并提交..."
