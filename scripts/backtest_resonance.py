@@ -34,6 +34,12 @@ from pathlib import Path
 from typing import List, Dict, Optional, Tuple
 
 import requests
+import socket
+
+# 根因修复：requests 的 timeout 不覆盖 DNS 解析(getaddrinfo)。
+# CI runner DNS 中途不可达时 getaddrinfo 会无限挂起，导致整轮回测卡死。
+# 给所有 socket 操作（含 DNS）设 20s 硬上限。
+socket.setdefaulttimeout(20)
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 ROOT_DIR = SCRIPT_DIR.parent
