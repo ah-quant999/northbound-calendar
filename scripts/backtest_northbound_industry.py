@@ -21,6 +21,14 @@ from pathlib import Path
 from typing import List, Dict, Tuple
 
 import requests
+import socket
+import concurrent.futures as _cf
+
+# 根因修复：requests 的 timeout 只覆盖 connect+read，不覆盖 DNS 解析(getaddrinfo)。
+# CI runner 的 DNS 中途不可达时 getaddrinfo 会无限挂起，导致整轮回测卡死
+# （实测卡在 2026-04-10，30 分钟 job 超时才被杀）。
+# 给所有 socket 操作（含 DNS）设 20s 硬上限。
+socket.setdefaulttimeout(20)
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
@@ -105,8 +113,19 @@ def fetch_kline_tencent(code: str, days: int = 250) -> List[Dict]:
         "param": f"{prefix}{code},day,,,{days},qfq",
     }
     try:
-        r = requests.get(url, params=params, timeout=10)
-        data = r.json()
+        data = None
+        for attempt in range(3):
+            try:
+                r = requests.get(url, params=params, timeout=(5, 10))
+                r.raise_for_status()
+                data = r.json()
+                break
+            except Exception as e:
+                if attempt < 2:
+                    print(f"    K线请求重试 {code} ({attempt + 1}): {e}")
+                    time.sleep(1.5 * (attempt + 1))
+                else:
+                    raise
         klines = data.get("data", {}).get(f"{prefix}{code}", {}).get("qfqday", [])
         if not klines:
             klines = data.get("data", {}).get(f"{prefix}{code}", {}).get("day", [])
@@ -204,7 +223,69 @@ def calc_industry_return(industry_stocks: List[Dict], buy_date: str,
     return avg_ret, len(returns)
 
 
+def process_day(date_str: str, industry_cache: Dict, klines_cache: Dict):
+    """
+    处理单个交易日的北向行业回测，返回该日的贡献数据。
+    网络异常时返回 None（由调用方跳过该日，保证整轮不卡死）。
+    """
+    industry_map = get_daily_northbound_by_industry(date_str, industry_cache)
+    if not industry_map:
+        return None
+
+    valid_industries = []
+    for ind, stocks in industry_map.items():
+        if ind == "未分类":
+            continue
+        if len(stocks) < MIN_STOCK_PER_INDUSTRY:
+            continue
+        total_net = sum(s["net_wan"] for s in stocks)
+        valid_industries.append((ind, total_net, stocks))
+
+    valid_industries.sort(key=lambda x: x[1], reverse=True)
+    top_industries = valid_industries[:10]
+    if not top_industries:
+        return None
+
+    print(f"  有效行业: {len(valid_industries)} 个, TOP10: {[x[0] for x in top_industries]}")
+
+    results_add = {p: {"returns": [], "win_count": 0, "total": 0} for p in HOLD_PERIODS}
+    ipr_add: Dict[str, Dict] = {}
+    for period in HOLD_PERIODS:
+        for ind_name, total_net, stocks in top_industries:
+            avg_ret, n_valid = calc_industry_return(stocks, date_str, period, klines_cache)
+            if n_valid == 0:
+                continue
+            results_add[period]["returns"].append(avg_ret)
+            results_add[period]["total"] += 1
+            if avg_ret > 0:
+                results_add[period]["win_count"] += 1
+            if ind_name not in ipr_add:
+                ipr_add[ind_name] = {p: [] for p in HOLD_PERIODS}
+            ipr_add[ind_name][period].append(avg_ret)
+
+    return {"results_add": results_add, "ipr_add": ipr_add}
+
+
+def _run_day_with_timeout(date_str: str, industry_cache: Dict, klines_cache: Dict, timeout: int = 150):
+    """单日处理加墙钟超时护栏：任何网络/解析卡死都只能阻塞这一日，不能拖垮整轮。"""
+    with _cf.ThreadPoolExecutor(max_workers=1) as ex:
+        fut = ex.submit(process_day, date_str, industry_cache, klines_cache)
+        try:
+            return fut.result(timeout=timeout)
+        except _cf.TimeoutError:
+            print(f"  ⏰ 单日处理超时({timeout}s)，跳过 {date_str}")
+            return None
+        except Exception as e:
+            print(f"  ⚠️  单日处理异常，跳过 {date_str}: {e}")
+            return None
+
+
 def main():
+    try:
+        sys.stdout.reconfigure(line_buffering=True)
+    except Exception:
+        pass
+
     print("=" * 60)
     print("北向行业胜率回测")
     print("=" * 60)
@@ -226,44 +307,20 @@ def main():
     industry_period_returns = {}  # {行业: {周期: [收益列表]}}
 
     for i, date_str in enumerate(trading_days):
-        print(f"\n[{i+1}/{len(trading_days)}] {date_str}")
-        industry_map = get_daily_northbound_by_industry(date_str, industry_cache)
-        if not industry_map:
+        print(f"\n[{i+1}/{len(trading_days)}] {date_str}", flush=True)
+        day_res = _run_day_with_timeout(date_str, industry_cache, klines_cache)
+        if not day_res:
             continue
 
-        # 计算每个行业的总净买入，筛选符合条件的行业
-        valid_industries = []
-        for ind, stocks in industry_map.items():
-            if ind == "未分类":
-                continue
-            if len(stocks) < MIN_STOCK_PER_INDUSTRY:
-                continue
-            total_net = sum(s["net_wan"] for s in stocks)
-            valid_industries.append((ind, total_net, stocks))
-
-        # 按净买入排序，取TOP10
-        valid_industries.sort(key=lambda x: x[1], reverse=True)
-        top_industries = valid_industries[:10]
-
-        if not top_industries:
-            continue
-
-        print(f"  有效行业: {len(valid_industries)} 个, TOP10: {[x[0] for x in top_industries]}")
-
-        for period in HOLD_PERIODS:
-            for ind_name, total_net, stocks in top_industries:
-                avg_ret, n_valid = calc_industry_return(stocks, date_str, period, klines_cache)
-                if n_valid == 0:
-                    continue
-
-                results[period]["returns"].append(avg_ret)
-                results[period]["total"] += 1
-                if avg_ret > 0:
-                    results[period]["win_count"] += 1
-
-                if ind_name not in industry_period_returns:
-                    industry_period_returns[ind_name] = {p: [] for p in HOLD_PERIODS}
-                industry_period_returns[ind_name][period].append(avg_ret)
+        for p, add in day_res["results_add"].items():
+            results[p]["returns"].extend(add["returns"])
+            results[p]["total"] += add["total"]
+            results[p]["win_count"] += add["win_count"]
+        for ind, periods in day_res["ipr_add"].items():
+            if ind not in industry_period_returns:
+                industry_period_returns[ind] = {p: [] for p in HOLD_PERIODS}
+            for p, rets in periods.items():
+                industry_period_returns[ind][p].extend(rets)
 
         # 每10天保存一次缓存
         if (i + 1) % 10 == 0:
